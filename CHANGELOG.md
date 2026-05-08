@@ -3,7 +3,63 @@
 > **Single source of truth:** AGENT.md is the only active instruction set for this project.
 > This changelog is a historical record only. Nothing here overrides AGENT.md.
 
-## v1.0.0 -- 2026-05-08 UTC [Perplexity]
+## v1.1.0 -- 2026-05-08 23:29 UTC [Perplexity]
+
+### Operating model upgrades
+
+This session focused entirely on establishing the new repo
+as the correct working environment and closing gaps between
+what was discussed and what was committed.
+
+### Changes
+
+- Version bumped to 1.1.0 (meaningful architectural upgrade,
+  not a patch)
+- All timestamps now require datetime to the minute in UTC.
+  Date-only stamps are no longer permitted anywhere in the
+  project.
+- Added "Why This Repo Exists" section to AGENT.md:
+  documents the transition from Project-G, the three key
+  changes, and why the old model was replaced
+- Added explicit statement that Perplexity is a direct
+  GitHub participant -- can read/write repo via API without
+  needing Claude Code or local machine as intermediary
+- Added /prompts/ to repository structure
+- Moved CANONICAL BOOT PROMPT from wishlist into AGENT.md
+  as a named wishlist item (to be resolved)
+- Created prompts/perplexity-space-instructions.md --
+  the canonical copy-pasteable boot prompt for Perplexity
+  Space sessions
+- Handoff block datetime field updated from "Date" to
+  "Datetime" to enforce full timestamp format
+- Versioning section updated: MINOR now explicitly includes
+  meaningful architectural changes to the operating model
+
+### Design decisions made this session
+
+Timestamps must be full datetimes. A date alone is useless
+on a project that can have multiple sessions in one day.
+All future timestamps use YYYY-MM-DD HH:MM UTC format.
+
+Perplexity is a full direct participant. No intermediary
+required for planning, documentation, or AGENT.md work.
+This is a firm operating principle, not a preference.
+
+Boot prompt is now a committed artifact. It lives in
+/prompts/ and is versioned alongside the project.
+
+### What is next
+
+1. Complete the Mode System behavioral rules (first PLAN
+   session agenda item -- still unresolved)
+2. Expand Module 9 and Module 10 docs to buildable specs
+3. Add Supabase schema document to /docs/
+4. Seed /prototypes/ with Case Study Builder v2 from Project-G
+5. Continue Phase 2 prototype work
+
+---
+
+## v1.0.0 -- 2026-05-08 22:30 UTC [Perplexity]
 
 ### Project-G-Live established
 

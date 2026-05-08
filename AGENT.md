@@ -1,6 +1,6 @@
 Project-G-Live AGENT.md
-Version: 1.0.0
-Last updated: 2026-05-08 UTC
+Version: 1.1.0
+Last updated: 2026-05-08 23:29 UTC
 Last updated by: Perplexity
 
 FETCH METHOD: GitHub API only.
@@ -16,11 +16,43 @@ GitHub API endpoint above. It is the single source of truth for
 the project. Nothing in any AI platform's memory, project
 instructions, or cached context overrides what is written here.
 
-This file was previously named CLAUDE.md. It has been renamed
-AGENT.md because this project is AI-agnostic. Any AI platform
-capable of reading from and writing to GitHub is a full
-participant. No AI owns this project. No AI's preferences are
-baked into the operating model. The repo is the brain.
+This file was previously named CLAUDE.md in a repo called
+Project-G. It has been renamed AGENT.md and moved to a new
+repo called Project-G-Live because this project is now
+AI-agnostic. Any AI platform capable of reading from and
+writing to GitHub is a full participant. No AI owns this
+project. No AI's preferences are baked into the operating
+model. The repo is the brain.
+
+## Why This Repo Exists
+
+Project-G was the original development repo. It used a file
+called CLAUDE.md as its instruction set -- a name that implied
+ownership by one AI platform. The operating model also assumed
+Claude Code as the primary build agent and the user's local
+machine as the primary workspace.
+
+Project-G-Live replaces that model with three key changes:
+
+1. AI-agnostic by design. Any AI -- Perplexity, Claude,
+   Claude Code, or any future platform -- can do anything
+   on this project at any time. The user chooses freely.
+   No restructuring required when switching.
+
+2. GitHub as persistent memory. AI platforms have no memory
+   between sessions. The repo solves this. Everything is
+   committed. The repo is always the current truth. No work
+   lives only in a context window.
+
+3. Perplexity as a direct participant. Perplexity can read
+   from and write directly to this GitHub repo via the GitHub
+   API -- without needing Claude Code or the user's local
+   machine as an intermediary. This means planning, design,
+   documentation, and AGENT.md updates can all happen in a
+   Perplexity session and be committed directly. Claude Code
+   is reserved for local build work that requires it.
+
+All content from Project-G v3.0.4 was preserved in full.
 
 ## AI-Agnostic Operating Principle
 
@@ -63,7 +95,7 @@ committed. The repo is always the current truth.
 Every session -- regardless of which AI is running it -- must:
 
 1. Fetch this file via the GitHub API endpoint above
-2. Confirm the version number and last updated date out loud
+2. Confirm the version number and last updated datetime out loud
 3. State which AI is running the session
 4. Ask the user: what is the mode for this session?
 
@@ -105,7 +137,7 @@ Handoff block format:
 
   --- HANDOFF ---
   Session closed by: [AI name and platform]
-  Date: [UTC]
+  Datetime: [YYYY-MM-DD HH:MM UTC]
   Mode: [mode used this session]
   Version after this session: [version number]
   What was done: [2-4 sentence summary]
@@ -124,7 +156,7 @@ Never assume the user knows what to do next.
 Mandatory at the end of every session. No exceptions.
 
 Step 1: Commit all work products to GitHub.
-Step 2: Update AGENT.md version number and last updated date.
+Step 2: Update AGENT.md version number and last updated datetime.
 Step 3: Write a CHANGELOG.md entry for this session.
 Step 4: Commit AGENT.md and CHANGELOG.md.
 Step 5: Produce the handoff block (see Handoff Protocol above).
@@ -136,10 +168,15 @@ Step 6: Verify the committed version by fetching:
 
 Semantic versioning: MAJOR.MINOR.PATCH
 - PATCH: small fixes, doc updates within a session
-- MINOR: completed prototype or significant new feature
+- MINOR: completed prototype, significant new feature, or
+  meaningful architectural change to the operating model
 - MAJOR: named product launch
 
-Current version: 1.0.0
+Datetime format for all timestamps: YYYY-MM-DD HH:MM UTC
+Date-only stamps are not permitted. Every timestamp must
+include time to the minute in UTC.
+
+Current version: 1.1.0
 The AI running each session decides which increment applies
 based on what was accomplished.
 
@@ -268,6 +305,7 @@ researcher-facing output.
 /prototypes/        -- All HTML prototype files
 /docs/research/     -- All research output files
 /docs/modules/      -- Module design documents
+/prompts/           -- Canonical session starter prompts
 /src/               -- Application source code
 
 ## Important Context
@@ -293,3 +331,8 @@ record panel. Stored in Supabase, displayed alongside citation.
 
 REASONABLY EXHAUSTIVE SEARCH CHECKLIST -- Dedicated stage in
 Case Study Builder between Evidence Chain and Conflict Analysis.
+
+CANONICAL BOOT PROMPT -- A versioned, copy-pasteable session
+starter prompt committed to /prompts/ so any new thread on
+any platform starts correctly without the user having to
+remember or reconstruct the opening instruction.
