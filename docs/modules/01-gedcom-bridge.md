@@ -4,40 +4,85 @@
 
 ## Purpose
 
-Onboarding wizard that parses FamilyTreeMaker GEDCOM exports, triages citation quality, flags research gaps, and pre-populates projects.
+Onboarding layer that parses FamilyTreeMaker GEDCOM exports, triages
+citation quality, and pre-populates the Supabase database.
 
 ## Status
 
-Design phase. Not yet built.
+NOT STARTED -- Design phase.
 
-## What It Does
+## Description
 
-The GEDCOM Bridge is the entry point for existing research. When the user exports a GEDCOM from FamilyTreeMaker, this module:
+The GEDCOM Bridge is the onboarding layer for Project-G-Live. It accepts
+a GEDCOM export from FamilyTreeMaker, parses all persons, relationships,
+and source citations, and evaluates citation quality using a
+Green/Yellow/Red triage system. Green citations are fully formed and
+citable; Yellow citations are partial or informal; Red citations are
+missing, unusable, or Ancestry tree links that must be replaced with
+original sources. The module flags documentation gaps, surfaces persons
+with no sources, and pre-populates the Supabase database with structured
+person and source records ready for use across all other modules. The
+GEDCOM Analysis Assistant prompt engine powers the parsing and evaluation
+layer.
 
-1. Parses the GEDCOM file and extracts all persons, events, and source citations
-2. Triages each source citation by quality: Green (citable), Yellow (needs review), Red (not citable)
-3. Flags Ancestry tree links and other non-source citations for replacement
-4. Pre-populates the persons table and sources table in Supabase
-5. Generates a triage report showing what needs attention before research begins
+The GEDCOM is infrastructure only. It is never cited. GEDCOM IDs are
+internal plumbing that must never appear in researcher-facing output.
 
-## Citation Triage Logic
+## Key Inputs
 
-- **Green**: Source has enough information to construct an EE citation. Original or high-quality derivative source.
-- **Yellow**: Source exists but citation is incomplete or ambiguous. Needs review before use.
-- **Red**: Not a citable source. Ancestry tree links, undocumented assertions, GEDCOM-only references.
+- GEDCOM file exported from FamilyTreeMaker
 
-## Key Rules
+## Key Outputs
 
-- GEDCOM files are infrastructure only. The GEDCOM is never cited and never appears in researcher-facing output.
-- GEDCOM IDs (@I327@, etc.) are internal plumbing only. They must never appear in reports or proof arguments.
-- Ancestry tree links discovered in the GEDCOM must be flagged Red and require the researcher to locate the underlying original source.
+- Populated `persons` and `sources` tables in Supabase
+- Citation triage report classifying each existing citation as Green
+  (fully formed), Yellow (partial or informal), or Red (missing or
+  unusable -- including all Ancestry tree links)
+- List of persons with no sources, surfaced as gaps for follow-up
 
-## Prompt Engine
+## GPS Touchpoints
 
-GEDCOM Analysis assistant (Steve Little) powers the parsing layer.
+- Establishes baseline citation quality for all imported research
+- Flags missing and unusable citations to enforce the GPS requirement
+  for complete and accurate citations (GPS element 2)
+- Surfaces undocumented persons to support reasonably exhaustive search
+  planning (GPS element 1)
+- Red-flags Ancestry tree links that are not sources and must be replaced
 
-## Data Written
+## Prompt Engines Used
 
-- `persons` table: one row per individual
-- `sources` table: one row per source, with triage status
-- `citations` table: initial citation records from GEDCOM data
+- **GEDCOM Analysis assistant** (Steve Little) -- parses GEDCOM structure
+  and evaluates citation quality
+- **GRA v8.5c** -- GPS enforcement layer applied across all analysis
+
+## Data Written to Supabase
+
+- `persons` -- individual records imported from GEDCOM
+- `sources` -- source records extracted from GEDCOM citation fields, with
+  triage classification
+- `citations` -- links between person facts and sources
+
+## Connection to Other Modules
+
+- Feeds person and source records to all other modules
+- Yellow and Red citations queue for remediation in Citation Builder (04)
+- Persons with no sources surface as action items in Research To-Do
+  Tracker (15)
+- Pre-populated persons are the starting point for Research Plan Builder
+  (02), Timeline Builder (07), and Family Group Sheet Builder (11)
+- FAN Club Mapper (08) and DNA Evidence Tracker (14) reference persons
+  imported via this module
+
+## Build Notes
+
+This module is intentionally placed later in the build order (position 9).
+It is an onboarding convenience -- it pre-populates data from existing
+research. The core research workflow does not depend on it. Build the
+working application first; bring existing research data in after the
+core is proven.
+
+Prerequisites when ready to build:
+- Supabase schema finalized (see /docs/architecture.md)
+- Next.js app scaffolded
+- GEDCOM Analysis Assistant prompt integrated into AI layer
+- Citation Builder (04) complete, since triage output feeds it

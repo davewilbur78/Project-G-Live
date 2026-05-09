@@ -4,51 +4,90 @@
 
 ## Purpose
 
-Formal narrative research report generator with two output modes.
+Formal narrative research report generator with two output modes --
+professional GPS-compliant output and plain English client output --
+from the same underlying research record.
 
 ## Status
 
-Design phase. Not yet built. Priority module for Phase 2 prototype work.
+NOT STARTED -- Design phase.
 
-## What It Does
+## Description
 
-The Research Report Writer generates a formal narrative report from the researcher's accumulated data -- research log, sources, citations, timeline, and FAN club. It produces two distinct output formats from the same underlying data.
+The Research Report Writer generates formal narrative research reports
+in GPS-compliant style. A research report documents the scope of a
+research project, the sources searched (including those that yielded
+nothing), what was found, and the conclusions reached -- with full
+citations embedded in the narrative. The Fact Narrator v4 prompt engine
+converts structured extracted facts into coherent narrative prose. The
+report writer pulls data from the Research Log, Timeline Builder, and
+Document Analysis Worksheets to assemble a complete, auditable account
+of the research conducted for a given person or question. Reports are
+formatted for human review and can be exported to Word or PDF.
 
-## Output Mode 1: Researcher / Professional
+Two output modes are generated from the same data:
 
-For BCG submissions, peer review, and professional correspondence.
+PROFESSIONAL OUTPUT: GPS-compliant language, full EE citations, inline
+footnotes, Three-Layer analysis visible. For BCG submissions, peer
+review, and professional correspondence.
 
-- GPS-compliant language throughout
-- Evidence Explained citations, full footnotes
-- Three-Layer analysis visible in source discussions
-- Methodology explicit: search scope documented, negative results reported
-- Conflicts disclosed and resolved (or flagged as unresolved)
-- Formal proof argument if applicable
+CLIENT OUTPUT: Plain English narrative. Methodology invisible. No GPS
+or EE terminology. Warm and readable. For family members and paying
+clients.
 
-## Output Mode 2: Client
+## Key Inputs
 
-For family members and paying clients.
+- Research scope and question
+- Research Log sessions for the relevant person or project
+- Timeline Builder data for the subject
+- Document Analysis Worksheets and classified fact lists
+- Family Group Sheet Builder data for foundational person and family facts
 
-- Plain English narrative
-- Methodology invisible
-- No GPS or EE terminology
-- Warm, readable tone
-- Findings presented as story, not argument
-- Sources cited in accessible form (not EE footnote style)
+## Key Outputs
 
-## Key Rule
+- Formal narrative research report with embedded EE-style citations
+- Documents scope, sources searched (including negatives), findings,
+  and conclusions
+- Two formats: professional GPS-compliant and plain English client-facing
+- Exportable to Word or PDF
 
-Both outputs come from the same data. The module handles the translation. The researcher never writes two versions -- the system generates them.
+## GPS Touchpoints
 
-## Prompt Engines
+- Fulfills the GPS requirement for a soundly reasoned written conclusion
+  (GPS element 5)
+- Documents reasonably exhaustive search (GPS element 1) by narrating
+  what was and was not found
+- Embeds complete and accurate citations (GPS element 2) throughout
+  the narrative
 
-- Fact Narrator v4 (Steve Little): turns extracted facts into narrative prose
-- GRA v8.5c (Steve Little): GPS enforcement for professional output mode
+## Prompt Engines Used
 
-## Data Read
+- **Fact Narrator v4** (Steve Little) -- converts structured extracted
+  facts into coherent narrative prose
+- **GRA v8.5c** -- GPS enforcement layer applied to all generated text
 
-- All tables: persons, sources, citations, research_sessions, timeline_events, fan_club
+## Data Written to Supabase
 
-## Data Written
+- Report storage format and table are TBD. Needs design before this
+  module is built. Add to /docs/architecture.md at that time.
 
-- Report drafts stored and versioned (not yet in schema -- needs design)
+## Connection to Other Modules
+
+- Draws from Research Log (03), Timeline Builder (07), and Document
+  Analysis Worksheet (05)
+- Family Group Sheet Builder (11) data provides foundational person
+  and family facts for the narrative
+- May incorporate Case Study Builder (10) proof arguments for complex
+  conclusions
+- Completed research plans from Research Plan Builder (02) document
+  the scope of research
+
+## Build Notes
+
+Prerequisites:
+- Citation Builder (04) complete
+- Research Log (03) complete
+- Document Analysis Worksheet (05) complete
+- Timeline Builder (07) complete
+- Fact Narrator v4 prompt integrated into AI layer
+- Report storage table designed and added to /docs/architecture.md

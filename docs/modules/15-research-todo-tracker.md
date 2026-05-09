@@ -4,37 +4,78 @@
 
 ## Purpose
 
-Running research agenda organized by person and priority.
+Running research agenda organized by person, priority, and source type --
+aggregates action items from all other modules and ensures no research
+lead is dropped.
 
 ## Status
 
-Design phase. Not yet built.
+NOT STARTED -- Design phase.
 
-## What It Does
+## Description
 
-The Research To-Do Tracker maintains a running list of research tasks organized by subject person and priority. It is the operational layer that translates research plans and session outcomes into actionable next steps.
+The Research To-Do Tracker is a running research agenda organized by
+person, priority, and source type. It aggregates follow-up actions from
+all other modules -- unresolved research questions from the Research Plan
+Builder, negative searches that need retry, unanswered correspondence
+from the Correspondence Log, unresolved conflicts from the Source
+Conflict Resolver, chronological gaps from the Timeline Builder, and
+any manually added items. Each to-do is linked to the relevant person
+record and can be prioritized, assigned to a research session, and
+marked complete. The tracker provides a clear, actionable picture of
+where each line of research stands and what needs to happen next.
 
-Each to-do item records:
-- Subject person
-- Research question being pursued
-- Specific action (search X repository for Y record)
-- Priority (high / medium / low)
-- Status (open / in progress / complete / abandoned)
-- Notes
-- Link to the research plan or session that generated this task
+## Key Inputs
 
-## Auto-Population
+- Follow-up actions aggregated automatically from all other modules
+- Manually added research agenda items
 
-To-do items are generated automatically from:
-- Research Plan Builder (tasks from the plan)
-- Research Log (next steps from each session)
-- Source Conflict Resolver (unresolved conflicts become to-dos)
-- Case Study Builder (gaps identified in the evidence chain)
+## Key Outputs
 
-## GPS Connection
+- Prioritized research agenda organized by person, priority level,
+  and source type
+- Clear, actionable picture of where each line of research stands
+  and what needs to happen next
+- Completion tracking per item
 
-The To-Do Tracker is the operational enforcement of the reasonably exhaustive search standard. It ensures that identified gaps are tracked and pursued, not forgotten.
+## GPS Touchpoints
 
-## Data Written
+- Ensures no research leads are dropped, directly supporting reasonably
+  exhaustive search (GPS element 1)
+- Tracks unresolved conflicts (GPS element 4) and unanswered
+  correspondence as active agenda items
+- Creates an auditable record of what was identified as needing follow-up
+  and when it was resolved
 
-- `todos` table: task records with person link, question, action, priority, status
+## Prompt Engines Used
+
+- **GRA v8.5c** -- GPS enforcement layer applied across all output
+
+## Data Written to Supabase
+
+- `todos` -- to-do records linked to relevant persons, with priority,
+  source type, origin module, and completion status
+
+## Connection to Other Modules
+
+- Aggregates action items from: Research Plan Builder (02), Research
+  Log (03), Source Conflict Resolver (06), Timeline Builder (07),
+  Correspondence Log (12), and DNA Evidence Tracker (14)
+- Completed items drive new sessions back into Research Log (03)
+- Acts as the operational hub that connects all research activity
+  across the platform
+
+## Build Notes
+
+This module is largely standalone and can be built at any point, but it
+is most useful when upstream modules are already generating action items
+to aggregate. Consider building a basic version early (manually entered
+items only) and expanding the aggregation feeds as each source module
+comes online.
+
+Prerequisites:
+- `todos` table defined in Supabase schema (see /docs/architecture.md)
+- At minimum: manual entry capability works standalone
+- Full value requires: Research Log (03), Source Conflict Resolver (06),
+  Timeline Builder (07), Correspondence Log (12) operational to feed
+  automated aggregation

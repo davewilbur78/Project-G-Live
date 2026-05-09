@@ -4,37 +4,76 @@
 
 ## Purpose
 
-Visual chronological life timeline built from all sources.
+Visual, source-cited chronological life timeline for any person in the
+database -- surfaces gaps, inconsistencies, and impossible sequences.
 
 ## Status
 
-Design phase. Not yet built.
+NOT STARTED -- Design phase.
 
-## What It Does
+## Description
 
-The Timeline Builder assembles a chronological timeline for an individual from all sources attached to that person. Each event on the timeline is sourced and cited.
+The Timeline Builder constructs a visual, source-cited chronological
+life timeline for any person in the database. Events are drawn from
+all sources linked to that person -- birth, marriage, children, census
+appearances, land transactions, military service, immigration, death,
+burial, and more. Each event on the timeline displays its citation and
+evidence classification. The timeline makes it easy to spot gaps,
+inconsistencies, and impossible sequences (a person appearing in two
+places at once, a child born before the parents married, an age that
+doesn't add up across records). Timelines can be filtered by source
+type or evidence quality and exported for inclusion in research reports.
 
-Features:
-- Events plotted chronologically with date, location, and source citation
-- Conflicting dates shown with conflict flags
-- Events correlated across family members (spouse, children, parents) to identify patterns
-- Geographic movement tracked across events
-- Timeline exported as a formatted document for inclusion in research reports
+## Key Inputs
 
-## Correlation Value
+- Person record (from `persons` table)
+- All sources, citations, and extracted facts linked to that person
+- Optional filters: source type, evidence quality
 
-The timeline is a key GPS correlation tool. Placing all events in sequence often reveals:
-- Impossible date sequences that indicate record errors or identity confusion
-- Migration patterns that suggest where to search next
-- Age discrepancies across documents
-- Family movement that connects to historical events
+## Key Outputs
 
-## Data Read
+- Visual chronological life timeline with each event cited and
+  evidence-classified
+- Flags for gaps, inconsistencies, and impossible sequences
+  (chronological contradictions)
+- Exportable timeline for inclusion in research reports
 
-- `persons` table
-- `timeline_events` table
-- `sources` and `citations` tables
+## GPS Touchpoints
 
-## Data Written
+- Supports analysis and correlation of evidence (GPS element 3) by
+  presenting all evidence chronologically so patterns and contradictions
+  are visible
+- Surfaces gaps that point to incomplete research, supporting reasonably
+  exhaustive search planning (GPS element 1)
+- Inconsistency flags prompt conflict resolution work (GPS element 4)
 
-- `timeline_events` table: events with dates, locations, source links
+## Prompt Engines Used
+
+- **GRA v8.5c** -- GPS enforcement layer applied to all event
+  classification and display
+
+## Data Written to Supabase
+
+- `timeline_events` -- event records tied to persons and their source
+  citations
+
+## Connection to Other Modules
+
+- Draws extracted facts from Document Analysis Worksheet (05)
+- Draws citations from Citation Builder (04)
+- Chronological gaps surface as action items in Research To-Do
+  Tracker (15)
+- Inconsistencies that represent source conflicts are flagged for
+  Source Conflict Resolver (06)
+- Timeline data is incorporated into Research Report Writer (09) and
+  Case Study Builder (10)
+
+## Build Notes
+
+Prerequisites:
+- Citation Builder (04) complete
+- Document Analysis Worksheet (05) complete -- extracted facts are
+  the events that populate the timeline
+- `timeline_events` table defined in Supabase schema (see
+  /docs/architecture.md -- table is defined but column-level detail
+  may need expansion before building)

@@ -1,6 +1,6 @@
 Project-G-Live AGENT.md
 Version: 1.3.0
-Last updated: 2026-05-08 07:00 UTC
+Last updated: 2026-05-09 07:00 UTC
 Last updated by: Claude
 
 FETCH METHOD: GitHub API only.
@@ -760,18 +760,16 @@ This section is updated at every session close. It reflects current
 dynamic status only. Do not confuse these facts with the static rules
 above.
 
-TIMESTAMP last updated: 2026-05-08 07:00 UTC by Claude
+TIMESTAMP last updated: 2026-05-09 07:00 UTC by Claude
 
 Build phase: Phase 2 active
 Last committed work: Case Study Builder prototype v2 -- 2026-05-07
 Module 10 test case: Jacob Singer / Yankel Springer identity proof
   -- research record produced 2026-05-07
   -- prototype file: /prototypes/case_study_builder_v2.html
-AGENT.md: v1.3.0 pending commit by Perplexity this session
+AGENT.md: v1.3.0 committed 2026-05-09
 Supabase schema: /docs/architecture.md contains current table definitions
 Claude Code local path: /Users/dave/Project-G-Live/
-README.md Boot URLs: requires update after this session's snapshot
-  is committed
 
 ---
 

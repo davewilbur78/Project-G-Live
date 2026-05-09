@@ -4,39 +4,70 @@
 
 ## Purpose
 
-Fully cited nuclear family unit documentation.
+Fully cited documentation of a nuclear family unit -- every date, place,
+and relationship assertion carries its citation and evidence classification.
+Unknown fields are explicitly marked, never guessed.
 
 ## Status
 
-Design phase. Not yet built.
+NOT STARTED -- Design phase.
 
-## What It Does
+## Description
 
-The Family Group Sheet Builder produces a formal family group sheet for a nuclear family unit -- one couple and their children. Every fact on the sheet is cited.
+The Family Group Sheet Builder produces fully cited documentation of a
+nuclear family unit -- one set of parents and their children, with all
+known life events and their sources. Unlike a tree view, the family group
+sheet is a working research document: every date, place, and relationship
+assertion carries its citation and evidence classification. The module
+draws from all sources in Supabase linked to the relevant persons and
+assembles them into a standardized format. Fields with no sourced data
+are clearly marked as unknown rather than left blank or filled with
+guesses. Family group sheets serve as the foundation for research reports
+and case studies.
 
-Fields covered:
-- Husband: name variants, birth, death, burial, marriage, parents
-- Wife: name variants, birth, death, burial, marriage, parents
-- Children: name, birth, death, marriage (with spouse name)
-- All events: date, place, source citation
+## Key Inputs
 
-## Citation Integration
+- Person records for parents and children (from `persons` table)
+- All sources and citations linked to the relevant persons
 
-Every date and place field links to a source citation in the Citation Builder. A fact without a citation cannot be entered as finalized -- it must be marked as undocumented.
+## Key Outputs
 
-## Output
+- Standardized family group sheet document with every date, place,
+  and relationship assertion carrying its citation and evidence
+  classification
+- Fields with no sourced data explicitly marked as unknown -- never
+  left blank or guessed
 
-Generates a formatted family group sheet document suitable for:
-- BCG submission supporting materials
-- Family history publications
-- Sharing with family members (client output mode: citations simplified)
+## GPS Touchpoints
 
-## Data Read
+- Enforces complete and accurate citations (GPS element 2) for every
+  assertion on the sheet
+- Anti-fabrication: unknown fields are marked explicitly, reflecting
+  the GPS prohibition on unsupported claims
+- Provides a structured, fully citable foundation for proof arguments
+  and research reports
 
-- `persons` table
-- `sources` and `citations` tables
-- `timeline_events` table
+## Prompt Engines Used
 
-## Data Written
+- **GRA v8.5c** -- GPS enforcement layer applied to all output,
+  ensuring no unsourced assertions appear
 
-- Family group sheet records (linked to persons)
+## Data Written to Supabase
+
+- Output document storage format and table are TBD. Needs design before
+  this module is built. Reads from `persons`, `sources`, and `citations`.
+
+## Connection to Other Modules
+
+- Reads citations and source classifications from Citation Builder (04)
+- Reads classified facts from Document Analysis Worksheet (05)
+- Serves as the foundational family unit document for Research Report
+  Writer (09) and Case Study Builder (10)
+
+## Build Notes
+
+Prerequisites:
+- Citation Builder (04) complete
+- Document Analysis Worksheet (05) complete
+- Person records exist in Supabase with citations attached
+- Output document storage table designed and added to /docs/architecture.md

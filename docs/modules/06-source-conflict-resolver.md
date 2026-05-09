@@ -4,36 +4,86 @@
 
 ## Purpose
 
-Side-by-side conflict analysis using GPS preponderance hierarchy.
+Side-by-side GPS-compliant conflict analysis when two or more sources
+disagree about the same fact.
 
 ## Status
 
-Design phase. Not yet built.
+NOT STARTED -- Design phase.
 
-## What It Does
+## Description
 
-When two or more sources conflict on a fact, this module guides the researcher through a structured resolution process using the GPS preponderance standard.
+The Source Conflict Resolver presents conflicting claims about the same
+fact side by side and guides the researcher through GPS-compliant conflict
+analysis. When two or more sources disagree about a date, name, place, or
+relationship, the module displays each source with its full Three-Layer
+classification, ranks the sources using the GPS preponderance hierarchy
+(Original over Derivative over Authored; Primary information over
+Secondary), and prompts the researcher to reason through which claim is
+best supported by the evidence. The outcome is a documented resolution
+note that becomes part of the proof argument for that fact, stored in
+Supabase and linkable to Case Study Builder entries. A conflict that
+cannot be resolved is documented as open and surfaces in the Research
+To-Do Tracker.
 
-1. Researcher identifies the conflicting fact and the sources that conflict
-2. Module displays sources side by side with their Three-Layer classifications
-3. Module applies the GPS hierarchy to assess which source has greater weight:
-   - Original sources outweigh derivatives
-   - Primary information outweighs secondary
-   - Direct evidence outweighs indirect
-   - Corroborating evidence increases weight
-4. Researcher writes a resolution statement explaining which source prevails and why
-5. Resolution is attached to the fact record
+## Key Inputs
 
-## GPS Preponderance Standard
+- Two or more source records asserting conflicting claims about the
+  same fact (date, name, place, or relationship)
+- Three-Layer classifications for each source from Document Analysis
+  Worksheet (05)
 
-GPS does not require certainty -- it requires that the conclusion be more likely correct than any alternative, based on the totality of evidence. The resolver helps the researcher articulate and document this reasoning.
+## Key Outputs
 
-## Unresolved Conflicts
+- Side-by-side display of conflicting sources with their full
+  Three-Layer classifications
+- GPS preponderance ranking of sources (Original over Derivative over
+  Authored; Primary information over Secondary)
+- Researcher-authored resolution note documenting which claim is best
+  supported and why
+- Open conflict flag for unresolved cases, surfaced to Research To-Do
+  Tracker (15)
 
-Not all conflicts can be resolved. The module allows the researcher to mark a conflict as unresolved and file it as a separate research question. Unresolved conflicts must be disclosed in formal output.
+## GPS Touchpoints
 
-## Data Written
+- Directly addresses resolution of conflicting evidence (GPS element 4)
+- Applies the GPS preponderance hierarchy to rank competing sources
+- Resolution note becomes part of the proof argument, satisfying the
+  requirement for a soundly reasoned written conclusion (GPS element 5)
+- No conflict may be bypassed -- GPS requires all conflicts to be
+  addressed or disclosed
 
-- `sources` table: conflict flags and resolution status
-- `citations` table: resolution statements linked to facts
-- `research_plans` table: unresolved conflicts generate new research questions
+## Prompt Engines Used
+
+- **GRA v8.5c** -- GPS enforcement layer governs all conflict analysis
+  and resolution language; enforces the preponderance hierarchy
+
+## Data Written to Supabase
+
+- Requires a `conflicts` table -- not yet defined in architecture. This
+  table needs to be designed and added to /docs/architecture.md before
+  this module is built. The table must link resolution notes to the
+  relevant citation records from both conflicting sources.
+
+## Connection to Other Modules
+
+- Draws source classifications from Document Analysis Worksheet (05)
+- Resolution notes feed Case Study Builder (10) as documented conflict
+  resolutions -- the prototype's Conflict Analysis stage maps directly
+  to this module's output
+- Resolved conflicts are referenced in Research Report Writer (09)
+- Unresolved conflicts surface as action items in Research To-Do
+  Tracker (15)
+
+## Build Notes
+
+Prerequisites:
+- Citation Builder (04) complete
+- Document Analysis Worksheet (05) complete -- Three-Layer classifications
+  are required inputs
+- `conflicts` table designed and added to /docs/architecture.md
+  (currently TBD in schema)
+
+Note: The Case Study Builder prototype's Conflict Analysis stage (Stage 4)
+demonstrates the UI pattern for this module. Review that prototype before
+designing the Source Conflict Resolver interface.

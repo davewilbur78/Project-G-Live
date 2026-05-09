@@ -33,7 +33,7 @@ Session index:
 
 Latest session snapshot (updated every session close):
 
-    [LATEST_SNAPSHOT_URL]
+    https://api.github.com/repos/davewilbur78/Project-G-Live/contents/sessions/SESSION-2026-05-09-0700-UTC.md
 
 **Step 3: Execute the boot handshake.**
 
@@ -60,7 +60,7 @@ Sessions index:
 https://api.github.com/repos/davewilbur78/Project-G-Live/contents/sessions/SESSIONS-INDEX.md
 
 Latest session snapshot:
-[TO BE UPDATED BY PERPLEXITY AFTER THIS SESSION'S SNAPSHOT IS COMMITTED]
+https://api.github.com/repos/davewilbur78/Project-G-Live/contents/sessions/SESSION-2026-05-09-0700-UTC.md
 
 ---
 

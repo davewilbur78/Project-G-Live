@@ -4,31 +4,67 @@
 
 ## Purpose
 
-Structured research planning with auto-generated research questions.
+Structured GPS-compliant research planning with auto-generated source
+strategies tailored to the subject's context.
 
 ## Status
 
-Design phase. Not yet built.
+NOT STARTED -- Design phase.
 
-## What It Does
+## Description
 
-The Research Plan Builder helps the researcher define a focused research objective and generates a structured plan to pursue it. It enforces the GPS requirement for a reasonably exhaustive search by prompting the researcher to account for all relevant source types.
+The Research Plan Builder takes a target person and a research objective
+and generates a structured, GPS-compliant research plan. The module uses
+the Research Agent Assignment v2.1 prompt engine to produce prioritized
+lists of source types to search, record repositories to check, and
+specific strategies tailored to the time period, geography, and ethnic
+or religious community of the subject. Plans are stored in Supabase and
+linked to the person record. Each plan tracks its own progress as items
+are completed through the Research Log and Research To-Do Tracker.
 
-1. Researcher states a research objective (e.g., "Identify the parents of Jacob Singer")
-2. Module generates a set of research questions derived from the objective
-3. Researcher selects and prioritizes questions
-4. Module suggests relevant source types and repositories for each question
-5. Plan is saved and linked to the Research Log
+## Key Inputs
 
-## GPS Connection
+- Target person record (from `persons` table)
+- Research objective or question stated by the researcher
+- Time period, geography, and community context of the subject
 
-The Research Plan Builder is the primary enforcement point for the GPS requirement of a reasonably exhaustive search. It prompts the researcher to consider sources they might overlook and documents what was planned, providing a record of research scope.
+## Key Outputs
 
-## Prompt Engine
+- Structured research plan with prioritized list of source types to search
+- List of specific repositories and record collections to check
+- Research strategies tailored to the subject's context (time period,
+  geography, ethnic or religious community)
 
-Research Agent Assignment v2.1 (Steve Little) powers the question generation logic.
+## GPS Touchpoints
 
-## Data Written
+- Directly supports reasonably exhaustive search (GPS element 1) by
+  defining what must be searched before conclusions can be drawn
+- Ensures systematic, documented approach rather than ad hoc searching
+- Plans create an auditable record of the researcher's intended scope
 
-- `research_plans` table: objective, questions, source suggestions, priority order
-- Links to `persons` table for the research subject
+## Prompt Engines Used
+
+- **Research Agent Assignment v2.1** (Steve Little) -- generates
+  prioritized source strategies based on subject context
+- **GRA v8.5c** -- GPS enforcement layer applied across all output
+
+## Data Written to Supabase
+
+- `research_plans` -- plan records linked to the relevant person
+
+## Connection to Other Modules
+
+- Draws person records from GEDCOM Bridge (01) or from the `persons`
+  table directly
+- Plans drive session work recorded in Research Log (03)
+- Plan action items surface in Research To-Do Tracker (15)
+- Completed plans contribute to the reasonably exhaustive search
+  narrative in Research Report Writer (09) and Case Study Builder (10)
+
+## Build Notes
+
+Prerequisites:
+- Citation Builder (04) complete
+- Person records exist in Supabase (either entered manually or via
+  GEDCOM Bridge)
+- Research Agent Assignment v2.1 prompt integrated into AI layer

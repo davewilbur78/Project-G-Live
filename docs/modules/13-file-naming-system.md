@@ -4,48 +4,68 @@
 
 ## Purpose
 
-Standardized file naming and folder structure generator.
+Standardized file names and folder structures for all research documents
+and downloads -- every file permanently traceable back to its citation.
 
 ## Status
 
-Design phase. Not yet built.
+NOT STARTED -- Design phase.
 
-## What It Does
+## Description
 
-The File Naming System generates standardized file names and folder structures for all research documents. Consistent naming is essential for managing large document collections and for producing citations that can be verified.
+The File Naming System generates standardized file names and folder
+structures for all research documents, images, and downloads. A
+consistent naming convention is essential for a research collection
+that spans decades and thousands of files. The module applies a
+configurable naming schema -- typically encoding the subject surname,
+given name, record type, date, and repository in the filename -- and
+generates the correct name for any document based on its citation
+metadata. The module also suggests the correct folder path within the
+researcher's local archive structure. File names generated here are
+stored in Supabase alongside the document record so files can always
+be located and re-cited.
 
-## Naming Convention
+## Key Inputs
 
-File names encode:
-- Subject surname (standardized)
-- Subject given name
-- Document type
-- Date (YYYY or YYYY-MM-DD)
-- Repository abbreviation
-- Sequence number if multiple documents of same type
+- Document citation metadata from Citation Builder (04): subject
+  surname, given name, record type, date, repository
+- Document record from the `documents` table
 
-Example: `Singer_Jacob_NatPetition_1919_NARA-M1972.pdf`
+## Key Outputs
 
-## Folder Structure
+- Standardized file name encoding the subject, record type, date,
+  and repository
+- Suggested folder path within the researcher's local archive structure
 
-Standardized hierarchy:
-```
-/Research/
-  /Surnames/
-    /Singer/
-      /Jacob_Singer/
-        /Vital_Records/
-        /Census/
-        /Immigration/
-        /Naturalization/
-        /Military/
-        /Correspondence/
-```
+## GPS Touchpoints
 
-## Integration
+- Supports complete and accurate citations (GPS element 2) by ensuring
+  every file can always be located and re-cited
+- Maintains research trail integrity by keeping file names and citation
+  records permanently linked in Supabase
 
-When a document is uploaded to Supabase storage, the File Naming System generates the standardized name and path. The document record in the `documents` table stores the standardized name alongside the Supabase storage URL.
+## Prompt Engines Used
 
-## Data Written
+- **GRA v8.5c** -- GPS enforcement layer applied to naming conventions
+  and output
 
-- `documents` table: standardized file name and folder path
+## Data Written to Supabase
+
+- `documents` -- generated file name stored alongside the document
+  record so files remain locatable and re-citable
+
+## Connection to Other Modules
+
+- Receives citation metadata from Citation Builder (04) to construct
+  the file name
+- Generated file names are stored with document records that feed
+  Document Analysis Worksheet (05)
+
+## Build Notes
+
+This module is standalone -- it needs only Citation Builder (04)
+as a prerequisite. It can be built at any point after Citation Builder
+is complete.
+
+Prerequisites:
+- Citation Builder (04) complete

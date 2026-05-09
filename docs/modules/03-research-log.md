@@ -4,37 +4,73 @@
 
 ## Purpose
 
-Session-by-session record of what was searched, found, and not found.
+Session-by-session record of what was searched, found, and not found --
+the auditable research trail required by GPS.
 
 ## Status
 
-Design phase. Not yet built.
+NOT STARTED -- Design phase.
 
-## What It Does
+## Description
 
-The Research Log captures what happened in each research session. GPS requires the researcher to document not only what was found but what was searched and not found -- negative searches are evidence too.
+The Research Log records every research session in structured, searchable
+form. For each session the log captures the date, the researcher's goal,
+each source searched (including those that yielded nothing -- negative
+evidence is evidence), what was found or not found, and any follow-up
+actions generated. The Chat Conversation Abstractor v2 prompt engine can
+convert a freeform research conversation or session notes into a properly
+structured log entry. Entries are stored in Supabase and linked to the
+relevant person records and research plans, creating a complete, auditable
+research trail.
 
-Each log entry records:
-- Date and session duration
-- Research question being pursued
-- Sources searched (with citations)
-- Results: what was found, what was not found
-- Notes and observations
-- Next steps generated from this session
+## Key Inputs
 
-## Negative Evidence
+- Session date and researcher's stated goal
+- Sources searched during the session, including those that yielded nothing
+- Freeform session notes or research conversation (optionally converted
+  by prompt engine)
+- Links to relevant person records and research plans
 
-Not finding a record is a meaningful result. The Research Log must capture negative searches explicitly -- "searched the 1900 federal census for New York City, enumeration district 432, did not find Jacob Singer or any variant" -- because this is part of demonstrating a reasonably exhaustive search to BCG standards.
+## Key Outputs
 
-## Session Summaries
+- Structured log entry: date, goal, sources searched, finds, negatives,
+  follow-up actions
+- Complete, auditable research trail across all sessions
 
-At the end of a session, the AI generates a structured summary of what was accomplished. This summary feeds the Research Report Writer.
+## GPS Touchpoints
 
-## Prompt Engine
+- Documents reasonably exhaustive search (GPS element 1) by recording
+  what was searched and what was not found
+- Captures negative evidence explicitly -- under GPS, a source that yields
+  nothing is still evidence and must be documented
+- Supports complete and accurate citations (GPS element 2) by linking each
+  find to its source
 
-Chat Conversation Abstractor v2 (Steve Little) powers session summary generation.
+## Prompt Engines Used
 
-## Data Written
+- **Chat Conversation Abstractor v2** (Steve Little) -- converts freeform
+  session notes or conversations into structured log entries
+- **GRA v8.5c** -- GPS enforcement layer applied across all output
 
-- `research_sessions` table: date, question, sources searched, results, notes, next steps
-- Links to `research_plans`, `sources`, and `persons` tables
+## Data Written to Supabase
+
+- `research_sessions` -- structured log entries linked to persons and
+  research plans
+
+## Connection to Other Modules
+
+- Linked to Research Plan Builder (02) -- sessions are conducted against
+  active plans
+- Newly found sources are passed to Citation Builder (04) and Document
+  Analysis Worksheet (05)
+- Negative searches and follow-up actions feed Research To-Do Tracker (15)
+- Session records are drawn into Research Report Writer (09) to document
+  the full scope of research conducted
+
+## Build Notes
+
+Prerequisites:
+- Citation Builder (04) complete
+- Research Plan Builder (02) recommended but not strictly required --
+  the log can record sessions without a formal plan
+- Chat Conversation Abstractor v2 prompt integrated into AI layer
