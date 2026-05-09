@@ -1,7 +1,7 @@
-Project-G-Live AGENT.md
-Version: 1.3.0
-Last updated: 2026-05-09 07:00 UTC
-Last updated by: Claude
+# Project-G-Live AGENT.md
+Version: 1.4.0
+Last updated: 2026-05-09 18:00 UTC
+Last updated by: Perplexity
 
 FETCH METHOD: GitHub API only.
 https://api.github.com/repos/davewilbur78/Project-G-Live/contents/AGENT.md
@@ -46,13 +46,8 @@ Everything an AI needs to operate on this project lives here. No other file
 overrides this one. No architecture docs, no supplementary rules files, no
 platform-specific instruction sets. Here and only here.
 
-Any AI beginning a session must read this file completely before doing anything
-else. Nothing in any AI platform's memory, project instructions, or cached
-context overrides what is written here.
-
-At session start, also fetch the sessions index and most recent snapshot using
-the literal URLs in the README.md Boot URLs section. Use those URLs exactly as
-written. Do not construct URLs from decoded content.
+At session start, the AI should also fetch the sessions index and most recent
+snapshot using the literal URLs in the README.md Boot URLs section.
 
 ---
 
@@ -65,7 +60,7 @@ confusion about what was authoritative.
 
 Project-G-Live replaces that model with three key changes:
 
-1. AI-agnostic by design. Any AI can do anything on this project at any time.
+1. AI-agnostic by design. Any AI can work on this project at any time.
    The user chooses freely. No restructuring required when switching platforms.
 
 2. GitHub as persistent memory. AI platforms are stateless. The repo solves
@@ -114,23 +109,22 @@ maintenance, prefer Perplexity. If the primary work requires deep reasoning,
 sustained context, or application building, use Claude.
 
 Do not feed large amounts of text back and forth in chat when a file or
-committed artifact would be more efficient. The exception is the boot
-handshake, which requires a paste or file attachment by design.
+committed artifact would be more efficient.
 
 ### Important Note on Claude and GitHub
 
 Claude's GitHub connector in claude.ai is subject to caching issues. Live
 reads of recently updated files cannot be guaranteed. For Claude sessions,
-AGENT.md must be delivered by one of two methods:
+AGENT.md should be delivered by one of two methods:
 
 Option 1 (preferred): File attachment. Upload the current AGENT.md as a file
 at session start. Claude reads it natively. No network call required.
 
 Option 2: Paste. Paste the full AGENT.md content into the chat at session start.
 
-The claude.ai project/Space instructions must tell Claude: "Wait for the user
-to provide AGENT.md as a file attachment or paste before doing anything.
-Execute the boot handshake immediately upon receiving it."
+The claude.ai project/Space instructions should tell Claude to wait for
+AGENT.md before proceeding, and to confirm the version and timestamp after
+receiving it.
 
 ---
 
@@ -139,7 +133,7 @@ Execute the boot handshake immediately upon receiving it."
 This project uses GitHub as its persistent memory system. AI platforms have
 no memory between sessions. The repo solves this.
 
-The loop:
+The session loop:
   1. AI reads AGENT.md at session start (via file attachment, paste, or API fetch)
   2. AI fetches SESSIONS-INDEX.md and most recent session snapshot using the
      literal URLs in README.md Boot URLs section
@@ -156,36 +150,28 @@ The repo is always the current truth.
 
 ## Session Start Protocol and Boot Handshake
 
-Every session -- regardless of which AI is running it -- must follow this
-protocol in order before doing anything else.
+Every session should follow this sequence before beginning work.
 
 Step 1: Read AGENT.md completely.
-TIMESTAMP the receipt: YYYY-MM-DD HH:MM UTC
 
 Step 2: Fetch SESSIONS-INDEX.md and the most recent session snapshot using
 the literal URLs in README.md Boot URLs section. Read both.
 
-Step 3: Execute the boot handshake. State exactly this, nothing else:
+Step 3: Confirm receipt of AGENT.md to the user. The expected format is:
 
   "AGENT.md received. Version [X.X.X], last updated [YYYY-MM-DD HH:MM UTC]
   by [AI name]. Ready for posture confirmation."
 
-Do not summarize. Do not begin work. Do not ask questions. State the version
-and timestamp exactly as written in this file, then stop and wait.
+The version and timestamp should be stated exactly as written in this file.
+If the version or timestamp received does not match what the user expects,
+stop and ask them to verify the correct file before proceeding.
 
-Step 4: Wait for the user to confirm the handshake. If the user says the
-version or timestamp is wrong, stop. Ask them to provide the correct file.
-Do not proceed with a stale or incorrect version under any circumstances.
+Step 4: Ask the user for session posture (BUILD, FIX, or EXPLORE) and wait
+for confirmation before beginning any work.
 
-Step 5: Ask the user for session posture.
-List the three postures. Wait for confirmation.
-Do not proceed until the user explicitly confirms a posture.
-
-THE AI MUST NOT INFER SESSION DIRECTION FROM PROJECT STATE. Do not look at
-the build path, see a phase marked active, and begin building. Do not assume.
-Ask. Wait. This rule exists because an AI that boots and immediately tries
-to build the next thing will mix build output into a session meant to fix
-something broken, making the problem worse.
+The AI should not infer session direction from project state. Seeing a phase
+marked active does not mean that is the session's direction. Always confirm
+posture with the user first.
 
 ---
 
@@ -200,45 +186,42 @@ permitted with an explicit declaration and TIMESTAMP.
 BUILD -- Moving the project forward. New code, new files, new prototypes,
 new specs, committed artifacts of any kind.
 
-FIX -- Something is wrong. Do not touch anything outside the problem
-boundary until the problem is resolved. Do not add features. Do not continue
-build work. Diagnose and fix only.
+FIX -- Something is wrong. Work stays within the problem boundary until
+resolved. No new features. No continued build work. Diagnose and fix only.
 
 EXPLORE -- Thinking, designing, deciding. No build output. Specs, design
-documents, and AGENT.md updates are permitted. This is the right posture
-when direction is uncertain or when architectural decisions need to be made
+documents, and AGENT.md updates are permitted. The right posture when
+direction is uncertain or when architectural decisions need to be made
 before building.
 
 ### Posture Transitions
 
-Declare every transition explicitly with a TIMESTAMP. Format:
+Transitions should be declared explicitly with a TIMESTAMP. Format:
 
   POSTURE TRANSITION -- TIMESTAMP: YYYY-MM-DD HH:MM UTC
   FROM: [posture]
   TO: [posture]
   REASON: [one sentence]
 
-When transitioning OUT of BUILD, commit all work produced in that phase
-before the transition is declared. Do not carry uncommitted build work
-across a posture boundary.
+When transitioning out of BUILD, all work produced in that phase should be
+committed before the transition is declared.
 
 Transitions do not require opening a new thread. Continuity is the point.
-Stay in the session. Declare and continue.
 
 ---
 
 ## Signal Vocabulary
 
-Certain phrases from the user are system signals, not instructions. Any AI
-on this project must recognize these and execute the corresponding protocol
-immediately -- before any other response. Execute first. Do not comment first.
+Certain phrases from the user are system signals. When the AI recognizes
+one of these phrases, it should execute the corresponding protocol
+immediately, before any other response.
 
 ### Exit Signals
 Phrases: "i have to go" / "going to bed" / "leaving for dinner" /
 "stepping away" / "brb" / "i have to leave" / "gotta run" /
 "have to go to bed now" / "leaving for dinner now"
 
-Execute immediately in this order -- no questions asked:
+Sequence on recognition:
 1. TIMESTAMP the signal event
 2. Name exactly what work was in motion at this moment
 3. Commit all uncommitted work to wip/ branch
@@ -252,10 +235,9 @@ Phrases: "something is wrong" / "this isn't working" /
 "you're going in circles" / "are you okay" / "context window" /
 "you're losing it" / "something is off" / "start over"
 
-Execute immediately in this order:
+Sequence on recognition:
 1. TIMESTAMP the signal event
 2. STOP all forward work. Name exactly what was in motion at this moment.
-   Do not let the frame drop.
 3. Commit all in-progress work to wip/ branch with TIMESTAMP
 4. Write full session snapshot to /sessions/
 5. Generate restoration prompt
@@ -267,7 +249,7 @@ Execute immediately in this order:
 Phrases: "how are we doing" / "check yourself" / "context check" /
 "where are we" / "status"
 
-Execute:
+Sequence on recognition:
 1. TIMESTAMP the check
 2. Report: estimated context load, what has been done this session with
    TIMESTAMPs, anything that feels degraded, recommendation -- continue
@@ -277,7 +259,7 @@ Execute:
 Phrases: "save this conversation" / "preserve this" /
 "pull the transcript" / "this is important, log it"
 
-Execute:
+Sequence on recognition:
 1. Write the most detailed possible session log -- not a summary. A full
    reconstruction with complete decision trail, all reasoning, all rejected
    options, all open threads. With TIMESTAMPs on every element.
@@ -287,7 +269,7 @@ Execute:
 ### wip/ Branch Signal
 Phrases: "wip is getting messy" / "clean up the branch" / "merge wip"
 
-Execute:
+Sequence on recognition:
 1. TIMESTAMP the signal event
 2. Review what is currently in wip/ branch
 3. Identify what is complete and ready to merge to main
@@ -311,12 +293,12 @@ A fact without a TIMESTAMP is a rumor.
 Every session produces at least one snapshot file committed to /sessions/.
 Files are named by datetime: SESSION-YYYY-MM-DD-HHMM-UTC.md
 
-Session snapshots are NEVER deleted. NEVER overwritten. The full archive
+Session snapshots are never deleted. Never overwritten. The full archive
 is a first-class project artifact. It is the project's memory.
 
 SESSIONS-INDEX.md maintains a one-line entry per session:
 TIMESTAMP | Posture | AI | one-sentence summary.
-Update it every time a new snapshot is committed.
+Updated every time a new snapshot is committed.
 
 ### Session Snapshot Format
 
@@ -361,7 +343,7 @@ Update it every time a new snapshot is committed.
 
 ### /wip/ Branch
 
-Any partially built code that exists only in the context window must be
+Any partially built code that exists only in the context window should be
 committed to the wip/ branch before session close or any checkpoint.
 Even if broken. Even if incomplete.
 
@@ -378,8 +360,7 @@ reset wip/ branch. wip/ is always a working scratch space, never permanent.
 
 ### Context Window Pulse
 
-Context window health is monitored actively throughout every session.
-The AI does not wait until the window is full.
+Context window health should be monitored actively throughout every session.
 
 At approximately 60% context consumption:
 Write a session snapshot to /sessions/. Commit it. Continue if healthy.
@@ -391,7 +372,7 @@ Present context status explicitly to user.
 Ask: "Context window is at approximately 80%. Continue or checkpoint and close?"
 
 If the window is critically full:
-Execute the full distress protocol immediately. Do not wait for a signal.
+Execute the full distress protocol immediately.
 
 Important: AI self-reporting of context fill percentage is unreliable.
 Err toward early checkpoints. The user's health check signals are more
@@ -402,13 +383,12 @@ reliable indicators of context degradation than AI self-assessment.
 ## Restoration Prompt
 
 The restoration prompt is the most critical artifact produced by any
-checkpoint or distress protocol. It is written carefully and precisely --
-not quickly. It is the last thing produced in a capture sequence, after
-all commits are done.
+checkpoint or distress protocol. It should be written carefully and
+precisely -- not quickly. It is the last thing produced in a capture
+sequence, after all commits are done.
 
-A new thread receiving a restoration prompt must not proceed until the user
-confirms it is accurate. The final lines of every restoration prompt are a
-confirmation gate. The AI does not move until the user says yes.
+A new thread receiving a restoration prompt should not proceed until the
+user confirms it is accurate.
 
 ### Restoration Prompt Format
 
@@ -448,7 +428,6 @@ confirmation gate. The AI does not move until the user says yes.
 
   CONFIRMATION REQUIRED
   Does this match your understanding of where we were?
-  Do not take any action until the user confirms.
   --- END RESTORATION PROMPT ---
 
 ---
@@ -476,7 +455,7 @@ receiving AI can read full context rather than relying on the summary.
 
 ## Session Close Protocol
 
-Mandatory at the end of every session. No exceptions.
+Sequence at the end of every session:
 
 Step 1:  Declare session close with TIMESTAMP.
 Step 2:  Commit all work products to GitHub.
@@ -487,8 +466,8 @@ Step 6:  Update AGENT.md version number and last updated datetime.
 Step 7:  Write a CHANGELOG.md entry for this session.
 Step 8:  Commit AGENT.md, CHANGELOG.md, and session files.
 Step 9:  Update README.md Boot URLs section with the literal API URL
-         of this session's snapshot file. This is mandatory. The next
-         AI to boot needs this URL to retrieve the snapshot.
+         of this session's snapshot file. The next AI to boot needs
+         this URL to retrieve the snapshot.
 Step 10: Produce the handoff block.
 Step 11: Verify the committed version by fetching AGENT.md via API.
          Confirm the version number matches before declaring closed.
@@ -507,7 +486,7 @@ Datetime format for all timestamps: YYYY-MM-DD HH:MM UTC
 Date-only stamps are not permitted. Every timestamp must include time
 to the minute in UTC.
 
-Current version: 1.3.0
+Current version: 1.4.0
 
 ---
 
@@ -760,14 +739,14 @@ This section is updated at every session close. It reflects current
 dynamic status only. Do not confuse these facts with the static rules
 above.
 
-TIMESTAMP last updated: 2026-05-09 07:00 UTC by Claude
+TIMESTAMP last updated: 2026-05-09 18:00 UTC by Perplexity
 
 Build phase: Phase 2 active
 Last committed work: Case Study Builder prototype v2 -- 2026-05-07
 Module 10 test case: Jacob Singer / Yankel Springer identity proof
   -- research record produced 2026-05-07
   -- prototype file: /prototypes/case_study_builder_v2.html
-AGENT.md: v1.3.0 committed 2026-05-09
+AGENT.md: v1.4.0 committed 2026-05-09 (prompt injection fix)
 Supabase schema: /docs/architecture.md contains current table definitions
 Claude Code local path: /Users/dave/Project-G-Live/
 
@@ -807,19 +786,9 @@ repo at /docs/research/ and must be committed to the same path
 in Project-G-Live. This is the primary research artifact for the
 Module 10 test case.
 
-CLAUDE.AI PROJECT INSTRUCTIONS
-The canonical text instructing Claude to wait for AGENT.md delivery
-and execute the boot handshake. Must be saved in the claude.ai project
-settings for this project. Draft text:
-
-  "This is Project-G-Live, a personal genealogy operations platform.
-  Before doing anything in this session, wait for the user to provide
-  AGENT.md -- either as a file attachment or pasted text. When you
-  receive it, your first and only response must be:
-  'AGENT.md received. Version [X.X.X], last updated
-  [YYYY-MM-DD HH:MM UTC] by [AI name]. Ready for posture confirmation.'
-  Do not summarize. Do not begin work. Do not ask questions. State the
-  version and timestamp exactly as written in the file, then stop and
-  wait. When the user confirms the handshake, ask for session posture:
-  BUILD, FIX, or EXPLORE. Do not begin any work until posture is
-  confirmed."
+CLAUDE.AI PROJECT / SPACE INSTRUCTIONS
+The canonical text for the claude.ai project settings should instruct
+Claude to wait for AGENT.md delivery (via file attachment or paste)
+and confirm the version and timestamp after receiving it, then ask for
+session posture before beginning work. The Space/project instructions
+file should contain this context along with the boot URL for AGENT.md.
