@@ -3,6 +3,139 @@
 > **Single source of truth:** AGENT.md is the only active instruction set for this project.
 > This changelog is a historical record only. Nothing here overrides AGENT.md.
 
+## v1.2.0 -- 2026-05-08 23:54 UTC [Perplexity]
+
+### Operating model redesign -- Session memory architecture, posture system, signal vocabulary
+
+This was a deep EXPLORE session. No application code was written.
+The entire session was devoted to redesigning the operating model
+from first principles. The "mode system" placeholder carried forward
+from Project-G was examined, questioned, and rebuilt as something
+fundamentally more useful.
+
+### What was designed and why
+
+The original six-mode system (BUILD, DEBUG, PLAN, MODIFY, REVIEW,
+TEST) was inherited from Project-G without being designed from
+first principles. It existed because the user had experienced a
+specific failure: AI sessions would boot, read the build path,
+and immediately begin building -- even when the session was meant
+to fix a problem. The mode declaration was a forcing function to
+make the AI stop and ask before assuming.
+
+This session identified that problem precisely and redesigned the
+entire operating model around it. The result is substantially
+different from and better than what existed before.
+
+### Changes committed this session
+
+AGENT.md:
+- Version bumped to 1.2.0
+- TABLE OF CONTENTS added at top
+- Session Start Protocol updated: AI must fetch SESSIONS-INDEX.md
+  and most recent session snapshot at boot alongside AGENT.md
+- Persistent Memory Architecture loop updated to include session
+  snapshot fetch as step 2
+- Six-mode system replaced with three-posture system:
+  BUILD / FIX / EXPLORE
+- Posture transition protocol added: explicit declaration with
+  TIMESTAMP required. Transitions do not require new threads.
+- Signal Vocabulary section added (full dictionary in
+  /docs/architecture/SIGNAL-VOCABULARY.md)
+- Session Memory Architecture section added: /sessions/ folder,
+  snapshot format, /wip/ branch protocol, context window pulse
+- TIMESTAMP declared non-negotiable throughout: every artifact,
+  decision, commit, snapshot carries YYYY-MM-DD HH:MM UTC
+- Restoration Prompt section added with full format
+- Handoff Protocol updated: now includes pointer to session
+  snapshot file
+- Session Close Protocol expanded to 10 steps including wip/
+  branch commit, session snapshot, SESSIONS-INDEX update
+- Repository Structure updated to include /sessions/ and wip/ branch
+- "What This File Is" section updated to require fetching
+  SESSIONS-INDEX.md and most recent snapshot at boot
+
+New files created:
+- /sessions/SESSION-2026-05-08-2335-UTC.md -- mid-session snapshot
+- /sessions/SESSIONS-INDEX.md -- session archive index
+- /docs/architecture/OPERATING-MODEL.md -- full operating model design doc
+- /docs/architecture/SESSION-MEMORY.md -- session memory system design doc
+- /docs/architecture/SIGNAL-VOCABULARY.md -- full signal phrase dictionary
+- /prompts/BOOT-ANY-AI.md -- platform-neutral boot prompt
+- /prompts/README.md -- prompts folder guide
+
+### Design decisions made this session -- with TIMESTAMPs
+
+TIMESTAMP: 2026-05-08 21:36 UTC -- Modes are session postures not
+locks. Forcing new threads to switch modes breaks continuity and
+loses context. Transitions must be allowed within a session.
+
+TIMESTAMP: 2026-05-08 21:43 UTC -- The original six-mode system
+was a placeholder, not a design. The real problem it solved was
+preventing AI from defaulting to build posture at boot. That
+problem requires an explicit boot gate, not a complex mode taxonomy.
+
+TIMESTAMP: 2026-05-08 21:46 UTC -- Three postures chosen: BUILD,
+FIX, EXPLORE. Broad enough to breathe, distinct enough to matter.
+Each answers a different version of "what kind of work is this."
+
+TIMESTAMP: 2026-05-08 21:51 UTC -- Context window is the real
+constraint, not mode. The system must monitor context health
+actively, not reactively. 60% checkpoint, 80% checkpoint and ask.
+
+TIMESTAMP: 2026-05-08 22:01 UTC -- SESSION.md architecture designed.
+Session snapshots are never deleted, never overwritten. Named by
+datetime. Committed to /sessions/. The archive is first-class memory.
+
+TIMESTAMP: 2026-05-08 22:05 UTC -- Transcripts on demand, not by
+default. Triggered by signal phrase. Full reconstruction, not summary.
+Summaries are lossy. Transcripts preserve nuance.
+
+TIMESTAMP: 2026-05-08 22:11 UTC -- Signal vocabulary designed.
+Certain user phrases are system signals that trigger immediate
+protocol execution. Exit signals, distress signals, health checks,
+transcript requests. The AI executes before responding.
+
+TIMESTAMP: 2026-05-08 22:21 UTC -- Restoration prompt format designed.
+Must contain: hard facts, decision trail with TIMESTAMPs, open
+threads, partially built work (complete reconstruction not summary),
+DO NOT DO THIS list, single next action, confirmation gate.
+AI does not proceed until user confirms accuracy.
+
+TIMESTAMP: 2026-05-08 22:25 UTC -- Partially built work in snapshots
+must be fully reconstructed, not summarized. A future session must
+be able to continue the work, not reverse-engineer it. Commit to
+wip/ branch whenever possible; full reconstruction in snapshot
+only when commit is not possible.
+
+TIMESTAMP: 2026-05-08 22:28 UTC -- TIMESTAMP is non-negotiable
+and was elevated to a first-class principle. Every fact without
+a timestamp is a rumor. Screamed in AGENT.md accordingly.
+
+### What was rejected and why
+
+- Six original modes: too granular, artificially distinct,
+  DEBUG and MODIFY were redundant with BUILD
+- "Read-only REVIEW mode with no commits": too rigid. Finding
+  something broken during review and being unable to fix it
+  requires a full session reboot. Bad.
+- "Overwrite SESSION.md": loses history. Every snapshot is
+  permanent. Named by datetime. Never overwritten.
+- "Prose summary of partially built code": archaeology, not
+  recovery. Code goes to wip/ branch. Full reconstruction
+  in snapshot only as fallback.
+
+### What is next
+
+1. Update README.md as operating model entry point
+2. Write final session close snapshot to /sessions/
+3. Seed /prototypes/ with Case Study Builder v2 from Project-G
+4. Add Supabase schema document to /docs/
+5. Expand Module 10 to buildable spec
+6. Continue Phase 2 prototype work
+
+---
+
 ## v1.1.0 -- 2026-05-08 23:29 UTC [Perplexity]
 
 ### Operating model upgrades
@@ -51,7 +184,8 @@ Boot prompt is now a committed artifact. It lives in
 ### What is next
 
 1. Complete the Mode System behavioral rules (first PLAN
-   session agenda item -- still unresolved)
+   session agenda item -- carried forward -- NOW RESOLVED
+   in v1.2.0)
 2. Expand Module 9 and Module 10 docs to buildable specs
 3. Add Supabase schema document to /docs/
 4. Seed /prototypes/ with Case Study Builder v2 from Project-G
