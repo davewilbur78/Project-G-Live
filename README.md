@@ -11,88 +11,64 @@ a working and documentation layer on top of them.
 
 ## If You Are an AI Starting a Session
 
-Do these things first. In this order. Before anything else.
+Read this section completely before doing anything else.
 
-**1. Fetch AGENT.md via the GitHub API:**
-```
+**Step 1: Get AGENT.md.**
+
+For Perplexity and any AI that can make live API calls:
+
+    https://api.github.com/repos/davewilbur78/Project-G-Live/contents/AGENT.md
+
+The response is JSON. Decode the base64 content field. Read the full file.
+Do not use raw.githubusercontent.com -- CDN-cached and unreliable.
+
+For Claude (claude.ai): the user will provide AGENT.md as a file attachment
+or paste. Wait for it. Do not proceed without it.
+
+**Step 2: Fetch the session index and latest snapshot using these exact URLs.**
+
+Session index:
+
+    https://api.github.com/repos/davewilbur78/Project-G-Live/contents/sessions/SESSIONS-INDEX.md
+
+Latest session snapshot (updated every session close):
+
+    [LATEST_SNAPSHOT_URL]
+
+**Step 3: Execute the boot handshake.**
+
+State exactly: "AGENT.md received. Version [X.X.X], last updated
+[YYYY-MM-DD HH:MM UTC] by [AI name]. Ready for posture confirmation."
+
+Wait for the user to confirm before doing anything else.
+
+**Step 4: Ask the user for session posture.**
+
+BUILD, FIX, or EXPLORE. Wait for confirmation. Do not begin work until confirmed.
+
+---
+
+## Boot URLs
+
+These URLs are updated at every session close by the closing AI.
+Always use these exact URLs. Do not construct URLs from decoded content.
+
+AGENT.md (current):
 https://api.github.com/repos/davewilbur78/Project-G-Live/contents/AGENT.md
-```
-Decode the base64 content field. Read the full file.
 
-**2. Fetch the session index:**
-```
+Sessions index:
 https://api.github.com/repos/davewilbur78/Project-G-Live/contents/sessions/SESSIONS-INDEX.md
-```
 
-**3. Fetch the most recent session snapshot from /sessions/**
-The filename is in SESSIONS-INDEX.md. Fetch it. Read it.
-This tells you what was happening when the last session ended.
-
-**4. Ask the user what posture this session is.**
-Do not infer from project state. Do not begin building.
-Wait for confirmation before doing any work.
-
-Do not use raw.githubusercontent.com -- CDN-cached, unreliable.
-The API endpoint always returns the current committed version.
+Latest session snapshot:
+[TO BE UPDATED BY PERPLEXITY AFTER THIS SESSION'S SNAPSHOT IS COMMITTED]
 
 ---
 
-## Operating Model
+## Single Source of Truth
 
-This project is AI-agnostic by design. Any AI -- Perplexity,
-Claude, Claude Code, or any future platform -- can read, write,
-build, and commit. The user chooses freely. No AI owns this project.
-
-**GitHub is the persistent memory.** AI platforms are stateless.
-The repo is always the current truth. Nothing lives only in a
-context window. Everything is committed.
-
-**Three session postures:**
-- BUILD -- moving the project forward
-- FIX -- something is broken, stay in the problem boundary
-- EXPLORE -- thinking and designing, no build output
-
-Postures are not locks. Transitions are allowed with a declared
-statement and TIMESTAMP. Transitions do not require new threads.
-
-**TIMESTAMP is non-negotiable.** Every artifact, decision, commit,
-snapshot, and signal event carries YYYY-MM-DD HH:MM UTC.
-A fact without a timestamp is a rumor.
-
-**Signal vocabulary.** Certain phrases from the user trigger
-immediate protocol execution. Full dictionary:
-/docs/architecture/SIGNAL-VOCABULARY.md
-
-**Session snapshots.** Every session commits at least one snapshot
-to /sessions/. Snapshots are never deleted, never overwritten.
-They are the project's memory.
-
----
-
-## Key Documents
-
-| Document | Purpose |
-|---|---|
-| AGENT.md | Single source of truth. All operating rules. |
-| CHANGELOG.md | Session history. What changed and why. |
-| /sessions/SESSIONS-INDEX.md | Session archive index. |
-| /docs/architecture/OPERATING-MODEL.md | Full operating model design. |
-| /docs/architecture/SESSION-MEMORY.md | Session memory system design. |
-| /docs/architecture/SIGNAL-VOCABULARY.md | Full signal phrase dictionary. |
-| /prompts/BOOT-ANY-AI.md | Platform-neutral session boot prompt. |
-| /prompts/perplexity-space-instructions.md | Perplexity Space boot prompt. |
-
----
-
-## What This Platform Does
-
-Enforces the Genealogical Proof Standard (GPS) in plain language.
-Structures research to produce defensible conclusions.
-Integrates with an existing Ashkenazi Jewish genealogy and DNA
-research workflow.
-
-Built for one user working toward BCG (Board for Certification
-of Genealogists) certification.
+AGENT.md is the only active instruction set for this project. Everything
+else in this repo is either build artifacts, session memory, or module
+specs. Nothing overrides AGENT.md.
 
 ---
 
@@ -102,25 +78,10 @@ Next.js · React · Tailwind CSS · Supabase · Anthropic Claude API · Vercel
 
 ---
 
-## Repository Structure
-
-```
-/sessions/          -- Session snapshots and index. Never deleted.
-/prototypes/        -- HTML prototype files
-/docs/research/     -- Research output files
-/docs/modules/      -- Module design documents
-/docs/architecture/ -- Operating model design documents
-/prompts/           -- Session boot prompts for all AI platforms
-/src/               -- Application source code
-wip/ branch         -- Partially built work, committed even broken
-```
-
----
-
 ## Current Build Status
 
-- Phase 1: Documentation and architecture -- **complete**
-- Phase 2: Prototype artifacts -- **active**
+- Phase 1: Documentation and architecture -- complete
+- Phase 2: Prototype artifacts -- active
   - Module 10 Case Study Builder prototype v2 complete
   - Test case: Jacob Singer / Yankel Springer identity proof
 - Phases 3-5: Full web app -- pending
