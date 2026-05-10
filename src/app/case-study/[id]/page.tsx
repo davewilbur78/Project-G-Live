@@ -1,42 +1,92 @@
-// Case Study Builder -- detail / 5-stage builder
-// This page will render the 5-stage GPS workflow for a single case study.
-// Phase 3: replace stub with live Supabase reads and stage components.
+'use client'
 
-interface Props {
-  params: { id: string }
-}
+import { useState, useEffect, useCallback } from 'react'
+import Link from 'next/link'
+import { StageNav } from '@/components/case-study/StageNav'
+import { Stage1ResearchQuestion } from '@/components/case-study/Stage1ResearchQuestion'
+import { Stage2SourceInventory } from '@/components/case-study/Stage2SourceInventory'
+import { Stage3EvidenceChain } from '@/components/case-study/Stage3EvidenceChain'
+import { Stage4SearchChecklist } from '@/components/case-study/Stage4SearchChecklist'
+import { Stage5ConflictAnalysis } from '@/components/case-study/Stage5ConflictAnalysis'
+import { Stage6ProofArgument } from '@/components/case-study/Stage6ProofArgument'
+import type { CaseStudy } from '@/types'
 
-export default function CaseStudyDetail({ params }: Props) {
-  return (
-    <div className="max-w-4xl mx-auto px-6 py-12">
-      <div className="border-b-2 border-[var(--ink)] pb-6 mb-10">
-        <p className="font-mono text-xs tracking-widest text-[var(--ink-faint)] uppercase mb-2">
-          Case Study &mdash; {params.id}
-        </p>
-        <h1 className="font-display text-3xl font-bold text-[var(--ink)]">
-          Loading case study...
-        </h1>
+interface Props { params: { id: string } }
+
+export default function CaseStudyDetailPage({ params }: Props) {
+  const [caseStudy,    setCaseStudy]    = useState<CaseStudy | null>(null)
+  const [loading,      setLoading]      = useState(true)
+  const [error,        setError]        = useState<string | null>(null)
+  const [activeStage,  setActiveStage]  = useState(1)
+
+  const load = useCallback(async () => {
+    const res = await fetch(`/api/case-study/${params.id}`)
+    const d   = await res.json()
+    if (!res.ok || d.error) { setError(d.error ?? 'Not found'); setLoading(false); return }
+    setCaseStudy(d.case_study)
+    setActiveStage(d.case_study.gps_stage_reached)
+    setLoading(false)
+  }, [params.id])
+
+  useEffect(() => { load() }, [load])
+
+  async function advanceStage() {
+    if (!caseStudy) return
+    const next = activeStage + 1
+    if (next > 6) return
+    // Only patch if this is a new max
+    if (next > caseStudy.gps_stage_reached) {
+      const res = await fetch(`/api/case-study/${caseStudy.id}`, {
+        method: 'PATCH', headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ gps_stage_reached: next }),
+      })
+      if (res.ok) { const d = await res.json(); setCaseStudy(d.case_study) }
+    }
+    setActiveStage(next)
+    window.scrollTo({ top: 0, behavior: 'smooth' })
+  }
+
+  if (loading) return (
+    <div className="min-h-screen bg-[var(--color-bg)] flex items-center justify-center">
+      <p className="text-sm text-[var(--color-text-muted)]">Loading case study...</p>
+    </div>
+  )
+
+  if (error || !caseStudy) return (
+    <div className="min-h-screen bg-[var(--color-bg)]">
+      <div className="max-w-4xl mx-auto px-6 py-10">
+        <Link href="/case-study" className="text-xs text-[var(--color-text-muted)] hover:text-[var(--color-gold)] block mb-6">← Case Studies</Link>
+        <div className="p-4 bg-red-900/20 border border-red-500/30 rounded text-sm text-red-400">{error ?? 'Case study not found.'}</div>
       </div>
+    </div>
+  )
 
-      {/*
-        Five stage components go here:
-        <Stage1ResearchQuestion />
-        <Stage2SourceInventory />
-        <Stage3EvidenceChain />
-        <Stage4ConflictAnalysis />
-        <Stage5ProofArgument />
+  return (
+    <div className="min-h-screen bg-[var(--color-bg)] text-[var(--color-text)]">
+      <div className="max-w-4xl mx-auto px-6 py-10">
 
-        Stage nav and progress dots match prototype design.
-        Refer to prototypes/case_study_builder_v2.html as the design spec.
-      */}
+        {/* Header */}
+        <div className="mb-8">
+          <Link href="/case-study" className="text-xs text-[var(--color-text-muted)] hover:text-[var(--color-gold)] block mb-3">← Case Studies</Link>
+          <h1 className="font-display text-3xl text-[var(--color-gold)] mb-1">{caseStudy.subject_display}</h1>
+          {caseStudy.subject_vitals && <p className="text-sm text-[var(--color-text-muted)]">{caseStudy.subject_vitals}</p>}
+        </div>
 
-      <div
-        className="border border-[var(--rule)] rounded p-8"
-        style={{ background: 'var(--parchment)' }}
-      >
-        <p className="font-mono text-xs text-[var(--ink-faint)] uppercase tracking-widest">
-          Stage components not yet built -- see prototype for design spec
-        </p>
+        {/* Stage nav */}
+        <StageNav
+          currentStage={activeStage}
+          maxReached={caseStudy.gps_stage_reached}
+          onSelect={setActiveStage}
+        />
+
+        {/* Active stage */}
+        {activeStage === 1 && <Stage1ResearchQuestion caseStudy={caseStudy} onUpdate={setCaseStudy} onAdvance={advanceStage} />}
+        {activeStage === 2 && <Stage2SourceInventory  caseStudyId={caseStudy.id} onAdvance={advanceStage} />}
+        {activeStage === 3 && <Stage3EvidenceChain    caseStudyId={caseStudy.id} onAdvance={advanceStage} />}
+        {activeStage === 4 && <Stage4SearchChecklist  caseStudyId={caseStudy.id} onAdvance={advanceStage} />}
+        {activeStage === 5 && <Stage5ConflictAnalysis caseStudyId={caseStudy.id} onAdvance={advanceStage} />}
+        {activeStage === 6 && <Stage6ProofArgument    caseStudyId={caseStudy.id} />}
+
       </div>
     </div>
   )
