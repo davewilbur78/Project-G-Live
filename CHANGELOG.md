@@ -5,6 +5,18 @@ Format: TIMESTAMP | Session | Change
 
 ---
 
+## 2026-05-10 20:20 UTC -- Session: FIX (Supabase client name mismatch)
+
+- src/lib/supabase.ts -- added `createServerSupabaseClient` alias for `createServerClient`
+  Root cause: all API routes import `createServerSupabaseClient` but the function was
+  exported as `createServerClient`. Affected: /api/todos, /api/todos/[id],
+  /api/research-plans, /api/research-plans/[id], /api/research-plans/[id]/generate,
+  /api/research-plans/[id]/items, /api/research-plans/[id]/items/[itemId], /api/persons.
+  One alias export in supabase.ts fixes all routes without touching each file.
+- Bugs resolved: Research To-Do Tracker load failure + Research Plan Builder 500 on submit
+
+---
+
 ## 2026-05-10 17:00 UTC -- Session: Phase 3 BUILD (Research Plan Builder)
 
 - sql/006-add-research-plans.sql -- research_plans + research_plan_items tables + RLS
