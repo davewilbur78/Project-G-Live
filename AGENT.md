@@ -1,6 +1,6 @@
 Project-G-Live AGENT.md
-Version: 2.6.0
-Last updated: 2026-05-10 17:00 UTC
+Version: 2.6.1
+Last updated: 2026-05-10 19:50 UTC
 Last updated by: Claude
 
 # What This Is
@@ -29,7 +29,7 @@ Diagnose and fix only. Do not touch anything outside the problem scope.
 
 EXPLORE -- Thinking, designing, deciding. No build output.
 Specs, design docs, and AGENT.md updates are permitted.
-Use this when direction is uncertain before building.
+Use this when direction is uncertain before building, or when working through a new idea.
 
 Posture transition format:
   POSTURE TRANSITION -- TIMESTAMP: YYYY-MM-DD HH:MM UTC
@@ -229,7 +229,7 @@ Semantic versioning: MAJOR.MINOR.PATCH
 
 All timestamps: YYYY-MM-DD HH:MM UTC. Time to the minute required. No date-only stamps.
 
-Current version: 2.6.0
+Current version: 2.6.1
 
 ---
 
@@ -282,7 +282,7 @@ by GPS. The prototype has 5 stages; the production app has 6.
 
 ## The Modules: Status and Build Order
 
-15 modules. Design docs in /docs/modules/. Build order reflects dependencies.
+16 modules. Design docs in /docs/modules/. Build order reflects dependencies.
 Do not start a module before its prerequisites are complete.
 
 Status: NOT STARTED / IN DESIGN / PROTOTYPE / BUILD READY / COMPLETE
@@ -326,21 +326,30 @@ PHASE 3 BUILD ORDER:
 8.  Timeline Builder (Module 7) -- NOT STARTED
     Requires: Citation Builder, facts in Supabase.
 
-9.  Research Report Writer (Module 9) -- NOT STARTED
+9.  Research Investigation (Module 16) -- IN DESIGN
+    Design doc committed: 2026-05-10 19:30 UTC.
+    Emerged from EXPLORE session -- Barnholtz disambiguation use case.
+    Persistent AI-collaborative workspace for open-ended research problems.
+    Sits upstream of Case Study Builder. Build order TBD -- strong candidate
+    for early build given utility across the full workflow.
+    Requires: Citation Builder (04), persons API, 5 new Supabase tables.
+    See /docs/modules/16-research-investigation.md.
+
+10. Research Report Writer (Module 9) -- NOT STARTED
     Requires: most modules above.
 
-10. GEDCOM Bridge (Module 1) -- NOT STARTED
+11. GEDCOM Bridge (Module 1) -- NOT STARTED
     Onboarding layer. Build after core app is working.
 
-11. Family Group Sheet Builder (Module 11) -- NOT STARTED
+12. Family Group Sheet Builder (Module 11) -- NOT STARTED
 
-12. FAN Club Mapper (Module 8) -- NOT STARTED
+13. FAN Club Mapper (Module 8) -- NOT STARTED
 
-13. DNA Evidence Tracker (Module 14) -- NOT STARTED
+14. DNA Evidence Tracker (Module 14) -- NOT STARTED
 
-14. Correspondence Log (Module 12) -- NOT STARTED.
+15. Correspondence Log (Module 12) -- NOT STARTED.
 
-15. File Naming System (Module 13) -- NOT STARTED.
+16. File Naming System (Module 13) -- NOT STARTED.
 
 ---
 
@@ -377,7 +386,7 @@ License: CC BY-NC-SA 4.0. Personal non-commercial research only.
 Phase 1: Documentation and architecture -- COMPLETE
 Phase 2: Prototype artifacts to test interview logic -- COMPLETE
 Phase 3: Full web app built module by module -- ACTIVE
-  6 of 15 modules complete:
+  6 of 16 modules complete:
   Module 4 (Citation Builder), Module 10 (Case Study Builder),
   Module 5 (Document Analysis Worksheet), Module 3 (Research Log),
   Module 15 (Research To-Do Tracker), Module 2 (Research Plan Builder)
@@ -439,7 +448,7 @@ INTERNAL PLATFORM IDs are plumbing. Never surface in researcher-facing output.
 /sessions/          -- Session snapshots and index. Never deleted.
 /prototypes/        -- HTML prototype files
 /docs/research/     -- Research output files
-/docs/modules/      -- Module design documents (15 files, one per module)
+/docs/modules/      -- Module design documents (16 files, one per module)
 /docs/architecture.md -- Supabase schema reference
 /sql/               -- SQL migration files. Run in Supabase SQL editor in order.
   001-create-tables.sql     -- Full schema: all 9 tables + RLS policies
@@ -499,9 +508,9 @@ instruction from the user.
 
 ## Project State
 
-TIMESTAMP last updated: 2026-05-10 17:00 UTC by Claude
+TIMESTAMP last updated: 2026-05-10 19:50 UTC by Claude
 
-Build phase: Phase 3 ACTIVE -- 6 of 15 modules complete
+Build phase: Phase 3 ACTIVE -- 6 of 16 modules complete
 
 Committed and clean:
 - sql/001 through sql/006 -- all migrations
@@ -510,6 +519,7 @@ Committed and clean:
 - src/app/api/persons/route.ts -- shared persons endpoint
 - prototypes/case_study_builder_v1.html and v2.html
 - docs/architecture.md
+- docs/modules/16-research-investigation.md -- design doc, IN DESIGN
 - src/app/layout.tsx, page.tsx (dashboard updated), globals.css
 - src/lib/supabase.ts, src/lib/ai.ts
 - package.json, next.config.ts, tsconfig.json, tailwind.config.ts, postcss.config.js
@@ -522,14 +532,17 @@ What does not exist yet:
 - Supabase seed data (Singer/Springer sources)
 - PowerPoint export endpoint
 - File upload to Supabase storage (deferred)
-- Modules 6, 7, 9, 1, 11, 8, 14, 12, 13 (9 modules remaining)
+- Module 16 Supabase tables (5 new tables -- see design doc)
+- Modules 6, 7, 9, 1, 11, 8, 14, 12, 13, 16 (10 modules remaining)
 - Dashboard breadcrumb not yet added to pre-Module-2 pages (Citation Builder,
   Case Study Builder, Document Analysis, Research Log, Todos) -- backlog item
 
 Next immediate action:
-  TIMESTAMP: 2026-05-10 17:00 UTC
-  User: pull main, run sql/006-add-research-plans.sql (and any of 003-005 not yet run),
-  smoke test /research-plans. Then declare posture for next session.
+  TIMESTAMP: 2026-05-10 19:50 UTC
+  Two known bugs remain from last FIX session (SESSION-2026-05-10-1845-UTC.md):
+  1. Research To-Do Tracker (/todos) -- fails on load, Supabase connection error
+  2. Research Plan Builder (/research-plans/new) -- createServerSupabaseClient not a function
+  Declare FIX posture in next session to resolve both before any new BUILD work.
 
 ---
 
@@ -564,3 +577,24 @@ Research Agent Assignment v2.1 is approximated inline in the generate route for 
 
 FILE UPLOAD + OCR-HTR TRANSCRIPTION
 Module 5 v1 uses manual transcription entry. Deferred until Supabase storage bucket is set up.
+
+STANDALONE / SHAREABLE PRODUCT VISION
+TIMESTAMP noted: 2026-05-10 19:45 UTC. Long-range idea only. Not a build concern now.
+
+The platform is built modular by design. That modularity means individual modules
+could one day be extracted and packaged as standalone tools. Research Investigation
+(Module 16) is a strong early candidate -- self-contained, solves a universal
+genealogical problem, and its AI-collaborative workspace pattern is broadly applicable.
+
+The broader vision: a version of this platform -- or individual modules from it --
+shared with other serious researchers or organizations in the genealogical community.
+Steve Little's Open-Genealogy project is one example of a potential collaborator
+or distribution partner. The GPS and EE machinery would remain underneath; branding,
+data model, and configuration would be flexible enough for another researcher or
+organization to run their own instance.
+
+This is not a pivot. The platform remains personal and private as built.
+The architecture decisions being made now -- modular design, clean API boundaries,
+GPS enforcement as a layer -- are the same decisions that make a future shared
+version possible. When this idea matures, it belongs in a dedicated product
+vision document. For now it lives here as a named, timestamped intention.
