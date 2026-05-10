@@ -1,6 +1,6 @@
 Project-G-Live AGENT.md
-Version: 2.2.0
-Last updated: 2026-05-10 03:30 UTC
+Version: 2.3.0
+Last updated: 2026-05-09 17:45 UTC
 Last updated by: Claude
 
 # What This Is
@@ -229,7 +229,7 @@ Semantic versioning: MAJOR.MINOR.PATCH
 
 All timestamps: YYYY-MM-DD HH:MM UTC. Time to the minute required. No date-only stamps.
 
-Current version: 2.2.0
+Current version: 2.3.0
 
 ---
 
@@ -274,6 +274,10 @@ The prototype's design system is the canonical visual reference for
 all Phase 3 module builds. Colors, typography, and component patterns
 must match it.
 
+NOTE: The production build uses 6 stages, not 5. A Reasonably Exhaustive Search
+Checklist stage was added between Evidence Chain and Conflict Analysis as required
+by GPS. The prototype has 5 stages; the production app has 6.
+
 ---
 
 ## The Modules: Status and Build Order
@@ -297,15 +301,22 @@ PHASE 3 BUILD ORDER:
     GPS classification UI, EE citation forms, detail/edit view.
     API routes: GET/POST/PATCH/DELETE with GPS enforcement.
     SQL migration: sql/001-create-tables.sql (all 9 tables + RLS).
+    Committed: 2026-05-10 03:25 UTC.
     Awaiting: Supabase provisioning and smoke test by user.
 
-2.  Case Study Builder (Module 10) -- BUILD READY
-    Prototype v2: /prototypes/case_study_builder_v2.html (48,917 bytes)
-    Test case: Jacob Singer / Yankel Springer identity proof (2026-05-07)
-    Schema defined in architecture.md (case_studies, case_study_sources,
-    evidence_chain_links, conflicts, proof_paragraphs, footnote_definitions).
-    Stub pages exist in src/app/case-study/.
-    Build after Citation Builder smoke test passes.
+2.  Case Study Builder (Module 10) -- COMPLETE
+    Production build committed: 2026-05-09 17:38 UTC.
+    6-stage GPS workflow:
+      Stage 1 -- Research Question
+      Stage 2 -- Source Inventory and Triage (pulls from Citation Builder)
+      Stage 3 -- Evidence Chain
+      Stage 4 -- Reasonably Exhaustive Search Checklist (new stage, GPS requirement)
+      Stage 5 -- Conflict Analysis
+      Stage 6 -- Proof Argument (edit + preview, [FN1] superscript rendering)
+    13 API routes committed. 6 stage components committed.
+    SQL migration: sql/002-add-res-checklist.sql (res_checklist_items table,
+    gps_stage_reached constraint expanded to 1-6).
+    Awaiting: Supabase provisioning, both SQL migrations run, smoke test.
 
 3.  Document Analysis Worksheet (Module 5) -- NOT STARTED
     Feeds sources into Case Study Builder. Requires: Citation Builder.
@@ -384,7 +395,8 @@ Phase 2: Prototype artifacts to test interview logic -- COMPLETE
 Phase 3: Full web app built module by module -- ACTIVE
   Scaffold committed: 2026-05-10 02:45 UTC
   Citation Builder (Module 4): COMPLETE -- committed 2026-05-10 03:25 UTC
-  Next: smoke test Citation Builder, then build Case Study Builder (Module 10).
+  Case Study Builder (Module 10): COMPLETE -- committed 2026-05-09 17:38 UTC
+  Next: user provisions Supabase, runs sql/001 and sql/002, smoke tests both modules.
 Phase 4: GEDCOM Bridge built as onboarding layer
 Phase 5: Case Study Builder with PowerPoint export as flagship
 
@@ -444,13 +456,16 @@ INTERNAL PLATFORM IDs are plumbing. Never surface in researcher-facing output.
 /docs/research/     -- Research output files
 /docs/modules/      -- Module design documents (15 files, one per module)
 /docs/architecture.md -- Supabase schema reference (column-level as of 2026-05-10)
-/sql/               -- SQL migration files. Run in Supabase SQL editor.
-  001-create-tables.sql -- Full schema: all 9 tables + RLS policies
+/sql/               -- SQL migration files. Run in Supabase SQL editor in order.
+  001-create-tables.sql     -- Full schema: all 9 tables + RLS policies
+  002-add-res-checklist.sql -- RES checklist table, gps_stage_reached expanded to 6
 /src/               -- Application source code
   /src/app/         -- Next.js App Router pages
     /citation-builder/         -- Module 4: source library + new/edit flow
-    /case-study/               -- Module 10: stub pages (not yet built)
+    /case-study/               -- Module 10: list, new, and 6-stage detail builder
     /api/citation-builder/     -- API routes for Module 4
+    /api/case-study/           -- API routes for Module 10 (13 routes)
+  /src/components/case-study/  -- Stage components (StageNav + Stages 1-6)
   /src/lib/         -- Supabase client, AI wrapper
   /src/types/       -- Entity interfaces and GPS type re-exports
 wip/ branch         -- Partially built work, committed even if broken
@@ -485,23 +500,45 @@ instruction from the user.
 
 ## Project State
 
-TIMESTAMP last updated: 2026-05-10 03:30 UTC by Claude
+TIMESTAMP last updated: 2026-05-09 17:45 UTC by Claude
 
 Build phase: Phase 3 ACTIVE
 
 Committed and clean:
-- sql/001-create-tables.sql -- all 9 tables, RLS policies. Run in Supabase SQL editor.
+- sql/001-create-tables.sql -- all 9 tables, RLS policies
+- sql/002-add-res-checklist.sql -- res_checklist_items, gps_stage_reached 1-6
 - src/types/index.ts -- entity interfaces (Source, Person, CaseStudy, etc.)
-- src/app/citation-builder/page.tsx -- source library (search, filter, empty state)
-- src/app/citation-builder/new/page.tsx -- 5-step new source interview (11 categories)
+- src/app/citation-builder/page.tsx -- source library
+- src/app/citation-builder/new/page.tsx -- 5-step structured interview
 - src/app/citation-builder/[id]/page.tsx -- source detail with copy and edit
-- src/app/api/citation-builder/route.ts -- GET list + POST create (GPS validated)
+- src/app/api/citation-builder/route.ts -- GET list + POST create
 - src/app/api/citation-builder/[id]/route.ts -- GET + PATCH + DELETE
+- src/app/case-study/page.tsx -- case study list (live, not stub)
+- src/app/case-study/new/page.tsx -- new case study form
+- src/app/case-study/[id]/page.tsx -- full 6-stage builder (live, not stub)
+- src/app/api/case-study/route.ts -- GET list + POST create
+- src/app/api/case-study/[id]/route.ts -- GET + PATCH + DELETE
+- src/app/api/case-study/[id]/sources/route.ts -- GET + POST
+- src/app/api/case-study/[id]/sources/[sourceId]/route.ts -- PATCH + DELETE
+- src/app/api/case-study/[id]/evidence/route.ts -- GET + POST
+- src/app/api/case-study/[id]/evidence/[linkId]/route.ts -- PATCH + DELETE
+- src/app/api/case-study/[id]/res-checklist/route.ts -- GET + POST
+- src/app/api/case-study/[id]/res-checklist/[itemId]/route.ts -- PATCH + DELETE
+- src/app/api/case-study/[id]/conflicts/route.ts -- GET + POST
+- src/app/api/case-study/[id]/conflicts/[conflictId]/route.ts -- PATCH + DELETE
+- src/app/api/case-study/[id]/proof/route.ts -- GET paragraphs + footnotes, POST both
+- src/app/api/case-study/[id]/proof/[paragraphId]/route.ts -- PATCH + DELETE
+- src/components/case-study/StageNav.tsx
+- src/components/case-study/Stage1ResearchQuestion.tsx
+- src/components/case-study/Stage2SourceInventory.tsx
+- src/components/case-study/Stage3EvidenceChain.tsx
+- src/components/case-study/Stage4SearchChecklist.tsx
+- src/components/case-study/Stage5ConflictAnalysis.tsx
+- src/components/case-study/Stage6ProofArgument.tsx
 - prototypes/case_study_builder_v1.html (39,979 bytes) -- historical archive
-- prototypes/case_study_builder_v2.html (48,917 bytes) -- canonical, fully functional
+- prototypes/case_study_builder_v2.html (48,917 bytes) -- canonical prototype
 - docs/architecture.md -- column-level schema for all tables
 - src/app/layout.tsx, src/app/page.tsx (dashboard), src/app/globals.css
-- src/app/case-study/page.tsx (list stub), src/app/case-study/[id]/page.tsx (detail stub)
 - src/lib/supabase.ts -- browser + server Supabase client with type aliases
 - src/lib/ai.ts -- Claude API wrapper with GPS enforcement system prompt
 - package.json, next.config.ts, tsconfig.json, tailwind.config.ts, postcss.config.js
@@ -512,28 +549,27 @@ What does not exist yet:
 - Supabase project not yet provisioned. User must:
     1. Create project at supabase.com
     2. Run sql/001-create-tables.sql in SQL editor
-    3. Copy URL + anon key + service role key into .env.local
-    4. Run npm install && npm run dev locally
-    5. Add one real source as smoke test
-- Case Study Builder production components -- stub pages only in src/app/case-study/
+    3. Run sql/002-add-res-checklist.sql in SQL editor
+    4. Copy URL + anon key + service role key into .env.local
+    5. Run npm install && npm run dev locally
+    6. Add one real source via Citation Builder as smoke test
+    7. Create one case study and step through all 6 stages as smoke test
 - Steve Little prompt engines not integrated into src/lib/ai.ts
 - Supabase seed data (Singer/Springer sources from prototype)
+- PowerPoint export endpoint
 
 Next immediate action:
-  User provisions Supabase and completes smoke test.
-  Next Claude session: build Case Study Builder (Module 10) production components.
+  User provisions Supabase, runs both SQL migrations, smoke tests
+  Citation Builder (one real source) and Case Study Builder (one complete case study).
+  Next Claude session: declare BUILD or FIX depending on smoke test outcome.
 
 ---
 
 ## Backlog
 
-REASONABLY EXHAUSTIVE SEARCH CHECKLIST
-Dedicated stage in Case Study Builder between Evidence Chain and Conflict Analysis.
-Add to Module 10 design doc before completing the production build.
-
 SUPABASE SEED DATA
 After provisioning, seed with the 17 Singer/Springer sources from the prototype
-as the first real test case. This can be done via Citation Builder UI or a seed script.
+as the first real test case. Can be done via Citation Builder UI or a seed script.
 
 DOCUMENT VIEWER
 Source images render inline in the source record panel.
@@ -545,7 +581,3 @@ Design the python-pptx endpoint when beginning the PowerPoint export feature.
 STEVE LITTLE PROMPT INTEGRATION
 Load engine prompts from /prompts/ directory into src/lib/ai.ts callWithEngine().
 Currently routed with a stub. Integrate actual prompt text before using in production.
-
-architecture.md CORRECTION
-Directory structure in architecture.md shows src/api/ for API routes.
-Correct path for Next.js App Router is src/app/api/. Fix in a future session.
