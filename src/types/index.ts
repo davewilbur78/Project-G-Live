@@ -266,6 +266,41 @@ export interface ResearchPlanItem {
   updated_at: string
 }
 
+// Source Conflict Resolver (Module 6)
+
+export type SourceConflictStatus = 'open' | 'in_progress' | 'resolved'
+
+export type FactInDispute =
+  | 'birth_date' | 'birth_place' | 'name' | 'age'
+  | 'death_date' | 'death_place' | 'residence'
+  | 'immigration' | 'marriage' | 'occupation' | 'other'
+
+export type ResolutionBasis =
+  | 'source_quality' | 'preponderance' | 'corroboration' | 'inconclusive'
+
+export interface SourceConflict {
+  id: string
+  person_id?: string | null
+  title: string
+  fact_in_dispute: FactInDispute
+  description: string
+  source_a_id?: string | null
+  source_a_value?: string | null
+  source_b_id?: string | null
+  source_b_value?: string | null
+  analysis_text?: string | null
+  resolution?: string | null
+  resolution_basis?: ResolutionBasis | null
+  status: SourceConflictStatus
+  notes?: string | null
+  created_at: string
+  updated_at: string
+  // Joined
+  person?: Person | null
+  source_a?: Source | null
+  source_b?: Source | null
+}
+
 // Source category for the structured interview UI.
 // Drives which field set appears in Step 2 of the new-source form.
 export type SourceCategory =

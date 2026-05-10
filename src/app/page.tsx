@@ -13,7 +13,7 @@ const MODULES: { id: number; name: string; status: ModuleStatus; href: string }[
   { id: 3,  name: 'Research Log',                status: 'COMPLETE',    href: '/research-log'       },
   { id: 2,  name: 'Research Plan Builder',       status: 'COMPLETE',    href: '/research-plans'     },
   { id: 15, name: 'Research To-Do Tracker',      status: 'COMPLETE',    href: '/todos'              },
-  { id: 6,  name: 'Source Conflict Resolver',    status: 'NOT STARTED', href: '/conflict-resolver'  },
+  { id: 6,  name: 'Source Conflict Resolver',    status: 'COMPLETE',    href: '/conflict-resolver'  },
   { id: 7,  name: 'Timeline Builder',            status: 'NOT STARTED', href: '/timeline'           },
   { id: 9,  name: 'Research Report Writer',      status: 'NOT STARTED', href: '/report-writer'      },
   { id: 1,  name: 'GEDCOM Bridge',               status: 'NOT STARTED', href: '/gedcom-bridge'      },
