@@ -21,3 +21,4 @@ Format: TIMESTAMP | Posture | AI | Summary
 2026-05-10 18:45 UTC | TESTING | Claude | Smoke test all 6 modules, ran sql/004 + sql/006, identified 2 bugs: createServerSupabaseClient error in Research Plan Builder and To-Do Tracker
 2026-05-10 20:00 UTC | EXPLORE | Claude | Module 16 (Research Investigation) designed from scratch: design doc, elevator pitch, standalone product vision committed; AGENT.md bumped to v2.6.1
 2026-05-10 20:40 UTC | FIX->BUILD | Claude | Fixed createServerSupabaseClient alias (1-line fix, 8 routes); Module 6 (Source Conflict Resolver) complete: sql/007, 3 API routes, 3 pages, GPS AI analysis
+2026-05-10 21:45 UTC | FIX | Claude | Environment fix (two-checkout problem); model string updated to claude-sonnet-4-6; Next.js 15 params fix on 3 pages; architecture.md brought current; Local Environment Rules added to AGENT.md v2.7.1
