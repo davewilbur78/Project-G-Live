@@ -10,7 +10,7 @@ const MODULES: { id: number; name: string; status: ModuleStatus; href: string }[
   { id: 4,  name: 'Citation Builder',           status: 'COMPLETE',    href: '/citation-builder'   },
   { id: 10, name: 'Case Study Builder',          status: 'COMPLETE',    href: '/case-study'         },
   { id: 5,  name: 'Document Analysis Worksheet', status: 'COMPLETE',    href: '/document-analysis'  },
-  { id: 3,  name: 'Research Log',                status: 'NOT STARTED', href: '/research-log'       },
+  { id: 3,  name: 'Research Log',                status: 'COMPLETE',    href: '/research-log'       },
   { id: 2,  name: 'Research Plan Builder',       status: 'NOT STARTED', href: '/research-plan'      },
   { id: 6,  name: 'Source Conflict Resolver',    status: 'NOT STARTED', href: '/conflict-resolver'  },
   { id: 7,  name: 'Timeline Builder',            status: 'NOT STARTED', href: '/timeline'           },

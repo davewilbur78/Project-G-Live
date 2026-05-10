@@ -169,6 +169,42 @@ export interface DocumentFact {
   updated_at: string
 }
 
+// Research Log (Module 3)
+
+export type ResearchSessionStatus = 'draft' | 'complete'
+
+export interface ResearchSession {
+  id: string
+  session_date: string        // date string: YYYY-MM-DD
+  title: string
+  goal: string
+  person_id?: string | null
+  finds?: string | null
+  negatives?: string | null
+  follow_up?: string | null
+  notes?: string | null
+  status: ResearchSessionStatus
+  created_at: string
+  updated_at: string
+  // Joined
+  person?: Person | null
+  session_sources?: SessionSource[]
+}
+
+export interface SessionSource {
+  id: string
+  session_id: string
+  source_id?: string | null
+  source_label: string
+  yielded_results: boolean
+  result_summary?: string | null
+  display_order: number
+  created_at: string
+  updated_at: string
+  // Joined from sources
+  source?: Source | null
+}
+
 // Source category for the structured interview UI.
 // Drives which field set appears in Step 2 of the new-source form.
 export type SourceCategory =
