@@ -138,6 +138,37 @@ export interface Citation {
   created_at: string
 }
 
+// Document Analysis Worksheet (Module 5)
+
+export type TranscriptionStatus = 'pending' | 'complete' | 'error'
+
+export interface Document {
+  id: string
+  source_id?: string | null
+  label: string
+  transcription?: string | null
+  transcription_status: TranscriptionStatus
+  notes?: string | null
+  created_at: string
+  updated_at: string
+  // Joined from sources
+  source?: Source | null
+}
+
+export interface DocumentFact {
+  id: string
+  document_id: string
+  claim_text: string
+  source_type: SourceType
+  info_type: InfoType
+  evidence_type: EvidenceType
+  display_order: number
+  ai_generated: boolean
+  notes?: string | null
+  created_at: string
+  updated_at: string
+}
+
 // Source category for the structured interview UI.
 // Drives which field set appears in Step 2 of the new-source form.
 export type SourceCategory =
