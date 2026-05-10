@@ -98,6 +98,7 @@
   .source-detail { display: none; padding: 16px 18px 18px 18px; border-top: 1px solid var(--rule); background: var(--parchment-dark); }
   .source-detail.open { display: block; }
 
+  /* EE Citation block */
   .ee-citation-block { background: var(--parchment); border: 1.5px solid var(--gold-mid); border-radius: 4px; padding: 14px 16px; margin-bottom: 16px; }
   .ee-citation-label { font-family: 'JetBrains Mono', monospace; font-size: 9px; letter-spacing: 0.14em; color: var(--gold); font-weight: 600; margin-bottom: 8px; }
   .ee-citation-text { font-size: 13px; line-height: 1.7; color: var(--ink); font-style: italic; }
@@ -143,6 +144,7 @@
   .status-ok { color: var(--green-ink); }
   .status-needed { color: var(--red-ink); }
 
+  /* Proof argument with footnotes */
   .proof-warning { background: var(--amber-bg); border-left: 4px solid var(--amber-rule); padding: 10px 16px; border-radius: 0 4px 4px 0; margin-bottom: 20px; font-size: 13px; color: var(--amber-ink); }
   .proof-body { background: var(--parchment); border: 1.5px solid var(--rule-strong); border-radius: 4px; padding: 28px 32px; font-size: 15px; line-height: 1.95; color: var(--ink); }
   .proof-body p { margin-bottom: 1.4em; }
@@ -170,7 +172,7 @@
 <div class="page-shell">
 
   <div class="masthead">
-    <div class="masthead-label">Project-G &nbsp;·&nbsp; Case Study Builder &nbsp;·&nbsp; Prototype v2</div>
+    <div class="masthead-label">Project-G &nbsp;&middot;&nbsp; Case Study Builder &nbsp;&middot;&nbsp; Prototype v2</div>
     <div class="masthead-title">Singer / Springer Identity Proof</div>
     <div class="masthead-subtitle">GPS-compliant proof argument builder -- Singer/Springer test case</div>
     <div class="masthead-meta">
@@ -188,6 +190,7 @@
     <button class="stage-tab" onclick="goToStage(4)"><span class="tab-num">5</span>Proof Argument</button>
   </div>
 
+  <!-- STAGE 1 -->
   <div class="stage-card active" id="stage-0">
     <div class="stage-heading">Stage 1 of 5</div>
     <div class="stage-title">Research Question</div>
@@ -209,6 +212,7 @@
     </div>
   </div>
 
+  <!-- STAGE 2 -->
   <div class="stage-card" id="stage-1">
     <div class="stage-heading">Stage 2 of 5</div>
     <div class="stage-title">Source Inventory, Citation &amp; Triage</div>
@@ -225,6 +229,7 @@
     <div id="source-list"></div>
   </div>
 
+  <!-- STAGE 3 -->
   <div class="stage-card" id="stage-2">
     <div class="stage-heading">Stage 3 of 5</div>
     <div class="stage-title">Evidence Chain</div>
@@ -239,6 +244,7 @@
     </div>
   </div>
 
+  <!-- STAGE 4 -->
   <div class="stage-card" id="stage-3">
     <div class="stage-heading">Stage 4 of 5</div>
     <div class="stage-title">Conflict Analysis</div>
@@ -249,6 +255,7 @@
     <div id="conflict-list"></div>
   </div>
 
+  <!-- STAGE 5 -->
   <div class="stage-card" id="stage-4">
     <div class="stage-heading">Stage 5 of 5</div>
     <div class="stage-title">Proof Argument</div>
@@ -273,23 +280,142 @@
 </div>
 <script>
 const SOURCES = [
-  { id:1, triage:"GREEN", label:"1907 Passenger Manifest, S.S. Marion", sourceType:"Original", infoType:"Primary", evidenceType:"Direct", name:"Yankel SPRINGER", eeFullCitation:"\"List or Manifest of Alien Passengers for the United States,\" S.S. Marion, sailing from Antwerp, 16 November 1907; List 22, row 17, Yankel Springer, age [~11]; Passenger and Crew Lists of Vessels Arriving at New York, 1897-1957, NARA microfilm T715, roll [x], page 124; digital images, Ancestry (ancestry.com : accessed [date]).", eeShortCitation:"\"Alien Passengers,\" S.S. Marion, 1907, T715, List 22, row 17, Yankel Springer.", notes:"Family name definitively Springer across rows 16-19. Mother Chine Springer (row 16, age 37, married). Contact in America: Schmuel Springer. Birthplace for all family members: Lechowce. Confirmed by zoomed image analysis of original manifest." },
-  { id:2, triage:"GREEN", label:"1919 Naturalization Petition", sourceType:"Original", infoType:"Primary", evidenceType:"Direct", name:"Jacob Singer / Jack Singer", eeFullCitation:"Jacob Singer, Petition for Naturalization no. [8-4903], 10 April 1919, Supreme Court of the State of New York, New York County; Petitions for Naturalization from the U.S. District Court for the Southern District of New York, 1897-1944, NARA series M1972, roll 1114; digital images, Ancestry (ancestry.com : accessed [date]).", eeShortCitation:"Jacob Singer, Petition for Naturalization, 1919, NARA M1972, roll 1114.", notes:"Born 3 Dec 1895, Volhynia, Russia. Arrived S.S. Marion, Nov 28, 1907, from Antwerp. Occupation: Cutter. Filed under Act of May 9, 1918 (WWI military bypass). Witnesses: Judas Finkel, Chas. Brumbach. Certificate of Naturalization No. 200378." },
-  { id:3, triage:"GREEN", label:"1919 Certificate of Arrival", sourceType:"Original", infoType:"Primary", evidenceType:"Direct", name:"Singer, Yankel", eeFullCitation:"U.S. Department of Labor, Immigration Service, Certificate of Arrival for Singer, Yankel, Ellis Island, N.Y., [March 19, 1919], attached to Jacob Singer, Petition for Naturalization, 1919; NARA M1972, roll 1114; digital images, Ancestry (ancestry.com : accessed [date]).", eeShortCitation:"Certificate of Arrival, Singer, Yankel, Ellis Island, 1919, attached to Jacob Singer petition, NARA M1972, roll 1114.", notes:"Certifies: Singer, Yankel arrived S.S. Marion, November 28, 1907, New York, N.Y. This is the U.S. government's own determination linking the Springer arrival record to the Singer identity." },
-  { id:4, triage:"GREEN", label:"1920 New York City Marriage Record", sourceType:"Original", infoType:"Primary", evidenceType:"Indirect", name:"Jacob Singer", eeFullCitation:"\"New York, New York City Marriage Records, 1829-1940,\" Jacob Singer and Lena Teitelbaum, 24 September 1920, Bronx, New York; database with images, FamilySearch (familysearch.org/ark:/61903/1:1:244C-T8Y : accessed [date]), citing New York City Municipal Archives.", eeShortCitation:"Jacob Singer and Lena Teitelbaum marriage, 24 Sep 1920, Bronx, FamilySearch 244C-T8Y.", notes:"Confirms Singer name firmly established by September 1920. First marriage. Wife: Lena Teitelbaum." },
-  { id:5, triage:"GREEN", label:"1920 Federal Census", sourceType:"Derivative", infoType:"Primary", evidenceType:"Indirect", name:"Jack Singer", eeFullCitation:"\"United States Census, 1920,\" Jack Singer, Manhattan Assembly District 6, New York, New York; database with images, FamilySearch (familysearch.org : accessed [date]), citing NARA microfilm T625, roll 1196, page 8B, enumeration district 507.", eeShortCitation:"\"U.S. Census, 1920,\" Jack Singer, Manhattan AD 6, T625-1196, p. 8B, ED 507.", notes:"In Singer household. Consistent with timeline -- married Lena Teitelbaum later in 1920." },
-  { id:6, triage:"GREEN", label:"1925 New York State Census", sourceType:"Original", infoType:"Primary", evidenceType:"Indirect", name:"Jack Singer", eeFullCitation:"\"New York State Population Census Schedules, 1925,\" Jack Singer; New York State Archives, Albany, election district 22, assembly district 06, City of New York, New York County, page 37; digital images, Ancestry (ancestry.com : accessed [date]).", eeShortCitation:"\"NY State Census, 1925,\" Jack Singer, AD 06, ED 22, p. 37, NY State Archives.", notes:"Relation to head: Son. Address consistent with Madison Street household." },
-  { id:7, triage:"GREEN", label:"1930 Federal Census", sourceType:"Derivative", infoType:"Primary", evidenceType:"Indirect", name:"Jacob Singer", eeFullCitation:"\"United States Census, 1930,\" Jacob Singer, Bronx, New York; database with images, FamilySearch (familysearch.org/ark:/61903/1:1:X7DV-MFF : accessed [date]), citing NARA microfilm, enumeration district 0248.", eeShortCitation:"\"U.S. Census, 1930,\" Jacob Singer, Bronx, FamilySearch X7DV-MFF.", notes:"Head of household. Bronx, New York." },
-  { id:8, triage:"GREEN", label:"1940 Federal Census", sourceType:"Derivative", infoType:"Primary", evidenceType:"Indirect", name:"Jacob Singer", eeFullCitation:"\"United States Census, 1940,\" Jacob Singer, The Bronx, New York City, New York; database with images, FamilySearch (familysearch.org/ark:/61903/1:1:K3TK-SNN : accessed [date]), citing NARA, enumeration district 3-447.", eeShortCitation:"\"U.S. Census, 1940,\" Jacob Singer, The Bronx, FamilySearch K3TK-SNN.", notes:"Head of household. Occupation: Train Mechanic." },
-  { id:9, triage:"GREEN", label:"1942 WWII Draft Registration Card", sourceType:"Original", infoType:"Primary", evidenceType:"Indirect", name:"Jacob Singer", eeFullCitation:"\"United States World War II Draft Registration Cards, 1942,\" Jacob Singer; database with images, FamilySearch (familysearch.org/ark:/61903/1:1:F3J6-LZ8 : accessed [date]), citing NARA microfilm M1936.", eeShortCitation:"\"WWII Draft Registration, 1942,\" Jacob Singer, FamilySearch F3J6-LZ8.", notes:"Registered as Jacob Singer. Consistent with all other American records from 1920 onward." },
-  { id:10, triage:"GREEN", label:"1981 New Jersey Death Index", sourceType:"Original", infoType:"Primary", evidenceType:"Indirect", name:"Jacob Singer", eeFullCitation:"\"New Jersey, Death Indexes, 1904-2000,\" Jacob Singer, died 2 February 1981, Oakland, Bergen County, New Jersey; database, Ancestry (ancestry.com : accessed [date]).", eeShortCitation:"\"NJ Death Index,\" Jacob Singer, 2 Feb 1981, Oakland, Bergen Co.", notes:"End-of-life record. Consistent with Social Security Death Index." },
-  { id:11, triage:"GREEN", label:"Social Security Death Index", sourceType:"Derivative", infoType:"Primary", evidenceType:"Indirect", name:"Jacob Singer", eeFullCitation:"\"United States Social Security Death Index,\" Jacob Singer, died February 1981; database, FamilySearch (familysearch.org/ark:/61903/1:1:JKPR-VMF : accessed [date]), citing U.S. Social Security Administration, Death Master File.", eeShortCitation:"\"SSDI,\" Jacob Singer, Feb 1981, FamilySearch JKPR-VMF.", notes:"Last residence: Brooklyn, New York." },
-  { id:12, triage:"GREEN", label:"Find A Grave Memorial", sourceType:"Authored", infoType:"Secondary", evidenceType:"Indirect", name:"Jacob Singer", eeFullCitation:"\"Find A Grave Index,\" Jacob Singer (1895-1981), Paramus, Bergen County, New Jersey; database, FamilySearch (familysearch.org/ark:/61903/1:1:Q[xxx] : accessed [date]), citing Find A Grave (findagrave.com), memorial no. 271880387.", eeShortCitation:"\"Find A Grave,\" Jacob Singer, memorial 271880387, Paramus, NJ.", notes:"Burial record. An authored work -- requires corroboration from the death index, which is present." },
-  { id:13, triage:"YELLOW", label:"1915 New York State Census", sourceType:"Original", infoType:"Primary", evidenceType:"Indirect", name:"Jake Singer", eeFullCitation:"\"New York State Population Census Schedules, 1915,\" Jake Singer, 194 Madison Street, New York City; New York State Archives, Albany, election district 12, assembly district 02, New York County, page 80; digital images, Ancestry (ancestry.com : accessed [date]). [NOTE: Content field not yet transcribed -- image requires review.]", eeShortCitation:"\"NY State Census, 1915,\" Jake Singer, 194 Madison St, AD 02, ED 12, p. 80, NY State Archives.", notes:"CRITICAL: First Singer-name record after the 1907 Springer arrival. Closes part of the 1907-1920 gap. Content not yet transcribed -- image must be reviewed before this citation is Green." },
-  { id:14, triage:"YELLOW", label:"JewishGen Lechowitz Database", sourceType:"Derivative", infoType:"Undetermined", evidenceType:"Indirect", name:"Yankel Springer (implied)", eeFullCitation:"\"Lachowce (Lachovtsy) Jewish Community Database,\" JewishGen (jewishgen.org/belarus/lists/lach_eidb.htm : accessed [date]). [NOTE: Specific record entry not yet identified.]", eeShortCitation:"\"Lachowce Jewish Community Database,\" JewishGen, lach_eidb.htm.", notes:"Link present but no specific record identified. Must be searched for the Springer family entry." },
-  { id:15, triage:"RED", label:"Birth Record (Not Located)", sourceType:"N/A", infoType:"N/A", evidenceType:"Negative", name:"N/A", eeFullCitation:"[No citation possible -- record not located.] Volhynia metrical books for Lachovitz should be searched at the State Archive of Khmelnytskyi Oblast, Ukraine.", eeShortCitation:"[Birth record not located.]", notes:"Expected gap: 1895 rural Volhynia records largely inaccessible in digitized form. Must be disclosed in the proof argument." },
-  { id:16, triage:"RED", label:"Declaration of Intention (Not Filed)", sourceType:"N/A", infoType:"N/A", evidenceType:"Negative", name:"N/A", eeFullCitation:"[No citation possible.] The Fifth field on the 1919 naturalization petition is blank. The petitioner was naturalized under the Act of Congress, 9 May 1918, which waived the Declaration of Intention requirement for serving military personnel.", eeShortCitation:"[No Declaration of Intention filed -- military bypass, Act of 9 May 1918.]", notes:"This removes a potential alias-declaration source. The absence is explained by the military naturalization pathway and must be disclosed." },
-  { id:17, triage:"RED", label:"Name-Change Declaration (Not Found)", sourceType:"N/A", infoType:"N/A", evidenceType:"Negative", name:"N/A", eeFullCitation:"[No citation possible -- no name-change document located.]", eeShortCitation:"[No name-change declaration located.]", notes:"The central gap this proof argument must address. Identity is established by preponderance chain, not direct declaration." },
+  {
+    id: 1, triage:"GREEN", label:"1907 Passenger Manifest, S.S. Marion",
+    sourceType:"Original", infoType:"Primary", evidenceType:"Direct",
+    name:"Yankel SPRINGER",
+    eeFullCitation:"\"List or Manifest of Alien Passengers for the United States,\" S.S. Marion, sailing from Antwerp, 16 November 1907; List 22, row 17, Yankel Springer, age [~11]; Passenger and Crew Lists of Vessels Arriving at New York, 1897-1957, NARA microfilm T715, roll [x], page 124; digital images, Ancestry (ancestry.com : accessed [date]).",
+    eeShortCitation:"\"Alien Passengers,\" S.S. Marion, 1907, T715, List 22, row 17, Yankel Springer.",
+    notes:"Family name definitively Springer across rows 16-19. Mother Chine Springer (row 16, age 37, married). Contact in America: Schmuel Springer. Birthplace for all family members: Lechowce. Confirmed by zoomed image analysis of original manifest."
+  },
+  {
+    id: 2, triage:"GREEN", label:"1919 Naturalization Petition",
+    sourceType:"Original", infoType:"Primary", evidenceType:"Direct",
+    name:"Jacob Singer / Jack Singer",
+    eeFullCitation:"Jacob Singer, Petition for Naturalization no. [8-4903], 10 April 1919, Supreme Court of the State of New York, New York County; Petitions for Naturalization from the U.S. District Court for the Southern District of New York, 1897-1944, NARA series M1972, roll 1114; digital images, Ancestry (ancestry.com : accessed [date]).",
+    eeShortCitation:"Jacob Singer, Petition for Naturalization, 1919, NARA M1972, roll 1114.",
+    notes:"Born 3 Dec 1895, Volhynia, Russia. Arrived S.S. Marion, Nov 28, 1907, from Antwerp. Occupation: Cutter. Filed under Act of May 9, 1918 (WWI military bypass -- no Declaration of Intention required). Witnesses: Judas Finkel, Chas. Brumbach. Certificate of Naturalization No. 200378."
+  },
+  {
+    id: 3, triage:"GREEN", label:"1919 Certificate of Arrival",
+    sourceType:"Original", infoType:"Primary", evidenceType:"Direct",
+    name:"Singer, Yankel",
+    eeFullCitation:"U.S. Department of Labor, Immigration Service, Certificate of Arrival for Singer, Yankel, Ellis Island, N.Y., [March 19, 1919], attached to Jacob Singer, Petition for Naturalization, 1919; NARA M1972, roll 1114; digital images, Ancestry (ancestry.com : accessed [date]).",
+    eeShortCitation:"Certificate of Arrival, Singer, Yankel, Ellis Island, 1919, attached to Jacob Singer petition, NARA M1972, roll 1114.",
+    notes:"Certifies: Singer, Yankel arrived S.S. Marion, November 28, 1907, New York, N.Y. This is the U.S. government's own determination linking the Springer arrival record to the Singer identity."
+  },
+  {
+    id: 4, triage:"GREEN", label:"1920 New York City Marriage Record",
+    sourceType:"Original", infoType:"Primary", evidenceType:"Indirect",
+    name:"Jacob Singer",
+    eeFullCitation:"\"New York, New York City Marriage Records, 1829-1940,\" Jacob Singer and Lena Teitelbaum, 24 September 1920, Bronx, New York; database with images, FamilySearch (familysearch.org/ark:/61903/1:1:244C-T8Y : accessed [date]), citing New York City Municipal Archives.",
+    eeShortCitation:"Jacob Singer and Lena Teitelbaum marriage, 24 Sep 1920, Bronx, FamilySearch 244C-T8Y.",
+    notes:"Confirms Singer name is firmly established by September 1920. First marriage. Wife: Lena Teitelbaum."
+  },
+  {
+    id: 5, triage:"GREEN", label:"1920 Federal Census",
+    sourceType:"Derivative", infoType:"Primary", evidenceType:"Indirect",
+    name:"Jack Singer",
+    eeFullCitation:"\"United States Census, 1920,\" Jack Singer, Manhattan Assembly District 6, New York, New York; database with images, FamilySearch (familysearch.org : accessed [date]), citing NARA microfilm T625, roll 1196, page 8B, enumeration district 507.",
+    eeShortCitation:"\"U.S. Census, 1920,\" Jack Singer, Manhattan AD 6, T625-1196, p. 8B, ED 507.",
+    notes:"In Singer household. Status: Single. Consistent with timeline -- married Lena Teitelbaum later in 1920."
+  },
+  {
+    id: 6, triage:"GREEN", label:"1925 New York State Census",
+    sourceType:"Original", infoType:"Primary", evidenceType:"Indirect",
+    name:"Jack Singer",
+    eeFullCitation:"\"New York State Population Census Schedules, 1925,\" Jack Singer; New York State Archives, Albany, election district 22, assembly district 06, City of New York, New York County, page 37; digital images, Ancestry (ancestry.com : accessed [date]).",
+    eeShortCitation:"\"NY State Census, 1925,\" Jack Singer, AD 06, ED 22, p. 37, NY State Archives.",
+    notes:"Relation to head: Son. Address consistent with Madison Street household."
+  },
+  {
+    id: 7, triage:"GREEN", label:"1930 Federal Census",
+    sourceType:"Derivative", infoType:"Primary", evidenceType:"Indirect",
+    name:"Jacob Singer",
+    eeFullCitation:"\"United States Census, 1930,\" Jacob Singer, Bronx, New York; database with images, FamilySearch (familysearch.org/ark:/61903/1:1:X7DV-MFF : accessed [date]), citing NARA microfilm, enumeration district 0248.",
+    eeShortCitation:"\"U.S. Census, 1930,\" Jacob Singer, Bronx, FamilySearch X7DV-MFF.",
+    notes:"Head of household. Bronx, New York."
+  },
+  {
+    id: 8, triage:"GREEN", label:"1940 Federal Census",
+    sourceType:"Derivative", infoType:"Primary", evidenceType:"Indirect",
+    name:"Jacob Singer",
+    eeFullCitation:"\"United States Census, 1940,\" Jacob Singer, The Bronx, New York City, New York; database with images, FamilySearch (familysearch.org/ark:/61903/1:1:K3TK-SNN : accessed [date]), citing NARA, enumeration district 3-447.",
+    eeShortCitation:"\"U.S. Census, 1940,\" Jacob Singer, The Bronx, FamilySearch K3TK-SNN.",
+    notes:"Head of household. Occupation: Train Mechanic."
+  },
+  {
+    id: 9, triage:"GREEN", label:"1942 WWII Draft Registration Card",
+    sourceType:"Original", infoType:"Primary", evidenceType:"Indirect",
+    name:"Jacob Singer",
+    eeFullCitation:"\"United States World War II Draft Registration Cards, 1942,\" Jacob Singer; database with images, FamilySearch (familysearch.org/ark:/61903/1:1:F3J6-LZ8 : accessed [date]), citing NARA microfilm M1936.",
+    eeShortCitation:"\"WWII Draft Registration, 1942,\" Jacob Singer, FamilySearch F3J6-LZ8.",
+    notes:"Registered as Jacob Singer. Consistent with all other American records from 1920 onward."
+  },
+  {
+    id: 10, triage:"GREEN", label:"1981 New Jersey Death Index",
+    sourceType:"Original", infoType:"Primary", evidenceType:"Indirect",
+    name:"Jacob Singer",
+    eeFullCitation:"\"New Jersey, Death Indexes, 1904-2000,\" Jacob Singer, died 2 February 1981, Oakland, Bergen County, New Jersey; database, Ancestry (ancestry.com : accessed [date]).",
+    eeShortCitation:"\"NJ Death Index,\" Jacob Singer, 2 Feb 1981, Oakland, Bergen Co.",
+    notes:"End-of-life record. Consistent with Social Security Death Index."
+  },
+  {
+    id: 11, triage:"GREEN", label:"Social Security Death Index",
+    sourceType:"Derivative", infoType:"Primary", evidenceType:"Indirect",
+    name:"Jacob Singer",
+    eeFullCitation:"\"United States Social Security Death Index,\" Jacob Singer, died February 1981; database, FamilySearch (familysearch.org/ark:/61903/1:1:JKPR-VMF : accessed [date]), citing U.S. Social Security Administration, Death Master File.",
+    eeShortCitation:"\"SSDI,\" Jacob Singer, Feb 1981, FamilySearch JKPR-VMF.",
+    notes:"Last residence: Brooklyn, New York."
+  },
+  {
+    id: 12, triage:"GREEN", label:"Find A Grave Memorial",
+    sourceType:"Authored", infoType:"Secondary", evidenceType:"Indirect",
+    name:"Jacob Singer",
+    eeFullCitation:"\"Find A Grave Index,\" Jacob Singer (1895-1981), Paramus, Bergen County, New Jersey; database, FamilySearch (familysearch.org/ark:/61903/1:1:Q[xxx] : accessed [date]), citing Find A Grave (findagrave.com), memorial no. 271880387.",
+    eeShortCitation:"\"Find A Grave,\" Jacob Singer, memorial 271880387, Paramus, NJ.",
+    notes:"Burial record. Consistent with NJ death index. An authored work -- requires corroboration from the death index, which is present."
+  },
+  {
+    id: 13, triage:"YELLOW", label:"1915 New York State Census",
+    sourceType:"Original", infoType:"Primary", evidenceType:"Indirect",
+    name:"Jake Singer",
+    eeFullCitation:"\"New York State Population Census Schedules, 1915,\" Jake Singer, 194 Madison Street, New York City; New York State Archives, Albany, election district 12, assembly district 02, New York County, page 80; digital images, Ancestry (ancestry.com : accessed [date]). [NOTE: Content field not yet transcribed -- image requires review.]",
+    eeShortCitation:"\"NY State Census, 1915,\" Jake Singer, 194 Madison St, AD 02, ED 12, p. 80, NY State Archives.",
+    notes:"CRITICAL: First Singer-name record after the 1907 Springer arrival. Closes part of the 1907-1920 gap. Content not yet transcribed in research record -- image must be reviewed and field data extracted before this citation is Green."
+  },
+  {
+    id: 14, triage:"YELLOW", label:"JewishGen Lechowitz Database",
+    sourceType:"Derivative", infoType:"Undetermined", evidenceType:"Indirect",
+    name:"Yankel Springer (implied)",
+    eeFullCitation:"\"Lachowce (Lachovtsy) Jewish Community Database,\" JewishGen (jewishgen.org/belarus/lists/lach_eidb.htm : accessed [date]). [NOTE: Specific record entry not yet identified -- database must be searched for Springer family entry and individual record cited.]",
+    eeShortCitation:"\"Lachowce Jewish Community Database,\" JewishGen, lach_eidb.htm.",
+    notes:"Link present in research files but no specific record identified. Must be searched for the Springer family entry. If found, corroborates the Springer/Lechowitz connection and may identify additional family members."
+  },
+  {
+    id: 15, triage:"RED", label:"Birth Record (Not Located)",
+    sourceType:"N/A", infoType:"N/A", evidenceType:"Negative",
+    name:"N/A",
+    eeFullCitation:"[No citation possible -- record not located.] Volhynia metrical books for Lachovitz (Lachovtsy) should be searched at the State Archive of Khmelnytskyi Oblast, Ukraine. Some records have been indexed by JewishGen. This search has not yet been completed.",
+    eeShortCitation:"[Birth record not located.]",
+    notes:"Expected gap: 1895 rural Volhynia records are largely inaccessible in digitized form. Physical records may exist. This gap must be disclosed in the proof argument."
+  },
+  {
+    id: 16, triage:"RED", label:"Declaration of Intention (Not Filed)",
+    sourceType:"N/A", infoType:"N/A", evidenceType:"Negative",
+    name:"N/A",
+    eeFullCitation:"[No citation possible -- no first papers filed.] The Fifth field on the 1919 naturalization petition is blank. The petitioner was naturalized under the Act of Congress, 9 May 1918, which waived the Declaration of Intention requirement for serving military personnel.",
+    eeShortCitation:"[No Declaration of Intention filed -- military bypass, Act of 9 May 1918.]",
+    notes:"This removes a potential alias-declaration source. The absence is explained by the military naturalization pathway and must be disclosed."
+  },
+  {
+    id: 17, triage:"RED", label:"Name-Change Declaration (Not Found)",
+    sourceType:"N/A", infoType:"N/A", evidenceType:"Negative",
+    name:"N/A",
+    eeFullCitation:"[No citation possible -- no name-change document located.] No record has been found in which Yankel Springer or Jacob Singer formally declared a change of name or acknowledged both names as applying to the same person.",
+    eeShortCitation:"[No name-change declaration located.]",
+    notes:"The central gap this proof argument must address. Identity is established by preponderance chain, not direct declaration."
+  },
 ];
 
 const EVIDENCE = [
@@ -297,34 +423,44 @@ const EVIDENCE = [
   { claim:"Same birth year", sources:"Manifest: Yankel Springer, age ~11 in November 1907 = born approximately 1895-96. Petition: Jacob Singer, born 3 December 1895.", weight:"Strong", color:"#3a7a34", weightBg:"#eaf3de", weightColor:"#2d5a27", fn:[1,2] },
   { claim:"Same vessel and arrival date", sources:"Manifest: S.S. Marion, arriving November 28-29, 1907, from Antwerp. Petition: S.S. Marion, arrived November 28, 1907, from Antwerp. Exact match on all three points.", weight:"Very Strong", color:"#1a4a14", weightBg:"#d4f0d0", weightColor:"#1a4a14", fn:[1,2,3] },
   { claim:"Father identity bridge", sources:"Manifest contact: Schmuel Springer, New York. Samuel Singer (Jacob's father per family records) carried the birth surname Springer; his father was Tzvi Dov / Berl Springer of Lechowitz.", weight:"Strong", color:"#3a7a34", weightBg:"#eaf3de", weightColor:"#2d5a27", fn:[1] },
-  { claim:"Address continuity", sources:"Manifest: father at approximately 197 Mason[?] St, NY. 1915 census: Jake Singer at 194 Madison St, NY. Near-match consistent with same household.", weight:"Moderate", color:"#8b6914", weightBg:"#fef6e4", weightColor:"#7a5200", fn:[1,13] },
+  { claim:"Address continuity", sources:"Manifest: father at approximately 197 Mason[?] St, NY (partially legible). 1915 census: Jake Singer at 194 Madison St, NY. Near-match consistent with same household.", weight:"Moderate", color:"#8b6914", weightBg:"#fef6e4", weightColor:"#7a5200", fn:[1,13] },
   { claim:"U.S. government certification", sources:"Certificate of Arrival certifies Singer, Yankel arriving on the Marion, November 28, 1907 -- the same vessel and date as the Springer manifest entry. The immigration service made this determination in 1919.", weight:"Strong", color:"#3a7a34", weightBg:"#eaf3de", weightColor:"#2d5a27", fn:[3] },
   { claim:"Continuous New York residence, 1907-1981", sources:"Census records 1915, 1920, 1925, 1930, 1940 place Jacob Singer continuously in New York. No chronological gap inconsistent with a single life beginning with the 1907 Springer arrival.", weight:"Corroborating", color:"#185fa5", weightBg:"#eef4fb", weightColor:"#1a3d5c", fn:[5,6,7,8,13] },
 ];
 
 const CONFLICTS = [
-  { title:"SPRINGER (1907 manifest) vs. SINGER (1919 Certificate of Arrival)", source1:"1907 Passenger Manifest, S.S. Marion, List 22, Row 17", name1:"Yankel SPRINGER", source2:"1919 Certificate of Arrival, attached to naturalization petition", name2:"Singer, Yankel", analysis:"The manifest records the name as Springer because the family had not yet changed their surname at the time of arrival in 1907. The Certificate of Arrival records the name as Singer because by 1919, when the naturalization was filed, Jacob had been known as Singer for several years. The immigration service cross-referenced the arrival records against the name then in use -- standard practice for this period. This is not a contradiction; it is two snapshots of the same person at different points in a documented name-change timeline. The vessel (Marion), port (New York), and date (November 28, 1907) match exactly across both records, confirming they refer to the same arrival event." },
-  { title:"Mother Chine SPRINGER (manifest) vs. Minnie JACOBS (family records)", source1:"1907 Passenger Manifest, S.S. Marion, List 22, Row 16", name1:"Chine Springer, age 37, married", source2:"Family records", name2:"Minnie /Jacobs/ (Jacob's mother)", analysis:"This conflict is unresolved and constitutes a separate research question. Possible explanations include: (1) Chine is a Yiddish given name that became Minnie after immigration -- a documented Americanization pattern. (2) Jacobs may be the mother's maiden name recorded in some American records, while Springer is her married name at the time of travel. (3) They could be two different women if Jacob was traveling with a relative rather than his mother -- though the manifest structure (mother traveling with children to join husband in America) strongly suggests this is his immediate family. This question does not affect the identity chain between Yankel Springer and Jacob Singer and is filed as a separate research task." },
+  {
+    title:"SPRINGER (1907 manifest) vs. SINGER (1919 Certificate of Arrival)",
+    source1:"1907 Passenger Manifest, S.S. Marion, List 22, Row 17", name1:"Yankel SPRINGER",
+    source2:"1919 Certificate of Arrival, attached to naturalization petition", name2:"Singer, Yankel",
+    analysis:"The manifest records the name as Springer because the family had not yet changed their surname at the time of arrival in 1907. The Certificate of Arrival records the name as Singer because by 1919, when the naturalization was filed, Jacob had been known as Singer for several years. The immigration service cross-referenced the arrival records against the name then in use -- standard practice for this period. This is not a contradiction; it is two snapshots of the same person at different points in a documented name-change timeline. The vessel (Marion), port (New York), and date (November 28, 1907) match exactly across both records, confirming they refer to the same arrival event."
+  },
+  {
+    title:"Mother Chine SPRINGER (manifest) vs. Minnie JACOBS (family records)",
+    source1:"1907 Passenger Manifest, S.S. Marion, List 22, Row 16", name1:"Chine Springer, age 37, married",
+    source2:"Family records", name2:"Minnie /Jacobs/ (Jacob's mother)",
+    analysis:"This conflict is unresolved and constitutes a separate research question. Possible explanations include: (1) Chine is a Yiddish given name that became Minnie after immigration -- a documented Americanization pattern. (2) Jacobs may be the mother's maiden name recorded in some American records, while Springer is her married name at the time of travel. (3) They could be two different women if Jacob was traveling with a relative rather than his mother -- though the manifest structure (mother traveling with children to join husband in America) strongly suggests this is his immediate family. This question does not affect the identity chain between Yankel Springer and Jacob Singer and is filed as a separate research task."
+  },
 ];
 
 const PROOF_PARAGRAPHS = [
-  { text:"A preponderance of evidence supports the conclusion that Yankel Springer of Lechowitz, Volhynia is the same person as Jacob Singer of the Bronx, New York.", footnotes:[] },
-  { text:"In November 1907, a child named Yankel Springer, approximately eleven years old, arrived at the Port of New York aboard the S.S. Marion, having sailed from Antwerp, Belgium.[FN1] He traveled with his mother Chine Springer and two younger siblings. The contact named for the family was Schmuel Springer of New York City, identified as the father.[FN1] Yankel and his siblings were recorded as born in Lechowce -- a transliteration of the same Volhynian town that appears throughout the family's later American records as Lechowitz.[FN1]", footnotes:[1] },
-  { text:"Twelve years later, in April 1919, a man named Jacob Singer appeared before the Supreme Court of the State of New York to petition for naturalization.[FN2] He stated that he had been born on 3 December 1895 in Volhynia, Russia; that he had emigrated through Antwerp, Belgium; and that he had arrived at the Port of New York on November 28, 1907, aboard the vessel Marion.[FN2] The U.S. Department of Labor's Certificate of Arrival, attached to the petition, certified the arrival of Singer, Yankel, on that date and vessel.[FN3] The birth year, port of departure, vessel, and arrival date stated in the petition correspond precisely to the passenger manifest entry for Yankel Springer.[FN1,FN2,FN3]", footnotes:[2,3] },
-  { text:"The father named on the 1907 manifest, Schmuel Springer, is consistent with Samuel Singer (Jacob's father per family records), whose documented birth surname was Springer and whose own father was Tzvi Dov Springer, also recorded as Berl Springer.[FN1] A search of census records for 1915, 1920, 1925, 1930, and 1940 places Jacob Singer continuously in New York City with no chronological gap inconsistent with a single life beginning with the 1907 Springer arrival.[FN4,FN5,FN6,FN7,FN8] The surname transition from Springer to Singer was a family-level change that occurred between 1907 and 1915, the period between Yankel's arrival and his first appearance in American records under the Singer name.[FN4]", footnotes:[4,5,6,7,8] },
-  { text:"Two apparent conflicts emerge from the record. The 1907 manifest records the family name as Springer; the 1919 Certificate of Arrival records the name as Singer, Yankel. This reflects the timing of each record rather than a contradiction: the manifest was made at the moment of arrival under the original surname, while the immigration service in 1919 cross-referenced the arrival against the name then in use, as was standard practice.[FN1,FN3] A second conflict -- between the given name of the mother on the manifest (Chine Springer) and that in family records (Minnie) -- remains unresolved and constitutes a separate research question. It does not affect the identity chain between Yankel Springer and Jacob Singer.", footnotes:[] },
-  { text:"On the basis of this evidence, which is reasonably exhaustive within the available American record, the identity of Yankel Springer and Jacob Singer is established to the level of proof required by the Genealogical Proof Standard. The convergence of vessel, date, port, place of origin, birth year, and father's name across independent sources leaves no reasonable alternative candidate. Three research tasks remain open and are acknowledged: the 1910 federal census has not been searched; the Seaman's Protection Certificate has not been retrieved; and the Volhynia metrical books for Lachovitz have not been searched. Completion of these searches may strengthen the argument further. Until they are completed, the argument rests on the preponderance chain established above.", footnotes:[] },
+  { text: "A preponderance of evidence supports the conclusion that Yankel Springer of Lechowitz, Volhynia is the same person as Jacob Singer of the Bronx, New York.", footnotes: [] },
+  { text: "In November 1907, a child named Yankel Springer, approximately eleven years old, arrived at the Port of New York aboard the S.S. Marion, having sailed from Antwerp, Belgium.[FN1] He traveled with his mother Chine Springer and two younger siblings. The contact named for the family was Schmuel Springer of New York City, identified as the father.[FN1] Yankel and his siblings were recorded as born in Lechowce -- a transliteration of the same Volhynian town that appears throughout the family's later American records as Lechowitz.[FN1]", footnotes: [1] },
+  { text: "Twelve years later, in April 1919, a man named Jacob Singer appeared before the Supreme Court of the State of New York to petition for naturalization.[FN2] He stated that he had been born on 3 December 1895 in Volhynia, Russia; that he had emigrated through Antwerp, Belgium; and that he had arrived at the Port of New York on November 28, 1907, aboard the vessel Marion.[FN2] The U.S. Department of Labor's Certificate of Arrival, attached to the petition, certified the arrival of Singer, Yankel, on that date and vessel.[FN3] The birth year, port of departure, vessel, and arrival date stated in the petition correspond precisely to the passenger manifest entry for Yankel Springer.[FN1,FN2,FN3]", footnotes: [2,3] },
+  { text: "The father named on the 1907 manifest, Schmuel Springer, is consistent with Samuel Singer (Jacob's father per family records), whose documented birth surname was Springer and whose own father was Tzvi Dov Springer, also recorded as Berl Springer.[FN1] A search of census records for 1915, 1920, 1925, 1930, and 1940 places Jacob Singer continuously in New York City with no chronological gap inconsistent with a single life beginning with the 1907 Springer arrival.[FN4,FN5,FN6,FN7,FN8] The surname transition from Springer to Singer was a family-level change that occurred between 1907 and 1915, the period between Yankel's arrival and his first appearance in American records under the Singer name.[FN4]", footnotes: [4,5,6,7,8] },
+  { text: "Two apparent conflicts emerge from the record. The 1907 manifest records the family name as Springer; the 1919 Certificate of Arrival records the name as Singer, Yankel. This reflects the timing of each record rather than a contradiction: the manifest was made at the moment of arrival under the original surname, while the immigration service in 1919 cross-referenced the arrival against the name then in use, as was standard practice.[FN1,FN3] A second conflict -- between the given name of the mother on the manifest (Chine Springer) and that in family records (Minnie) -- remains unresolved and constitutes a separate research question. It does not affect the identity chain between Yankel Springer and Jacob Singer.", footnotes: [] },
+  { text: "On the basis of this evidence, which is reasonably exhaustive within the available American record, the identity of Yankel Springer and Jacob Singer is established to the level of proof required by the Genealogical Proof Standard. The convergence of vessel, date, port, place of origin, birth year, and father's name across independent sources leaves no reasonable alternative candidate. Three research tasks remain open and are acknowledged: the 1910 federal census has not been searched; the Seaman's Protection Certificate has not been retrieved; and the Volhynia metrical books for Lachovitz have not been searched. Completion of these searches may strengthen the argument further. Until they are completed, the argument rests on the preponderance chain established above.", footnotes: [] },
 ];
 
 const FOOTNOTE_DEFS = [
-  { n:1, text:'"List or Manifest of Alien Passengers for the United States," S.S. Marion, sailing from Antwerp, 16 November 1907; List 22, row 17, Yankel Springer; Passenger and Crew Lists of Vessels Arriving at New York, 1897-1957, NARA microfilm T715, page 124; digital images, Ancestry (ancestry.com : accessed [date]).' },
-  { n:2, text:'Jacob Singer, Petition for Naturalization, 10 April 1919, Supreme Court of the State of New York, New York County; Petitions for Naturalization from the U.S. District Court for the Southern District of New York, 1897-1944, NARA series M1972, roll 1114; digital images, Ancestry (ancestry.com : accessed [date]).' },
-  { n:3, text:'U.S. Department of Labor, Immigration Service, Certificate of Arrival for Singer, Yankel, Ellis Island, N.Y., [March 1919], attached to Jacob Singer Petition for Naturalization, 1919; NARA M1972, roll 1114; digital images, Ancestry (ancestry.com : accessed [date]).' },
-  { n:4, text:'"New York State Population Census Schedules, 1915," Jake Singer, 194 Madison Street, New York City; New York State Archives, Albany, election district 12, assembly district 02, New York County, page 80; digital images, Ancestry (ancestry.com : accessed [date]).' },
-  { n:5, text:'"United States Census, 1920," Jack Singer, Manhattan Assembly District 6, New York; FamilySearch (familysearch.org : accessed [date]), citing NARA T625, roll 1196, page 8B, ED 507.' },
-  { n:6, text:'"New York State Population Census Schedules, 1925," Jack Singer; New York State Archives, Albany, election district 22, assembly district 06, New York County, page 37; Ancestry (ancestry.com : accessed [date]).' },
-  { n:7, text:'"United States Census, 1930," Jacob Singer, Bronx, New York; FamilySearch (familysearch.org/ark:/61903/1:1:X7DV-MFF : accessed [date]).' },
-  { n:8, text:'"United States Census, 1940," Jacob Singer, The Bronx, New York City; FamilySearch (familysearch.org/ark:/61903/1:1:K3TK-SNN : accessed [date]).' },
+  { n:1, text:"\"List or Manifest of Alien Passengers for the United States,\" S.S. Marion, sailing from Antwerp, 16 November 1907; List 22, row 17, Yankel Springer; Passenger and Crew Lists of Vessels Arriving at New York, 1897-1957, NARA microfilm T715, page 124; digital images, Ancestry (ancestry.com : accessed [date])." },
+  { n:2, text:"Jacob Singer, Petition for Naturalization, 10 April 1919, Supreme Court of the State of New York, New York County; Petitions for Naturalization from the U.S. District Court for the Southern District of New York, 1897-1944, NARA series M1972, roll 1114; digital images, Ancestry (ancestry.com : accessed [date])." },
+  { n:3, text:"U.S. Department of Labor, Immigration Service, Certificate of Arrival for Singer, Yankel, Ellis Island, N.Y., [March 1919], attached to Jacob Singer Petition for Naturalization, 1919; NARA M1972, roll 1114; digital images, Ancestry (ancestry.com : accessed [date])." },
+  { n:4, text:"\"New York State Population Census Schedules, 1915,\" Jake Singer, 194 Madison Street, New York City; New York State Archives, Albany, election district 12, assembly district 02, New York County, page 80; digital images, Ancestry (ancestry.com : accessed [date])." },
+  { n:5, text:"\"United States Census, 1920,\" Jack Singer, Manhattan Assembly District 6, New York; FamilySearch (familysearch.org : accessed [date]), citing NARA T625, roll 1196, page 8B, ED 507." },
+  { n:6, text:"\"New York State Population Census Schedules, 1925,\" Jack Singer; New York State Archives, Albany, election district 22, assembly district 06, New York County, page 37; Ancestry (ancestry.com : accessed [date])." },
+  { n:7, text:"\"United States Census, 1930,\" Jacob Singer, Bronx, New York; FamilySearch (familysearch.org/ark:/61903/1:1:X7DV-MFF : accessed [date])." },
+  { n:8, text:"\"United States Census, 1940,\" Jacob Singer, The Bronx, New York City; FamilySearch (familysearch.org/ark:/61903/1:1:K3TK-SNN : accessed [date])." },
 ];
 
 let currentStage = 0;
@@ -333,71 +469,151 @@ function buildSources() {
   const container = document.getElementById('source-list');
   SOURCES.forEach((s, i) => {
     const badgeClass = s.triage === 'GREEN' ? 'badge-green' : s.triage === 'YELLOW' ? 'badge-yellow' : 'badge-red';
-    container.innerHTML += `<div class="source-item"><div class="source-header" onclick="toggleSource(${i})"><span class="chevron" id="chev-${i}">&#9658;</span><span class="source-badge ${badgeClass}">${s.triage}</span><span class="source-name">${s.label}</span><span class="source-type-tag">${s.sourceType}</span></div><div class="source-detail" id="detail-${i}"><div class="ee-citation-block"><div class="ee-citation-label">Full EE Citation</div><div class="ee-citation-text">${s.eeFullCitation}</div><div class="ee-short-label">Short / Footnote Form</div><div class="ee-short-text">${s.eeShortCitation}</div></div><div class="three-layer"><div class="layer-box"><div class="layer-label">Source Type</div><div class="layer-value">${s.sourceType}</div></div><div class="layer-box"><div class="layer-label">Information Type</div><div class="layer-value">${s.infoType}</div></div><div class="layer-box"><div class="layer-label">Evidence Type</div><div class="layer-value">${s.evidenceType}</div></div></div>${s.name !== 'N/A' ? `<div class="name-recorded"><strong>Name recorded:</strong> ${s.name}</div>` : ''}<div class="source-notes">${s.notes}</div></div></div>`;
+    container.innerHTML += `
+      <div class="source-item">
+        <div class="source-header" onclick="toggleSource(${i})">
+          <span class="chevron" id="chev-${i}">&#9658;</span>
+          <span class="source-badge ${badgeClass}">${s.triage}</span>
+          <span class="source-name">${s.label}</span>
+          <span class="source-type-tag">${s.sourceType}</span>
+        </div>
+        <div class="source-detail" id="detail-${i}">
+          <div class="ee-citation-block">
+            <div class="ee-citation-label">Full EE Citation</div>
+            <div class="ee-citation-text">${s.eeFullCitation}</div>
+            <div class="ee-short-label">Short / Footnote Form</div>
+            <div class="ee-short-text">${s.eeShortCitation}</div>
+          </div>
+          <div class="three-layer">
+            <div class="layer-box"><div class="layer-label">Source Type</div><div class="layer-value">${s.sourceType}</div></div>
+            <div class="layer-box"><div class="layer-label">Information Type</div><div class="layer-value">${s.infoType}</div></div>
+            <div class="layer-box"><div class="layer-label">Evidence Type</div><div class="layer-value">${s.evidenceType}</div></div>
+          </div>
+          ${s.name !== 'N/A' ? `<div class="name-recorded"><strong>Name recorded:</strong> ${s.name}</div>` : ''}
+          <div class="source-notes">${s.notes}</div>
+        </div>
+      </div>`;
   });
 }
 
 function toggleSource(i) {
-  document.getElementById('detail-'+i).classList.toggle('open');
-  document.getElementById('chev-'+i).classList.toggle('open');
+  const detail = document.getElementById('detail-' + i);
+  const chev = document.getElementById('chev-' + i);
+  detail.classList.toggle('open');
+  chev.classList.toggle('open');
 }
 
 function buildEvidence() {
   const container = document.getElementById('evidence-chain');
   EVIDENCE.forEach((e, i) => {
     const fnText = e.fn.map(n => `<sup>${n}</sup>`).join('');
-    container.innerHTML += `<div class="evidence-link"><div class="link-number" style="background:${e.color}">${i+1}</div><div class="link-body"><div class="link-top"><div class="link-claim">${e.claim}</div><span class="weight-tag" style="background:${e.weightBg};color:${e.weightColor}">${e.weight}</span></div><div class="link-sources">${e.sources}</div><div class="link-fn">Sources: ${fnText}</div></div></div>`;
+    container.innerHTML += `
+      <div class="evidence-link">
+        <div class="link-number" style="background:${e.color}">${i+1}</div>
+        <div class="link-body">
+          <div class="link-top">
+            <div class="link-claim">${e.claim}</div>
+            <span class="weight-tag" style="background:${e.weightBg};color:${e.weightColor}">${e.weight}</span>
+          </div>
+          <div class="link-sources">${e.sources}</div>
+          <div class="link-fn">Sources: ${fnText}</div>
+        </div>
+      </div>`;
   });
 }
 
 function buildConflicts() {
   const container = document.getElementById('conflict-list');
   CONFLICTS.forEach((c, i) => {
-    container.innerHTML += `<div class="conflict-block"><div class="conflict-header"><div class="conflict-num">CONFLICT ${i+1}</div><div class="conflict-title">${c.title}</div></div><div class="conflict-body"><div class="conflict-sources"><div class="conflict-source-box"><div class="cs-label">SOURCE A</div><div class="cs-source">${c.source1}</div><div class="cs-name">${c.name1}</div></div><div class="conflict-source-box"><div class="cs-label">SOURCE B</div><div class="cs-source">${c.source2}</div><div class="cs-name">${c.name2}</div></div></div><label class="field-label" for="analysis-${i}">Researcher Analysis</label><textarea id="analysis-${i}" rows="5" oninput="checkAnalysis(${i})">${c.analysis}</textarea><div class="resolution-status" id="status-${i}"></div></div></div>`;
+    container.innerHTML += `
+      <div class="conflict-block">
+        <div class="conflict-header">
+          <div class="conflict-num">CONFLICT ${i+1}</div>
+          <div class="conflict-title">${c.title}</div>
+        </div>
+        <div class="conflict-body">
+          <div class="conflict-sources">
+            <div class="conflict-source-box">
+              <div class="cs-label">SOURCE A</div>
+              <div class="cs-source">${c.source1}</div>
+              <div class="cs-name">${c.name1}</div>
+            </div>
+            <div class="conflict-source-box">
+              <div class="cs-label">SOURCE B</div>
+              <div class="cs-source">${c.source2}</div>
+              <div class="cs-name">${c.name2}</div>
+            </div>
+          </div>
+          <label class="field-label" for="analysis-${i}">Researcher Analysis</label>
+          <textarea id="analysis-${i}" rows="5" oninput="checkAnalysis(${i})">${c.analysis}</textarea>
+          <div class="resolution-status" id="status-${i}"></div>
+        </div>
+      </div>`;
   });
   CONFLICTS.forEach((_, i) => checkAnalysis(i));
 }
 
 function checkAnalysis(i) {
-  const val = document.getElementById('analysis-'+i).value.trim();
-  const el = document.getElementById('status-'+i);
-  if (val.length > 80) { el.className='resolution-status status-ok'; el.textContent='✓ Analysis recorded'; }
-  else { el.className='resolution-status status-needed'; el.textContent='Analysis required before proceeding'; }
+  const val = document.getElementById('analysis-' + i).value.trim();
+  const el = document.getElementById('status-' + i);
+  if (val.length > 80) { el.className = 'resolution-status status-ok'; el.textContent = '\u2713 Analysis recorded'; }
+  else { el.className = 'resolution-status status-needed'; el.textContent = 'Analysis required before proceeding'; }
 }
 
 function buildProof() {
   const body = document.getElementById('proof-body');
   let html = '';
   PROOF_PARAGRAPHS.forEach(para => {
-    let text = para.text.replace(/\[FN(\d+(?:,FN\d+)*)\]/g, (match, nums) => nums.split(',FN').map(n => `<sup class="fn">${n.replace('FN','')}</sup>`).join(''));
+    let text = para.text;
+    text = text.replace(/\[FN(\d+(?:,FN\d+)*)\]/g, (match, nums) => {
+      return nums.split(',FN').map(n => `<sup class="fn">${n.replace('FN','')}</sup>`).join('');
+    });
     html += `<p>${text}</p>`;
   });
   body.innerHTML = html;
+
   const fnList = document.getElementById('footnotes-list');
-  FOOTNOTE_DEFS.forEach(fn => { fnList.innerHTML += `<div class="footnote-entry"><div class="fn-num">${fn.n}.</div><div class="fn-text">${fn.text}</div></div>`; });
+  FOOTNOTE_DEFS.forEach(fn => {
+    fnList.innerHTML += `
+      <div class="footnote-entry">
+        <div class="fn-num">${fn.n}.</div>
+        <div class="fn-text">${fn.text}</div>
+      </div>`;
+  });
 }
 
 function buildDots() {
   const container = document.getElementById('progress-dots');
   container.innerHTML = '';
-  for (let i = 0; i < 5; i++) { const d = document.createElement('div'); d.className='dot'+(i===currentStage?' active':''); container.appendChild(d); }
+  for (let i = 0; i < 5; i++) {
+    const d = document.createElement('div');
+    d.className = 'dot' + (i === currentStage ? ' active' : '');
+    container.appendChild(d);
+  }
 }
 
 function goToStage(n) {
-  document.getElementById('stage-'+currentStage).classList.remove('active');
+  document.getElementById('stage-' + currentStage).classList.remove('active');
   document.querySelectorAll('.stage-tab')[currentStage].classList.remove('active');
   currentStage = n;
-  document.getElementById('stage-'+currentStage).classList.add('active');
+  document.getElementById('stage-' + currentStage).classList.add('active');
   document.querySelectorAll('.stage-tab')[currentStage].classList.add('active');
   document.getElementById('prev-btn').disabled = currentStage === 0;
   document.getElementById('next-btn').disabled = currentStage === 4;
   buildDots();
-  window.scrollTo({top:0,behavior:'smooth'});
+  window.scrollTo({ top: 0, behavior: 'smooth' });
 }
 
-function navigate(dir) { const next = currentStage + dir; if (next >= 0 && next < 5) goToStage(next); }
+function navigate(dir) {
+  const next = currentStage + dir;
+  if (next >= 0 && next < 5) goToStage(next);
+}
 
-buildSources(); buildEvidence(); buildConflicts(); buildProof(); buildDots();
+buildSources();
+buildEvidence();
+buildConflicts();
+buildProof();
+buildDots();
 document.getElementById('prev-btn').disabled = true;
 </script>
 </body>
