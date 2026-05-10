@@ -1,6 +1,6 @@
 Project-G-Live AGENT.md
-Version: 2.7.0
-Last updated: 2026-05-10 20:35 UTC
+Version: 2.7.1
+Last updated: 2026-05-10 21:30 UTC
 Last updated by: Claude
 
 # What This Is
@@ -229,7 +229,7 @@ Semantic versioning: MAJOR.MINOR.PATCH
 
 All timestamps: YYYY-MM-DD HH:MM UTC. Time to the minute required. No date-only stamps.
 
-Current version: 2.7.0
+Current version: 2.7.1
 
 ---
 
@@ -318,7 +318,6 @@ PHASE 3 BUILD ORDER:
     (Research Agent Assignment v2.1 pattern). research_plan_id FK added to
     research_sessions. Dashboard breadcrumb navigation on all three pages.
     SQL migration: sql/006-add-research-plans.sql.
-    Awaiting: user runs sql/006 and smoke tests.
 
 7.  Source Conflict Resolver (Module 6) -- COMPLETE
     Committed: 2026-05-10 20:30 UTC.
@@ -386,7 +385,7 @@ License: CC BY-NC-SA 4.0. Personal non-commercial research only.
 - Frontend: Next.js 15 with React 19, App Router, Tailwind CSS
 - Backend: Next.js API route handlers (routes live at src/app/api/, not src/api/)
 - Database: Supabase (PostgreSQL)
-- AI: Anthropic Claude API (claude-sonnet-4-20250514 -- update when newer model available)
+- AI: Anthropic Claude API (claude-sonnet-4-6 -- update when newer model available)
 - File storage: Supabase storage bucket
 - PowerPoint export: python-pptx via lightweight Python endpoint
 - Deployment: Vercel
@@ -424,6 +423,9 @@ Phase 5: Case Study Builder with PowerPoint export as flagship
 - The prototype design system is the visual standard. Match it.
 - API routes live at src/app/api/ -- never src/api/ (wrong for Next.js App Router)
 - All new module pages include a back-to-dashboard breadcrumb link
+- Next.js 15 / React 19: params in [id] pages are a Promise. Always unwrap with use(params).
+  Pattern: import { use } from 'react'; const { id } = use(params)
+  Never access params.id directly -- it generates warnings and will break in future Next.js versions.
 
 ---
 
@@ -453,6 +455,32 @@ FAMILYSEARCH ARK IDENTIFIERS are valuable. Preserve in all citations alongside
 the full record description.
 
 INTERNAL PLATFORM IDs are plumbing. Never surface in researcher-facing output.
+
+---
+
+## Local Environment Rules
+
+TIMESTAMP established: 2026-05-10 21:30 UTC
+
+The one true local path is `/Users/dave/Project-G-Live/`.
+The dev server must always run from this directory.
+
+RULES FOR CLAUDE CODE SESSIONS:
+- Never run `git clone` inside a Claude Code session. The repo already exists
+  at `/Users/dave/Project-G-Live/`. Running clone creates a second copy that
+  causes the dev server to run from the wrong directory.
+- Before running the dev server, confirm the current directory is
+  `/Users/dave/Project-G-Live/` with `pwd`.
+- If the app looks wrong at localhost:3000 (wrong module status, missing pages,
+  routes returning 404), run `pwd` before anything else. If the path is not
+  `/Users/dave/Project-G-Live/`, that is the problem -- not a code bug.
+- The dev server runs once. Do not start a second instance on a different port.
+  If port 3000 is occupied, kill the old process first: `pkill -f "next dev"`
+  then restart from `/Users/dave/Project-G-Live/`.
+- All repo reads and writes use the GitHub connector directly.
+  Claude Code handles local execution only (npm, running the app, git operations).
+- After any GitHub connector push, pull locally before assuming files are current:
+  `cd /Users/dave/Project-G-Live && git pull`
 
 ---
 
@@ -524,51 +552,46 @@ instruction from the user.
 
 ## Project State
 
-TIMESTAMP last updated: 2026-05-10 20:35 UTC by Claude
+TIMESTAMP last updated: 2026-05-10 21:30 UTC by Claude
 
 Build phase: Phase 3 ACTIVE -- 7 of 16 modules complete
 
 Committed and clean:
-- sql/001 through sql/007 -- all migrations
+- sql/001 through sql/007 -- all migrations (all confirmed present in Supabase)
 - src/types/index.ts -- all entity interfaces including SourceConflict
 - All Module 4, 10, 5, 3, 15, 2, 6 source files (see CHANGELOG for full list)
 - src/app/api/persons/route.ts -- shared persons endpoint
 - src/lib/supabase.ts -- createServerSupabaseClient alias added
+- src/lib/ai.ts -- model string updated to claude-sonnet-4-6
 - prototypes/case_study_builder_v1.html and v2.html
-- docs/architecture.md
+- docs/architecture.md -- updated with todos, research_plans, source_conflicts specs
 - docs/modules/16-research-investigation.md -- design doc, IN DESIGN
 - src/app/layout.tsx, page.tsx (dashboard updated), globals.css
 - src/lib/ai.ts
 - package.json, next.config.ts, tsconfig.json, tailwind.config.ts, postcss.config.js
 - .env.local.example, .gitignore, CHANGELOG.md
+- All [id] pages updated to Next.js 15 params Promise pattern (use(params))
 
 What does not exist yet:
-- Supabase migrations 003 through 007 may not yet be run by user.
-  User must run sql/003 through sql/007 in Supabase SQL editor (in order).
 - Steve Little prompt engines not integrated
 - Supabase seed data (Singer/Springer sources)
 - PowerPoint export endpoint
 - File upload to Supabase storage (deferred)
 - Module 16 Supabase tables (5 new tables -- see design doc)
 - Modules 7, 9, 1, 11, 8, 14, 12, 13, 16 (9 modules remaining)
-- Dashboard breadcrumb not yet added to pre-Module-2 pages (Citation Builder,
-  Case Study Builder, Document Analysis, Research Log, Todos) -- backlog item
-- docs/architecture.md not yet updated with source_conflicts table spec
 
 Next immediate action:
-  TIMESTAMP: 2026-05-10 20:35 UTC
-  User should run sql/007-add-source-conflicts.sql in Supabase and smoke test
-  the Conflict Resolver at /conflict-resolver before beginning Module 7 build.
+  TIMESTAMP: 2026-05-10 21:30 UTC
+  FIX session complete. All 7 modules confirmed live and operational.
   Next BUILD: Module 7 (Timeline Builder) -- address/residence as first-class fact.
+  Before starting: read docs/architecture.md timeline_events section (does not exist yet --
+  design the schema first in an EXPLORE session or inline at BUILD start).
 
 ---
 
 ## Backlog
 
 SETTINGS / ADMIN MODULE
-- Dashboard back-navigation on all module screens (breadcrumb pattern; added to Module 2
-  and 6 pages; not yet added to pre-existing modules -- Citation Builder, Case Study,
-  Document Analysis, Research Log, Todos)
 - API configuration panel: surface active model + health check; confirm Sonnet vs Opus
 - Model selection: make MODEL string a config value, not a hardcoded literal in ai.ts
 - Multi-provider support: design ai.ts to be provider-agnostic (Gemini, OpenAI, etc.)
@@ -595,10 +618,11 @@ Research Agent Assignment v2.1 is approximated inline in the generate route for 
 FILE UPLOAD + OCR-HTR TRANSCRIPTION
 Module 5 v1 uses manual transcription entry. Deferred until Supabase storage bucket is set up.
 
-ARCHITECTURE.MD DEBT
-Docs/architecture.md has not been updated since Module 3 (Research Log).
-Source_conflicts table spec (Module 6) is not documented there yet.
-Update architecture.md before building Module 7 to keep the schema reference current.
+CONFLICT FORM VALIDATION
+The new conflict form does not currently warn when Source B has incomplete GPS data
+(e.g., info_type N/A). A quality-of-life improvement: warn or block submission if
+either selected source is missing GPS classification. Low priority -- real sources
+from Citation Builder will always be properly classified.
 
 STANDALONE / SHAREABLE PRODUCT VISION
 TIMESTAMP noted: 2026-05-10 19:45 UTC. Long-range idea only. Not a build concern now.
