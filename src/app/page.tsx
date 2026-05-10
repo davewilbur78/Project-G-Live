@@ -101,6 +101,16 @@ export default function Dashboard() {
       <p className="text-xs text-[var(--ink-faint)] mt-8 font-mono">
         Phase 3 active &mdash; {complete} of {MODULES.length} modules complete
       </p>
+
+      {/* Utility links */}
+      <div className="mt-8 pt-6 border-t border-[var(--rule)] flex gap-6">
+        <Link
+          href="/persons"
+          className="text-xs font-mono text-[var(--ink-faint)] hover:text-[var(--gold-mid)] transition-colors"
+        >
+          Manage Persons
+        </Link>
+      </div>
     </div>
   )
 }
