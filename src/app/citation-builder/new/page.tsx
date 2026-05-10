@@ -334,7 +334,7 @@ export default function NewSourcePage() {
           onClick={() => router.push('/citation-builder')}
           className="text-xs text-[var(--color-text-muted)] hover:text-[var(--color-gold)] mb-6 block"
         >
-          \u2190 Source Library
+          ← Source Library
         </button>
 
         {/* Title */}
@@ -724,7 +724,7 @@ export default function NewSourcePage() {
               onClick={back}
               className="px-4 py-2 text-sm text-[var(--color-text-muted)] hover:text-[var(--color-text)] transition-colors"
             >
-              \u2190 Back
+              ← Back
             </button>
 
             {step === 'review' ? (
@@ -741,7 +741,7 @@ export default function NewSourcePage() {
                 disabled={!canAdvance()}
                 className="px-6 py-2.5 bg-[var(--color-gold)] text-[var(--color-bg)] text-sm font-semibold rounded hover:opacity-90 disabled:opacity-40 disabled:cursor-not-allowed transition-opacity"
               >
-                Continue \u2192
+                Continue →
               </button>
             )}
           </div>

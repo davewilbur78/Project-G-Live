@@ -80,7 +80,7 @@ export default function SourceDetailPage({
       <div>
         <p className="text-red-400 text-sm mb-4">{error ?? 'Source not found.'}</p>
         <Link href="/citation-builder" className="text-xs text-[var(--color-gold)] hover:underline">
-          \u2190 Source Library
+          ← Source Library
         </Link>
       </div>
     </div>
@@ -97,7 +97,7 @@ export default function SourceDetailPage({
           href="/citation-builder"
           className="text-xs text-[var(--color-text-muted)] hover:text-[var(--color-gold)] block mb-6"
         >
-          \u2190 Source Library
+          ← Source Library
         </Link>
 
         {/* Header */}
