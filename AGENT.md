@@ -1,6 +1,6 @@
 Project-G-Live AGENT.md
-Version: 2.6.1
-Last updated: 2026-05-10 19:50 UTC
+Version: 2.6.2
+Last updated: 2026-05-10 20:22 UTC
 Last updated by: Claude
 
 # What This Is
@@ -229,7 +229,7 @@ Semantic versioning: MAJOR.MINOR.PATCH
 
 All timestamps: YYYY-MM-DD HH:MM UTC. Time to the minute required. No date-only stamps.
 
-Current version: 2.6.1
+Current version: 2.6.2
 
 ---
 
@@ -320,11 +320,18 @@ PHASE 3 BUILD ORDER:
     SQL migration: sql/006-add-research-plans.sql.
     Awaiting: user runs sql/006 and smoke tests.
 
-7.  Source Conflict Resolver (Module 6) -- NOT STARTED
+7.  Source Conflict Resolver (Module 6) -- IN PROGRESS
+    Build started: 2026-05-10 20:22 UTC.
     Requires: Citation Builder, sources in Supabase.
 
 8.  Timeline Builder (Module 7) -- NOT STARTED
     Requires: Citation Builder, facts in Supabase.
+    USER FOCUS NOTE (TIMESTAMP: 2026-05-10 20:22 UTC):
+    The user is very focused on addresses and residences for this module.
+    The Timeline Builder must treat address/residence data as a first-class
+    fact type. Design the fact schema, UI, filters, and any AI features with
+    residential history as a primary use case. Do not build a generic timeline
+    that treats addresses as an afterthought.
 
 9.  Research Investigation (Module 16) -- IN DESIGN
     Design doc committed: 2026-05-10 19:30 UTC.
@@ -508,20 +515,21 @@ instruction from the user.
 
 ## Project State
 
-TIMESTAMP last updated: 2026-05-10 19:50 UTC by Claude
+TIMESTAMP last updated: 2026-05-10 20:22 UTC by Claude
 
-Build phase: Phase 3 ACTIVE -- 6 of 16 modules complete
+Build phase: Phase 3 ACTIVE -- 6 of 16 modules complete, Module 6 in progress
 
 Committed and clean:
 - sql/001 through sql/006 -- all migrations
 - src/types/index.ts -- all entity interfaces
 - All Module 4, 10, 5, 3, 15, 2 source files (see CHANGELOG for full list)
 - src/app/api/persons/route.ts -- shared persons endpoint
+- src/lib/supabase.ts -- createServerSupabaseClient alias added (FIX: 2026-05-10 20:20 UTC)
 - prototypes/case_study_builder_v1.html and v2.html
 - docs/architecture.md
 - docs/modules/16-research-investigation.md -- design doc, IN DESIGN
 - src/app/layout.tsx, page.tsx (dashboard updated), globals.css
-- src/lib/supabase.ts, src/lib/ai.ts
+- src/lib/ai.ts
 - package.json, next.config.ts, tsconfig.json, tailwind.config.ts, postcss.config.js
 - .env.local.example, .gitignore, CHANGELOG.md
 
@@ -533,16 +541,14 @@ What does not exist yet:
 - PowerPoint export endpoint
 - File upload to Supabase storage (deferred)
 - Module 16 Supabase tables (5 new tables -- see design doc)
-- Modules 6, 7, 9, 1, 11, 8, 14, 12, 13, 16 (10 modules remaining)
+- Modules 6 (in progress), 7, 9, 1, 11, 8, 14, 12, 13, 16 (10 modules remaining)
 - Dashboard breadcrumb not yet added to pre-Module-2 pages (Citation Builder,
   Case Study Builder, Document Analysis, Research Log, Todos) -- backlog item
 
 Next immediate action:
-  TIMESTAMP: 2026-05-10 19:50 UTC
-  Two known bugs remain from last FIX session (SESSION-2026-05-10-1845-UTC.md):
-  1. Research To-Do Tracker (/todos) -- fails on load, Supabase connection error
-  2. Research Plan Builder (/research-plans/new) -- createServerSupabaseClient not a function
-  Declare FIX posture in next session to resolve both before any new BUILD work.
+  TIMESTAMP: 2026-05-10 20:22 UTC
+  BUILD: Module 6 (Source Conflict Resolver). SQL migration, API routes,
+  and pages underway this session.
 
 ---
 
