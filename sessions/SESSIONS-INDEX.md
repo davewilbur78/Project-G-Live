@@ -24,3 +24,4 @@ Format: TIMESTAMP | Posture | AI | Summary
 2026-05-10 21:45 UTC | FIX | Claude | Environment fix (two-checkout problem); model string updated to claude-sonnet-4-6; Next.js 15 params fix on 3 pages; architecture.md brought current; Local Environment Rules added to AGENT.md v2.7.1
 2026-05-10 23:00 UTC | EXPLORE | Claude | Module 7 (Timeline Builder) designed: Address-as-Evidence principle named, addresses as first-class table, sql/008 written, design doc committed, AGENT.md v2.7.2
 2026-05-11 00:25 UTC | BUILD | Claude | Module 7 (Timeline Builder) complete: types, 4 API routes, 3 pages, AI address normalization, dashboard updated to 8/16
+2026-05-11 01:00 UTC | BUILD | Claude | Smoke test fixes: normalize-address import fix, persons pages built, date fields fixed, GPS evidence optional, sql/009 residence columns to text. First real data entered: Jacob Singer 570 Union Ave Bronx 1930-1944
