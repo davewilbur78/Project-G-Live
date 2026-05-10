@@ -18,3 +18,4 @@ Format: TIMESTAMP | Posture | AI | Summary
 2026-05-10 05:15 UTC | BUILD | Claude | Module 5 pages complete, fact extraction wired, checkpoint
 2026-05-10 06:00 UTC | BUILD | Claude | Module 5 (Document Analysis Worksheet) complete: transcription editor, AI fact extraction, Three-Layer GPS
 2026-05-10 17:00 UTC | BUILD | Claude | Module 2 (Research Plan Builder) complete: research_plans + items, AI strategy generation, 3 pages with dashboard breadcrumbs
+2026-05-10 18:45 UTC | TESTING | Claude | Smoke test all 6 modules, ran sql/004 + sql/006, identified 2 bugs: createServerSupabaseClient error in Research Plan Builder and To-Do Tracker
