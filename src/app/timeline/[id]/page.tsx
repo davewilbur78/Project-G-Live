@@ -3,7 +3,7 @@
 import { use, useState, useEffect, useCallback } from 'react'
 import { useRouter } from 'next/navigation'
 import Link from 'next/link'
-import type { TimelineEvent, Person, Source } from '@/types'
+import type { TimelineEvent, Source } from '@/types'
 
 const EVENT_TYPES = [
   { value: 'birth',            label: 'Birth' },
@@ -71,7 +71,6 @@ export default function EventDetailPage({ params }: { params: Promise<{ id: stri
   const router  = useRouter()
 
   const [event,    setEvent]    = useState<TimelineEvent | null>(null)
-  const [persons,  setPersons]  = useState<Person[]>([])
   const [sources,  setSources]  = useState<Source[]>([])
   const [loading,  setLoading]  = useState(true)
   const [error,    setError]    = useState<string | null>(null)
@@ -80,12 +79,11 @@ export default function EventDetailPage({ params }: { params: Promise<{ id: stri
   const [deleting, setDeleting] = useState(false)
   const [confirmDelete, setConfirmDelete] = useState(false)
 
-  // Edit form state
   const [eventType,     setEventType]     = useState('')
+  const [dateDisplay,   setDateDisplay]   = useState('')
+  const [dateQualifier, setDateQualifier] = useState('exact')
   const [eventDate,     setEventDate]     = useState('')
   const [eventDateEnd,  setEventDateEnd]  = useState('')
-  const [dateQualifier, setDateQualifier] = useState('exact')
-  const [dateDisplay,   setDateDisplay]   = useState('')
   const [placeName,     setPlaceName]     = useState('')
   const [sourceId,      setSourceId]      = useState('')
   const [evidenceType,  setEvidenceType]  = useState('')
@@ -104,20 +102,19 @@ export default function EventDetailPage({ params }: { params: Promise<{ id: stri
       if (!res.ok) throw new Error(data.error)
       const e: TimelineEvent = data.event
       setEvent(e)
-      // Pre-fill edit form
       setEventType(e.event_type)
-      setEventDate(e.event_date ?? '')
-      setEventDateEnd(e.event_date_end ?? '')
-      setDateQualifier(e.date_qualifier ?? 'exact')
-      setDateDisplay(e.date_display ?? '')
-      setPlaceName(e.place_name ?? '')
-      setSourceId(e.source_id ?? '')
-      setEvidenceType(e.evidence_type ?? '')
-      setDescription(e.description ?? '')
-      setNotes(e.notes ?? '')
-      setResFrom(e.residence_date_from ?? '')
-      setResTo(e.residence_date_to ?? '')
-      setResCurrent(e.residence_current ?? false)
+      setDateDisplay(e.date_display      ?? '')
+      setDateQualifier(e.date_qualifier  ?? 'exact')
+      setEventDate(e.event_date          ?? '')
+      setEventDateEnd(e.event_date_end   ?? '')
+      setPlaceName(e.place_name          ?? '')
+      setSourceId(e.source_id            ?? '')
+      setEvidenceType(e.evidence_type    ?? '')
+      setDescription(e.description       ?? '')
+      setNotes(e.notes                   ?? '')
+      setResFrom(e.residence_date_from   ?? '')
+      setResTo(e.residence_date_to       ?? '')
+      setResCurrent(e.residence_current  ?? false)
     } catch {
       setError('Could not load event.')
     } finally {
@@ -127,7 +124,6 @@ export default function EventDetailPage({ params }: { params: Promise<{ id: stri
 
   useEffect(() => {
     load()
-    fetch('/api/persons').then(r => r.json()).then(d => setPersons(d.persons ?? []))
     fetch('/api/citation-builder').then(r => r.json()).then(d => setSources(d.sources ?? []))
   }, [load])
 
@@ -136,20 +132,20 @@ export default function EventDetailPage({ params }: { params: Promise<{ id: stri
     setSaving(true)
     setError(null)
     try {
-      const res  = await fetch(`/api/timeline/${id}`, {
+      const res = await fetch(`/api/timeline/${id}`, {
         method:  'PATCH',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-          event_type:        eventType,
-          event_date:        eventDate        || null,
-          event_date_end:    eventDateEnd     || null,
-          date_qualifier:    dateQualifier,
-          date_display:      dateDisplay      || null,
-          place_name:        placeName        || null,
-          source_id:         sourceId         || null,
-          evidence_type:     evidenceType     || null,
-          description:       description      || null,
-          notes:             notes            || null,
+          event_type:          eventType,
+          date_display:        dateDisplay    || null,
+          date_qualifier:      dateQualifier,
+          event_date:          eventDate      || null,
+          event_date_end:      eventDateEnd   || null,
+          place_name:          placeName      || null,
+          source_id:           sourceId       || null,
+          evidence_type:       evidenceType   || null,
+          description:         description    || null,
+          notes:               notes          || null,
           residence_date_from: resFrom        || null,
           residence_date_to:   resTo          || null,
           residence_current:   resCurrent,
@@ -181,28 +177,14 @@ export default function EventDetailPage({ params }: { params: Promise<{ id: stri
 
   const inputCls = 'w-full px-3 py-2 bg-[var(--color-surface)] border border-[var(--color-border)] rounded text-sm text-[var(--color-text)] focus:outline-none focus:border-[var(--color-gold)]'
   const labelCls = 'block text-xs font-mono text-[var(--color-text-muted)] uppercase tracking-wider mb-1'
+  const mutedCls = 'block text-xs font-mono text-[var(--color-text-muted)] uppercase tracking-wider mb-1 opacity-50'
 
-  if (loading) {
-    return (
-      <div className="min-h-screen bg-[var(--color-bg)] p-10">
-        <p className="text-sm text-[var(--color-text-muted)]">Loading...</p>
-      </div>
-    )
-  }
-
-  if (error && !event) {
-    return (
-      <div className="min-h-screen bg-[var(--color-bg)] p-10">
-        <p className="text-sm text-red-400">{error}</p>
-        <Link href="/timeline" className="text-xs text-[var(--color-text-muted)] hover:text-[var(--color-gold)] mt-4 block">&larr; Timeline</Link>
-      </div>
-    )
-  }
-
+  if (loading) return <div className="min-h-screen bg-[var(--color-bg)] p-10"><p className="text-sm text-[var(--color-text-muted)]">Loading...</p></div>
+  if (error && !event) return <div className="min-h-screen bg-[var(--color-bg)] p-10"><p className="text-sm text-red-400">{error}</p><Link href="/timeline" className="text-xs text-[var(--color-text-muted)] hover:text-[var(--color-gold)] mt-4 block">&larr; Timeline</Link></div>
   if (!event) return null
 
   const typeLabel = EVENT_TYPE_LABELS[event.event_type] ?? event.event_type
-  const typeColor = EVENT_TYPE_COLOR[event.event_type] ?? EVENT_TYPE_COLOR.other
+  const typeColor = EVENT_TYPE_COLOR[event.event_type]  ?? EVENT_TYPE_COLOR.other
   const isRes     = event.event_type === 'residence'
   const a         = event.address
 
@@ -223,7 +205,6 @@ export default function EventDetailPage({ params }: { params: Promise<{ id: stri
           &larr; Timeline
         </Link>
 
-        {/* Header */}
         <div className="flex items-start justify-between mb-8">
           <div>
             <div className="flex items-center gap-3 mb-2 flex-wrap">
@@ -235,11 +216,9 @@ export default function EventDetailPage({ params }: { params: Promise<{ id: stri
               )}
             </div>
             <h1 className="font-display text-2xl text-[var(--color-gold)] mb-1">
-              {isRes && displayAddr() ? displayAddr() : (event.description?.slice(0, 60) ?? typeLabel)}
+              {isRes && displayAddr() ? displayAddr() : (event.date_display ?? event.description?.slice(0, 60) ?? typeLabel)}
             </h1>
-            {event.person && (
-              <p className="text-sm text-[var(--color-text-muted)]">{event.person.display_name}</p>
-            )}
+            {event.person && <p className="text-sm text-[var(--color-text-muted)]">{event.person.display_name}</p>}
           </div>
           {!editing && (
             <button
@@ -252,24 +231,19 @@ export default function EventDetailPage({ params }: { params: Promise<{ id: stri
         </div>
 
         {error && (
-          <div className="p-4 bg-red-900/20 border border-red-500/30 rounded text-sm text-red-400 mb-6">
-            {error}
-          </div>
+          <div className="p-4 bg-red-900/20 border border-red-500/30 rounded text-sm text-red-400 mb-6">{error}</div>
         )}
 
         {/* Read-only view */}
         {!editing && (
           <div className="space-y-6">
 
-            {/* Date */}
             <div className="p-4 bg-[var(--color-surface)] border border-[var(--color-border)] rounded space-y-3">
-              <Field label="Date Display"    value={event.date_display} />
-              <Field label="Date"            value={event.event_date} />
-              <Field label="Date Qualifier"  value={event.date_qualifier} />
-              {event.event_date_end && <Field label="End Date" value={event.event_date_end} />}
+              <Field label="Date"           value={event.date_display} />
+              <Field label="Date Qualifier" value={event.date_qualifier} />
+              {event.event_date && <Field label="ISO (sort)" value={event.event_date} />}
             </div>
 
-            {/* Place / Address */}
             {isRes && a ? (
               <div className="p-4 bg-[var(--color-surface)] border border-[var(--color-border)] rounded space-y-3">
                 <div className="flex items-center justify-between mb-1">
@@ -279,20 +253,18 @@ export default function EventDetailPage({ params }: { params: Promise<{ id: stri
                 {a.raw_text && (
                   <div>
                     <p className="text-xs font-mono text-[var(--color-text-muted)] uppercase tracking-wider mb-0.5">Raw Text (source)</p>
-                    <p className="text-sm text-[var(--color-text)] font-mono italic">{a.raw_text}</p>
+                    <p className="text-sm font-mono italic text-[var(--color-text)]">{a.raw_text}</p>
                   </div>
                 )}
-                <Field label="Street Address" value={a.street_address} />
-                <Field label="City"           value={a.city} />
-                <Field label="County"         value={a.county} />
+                <Field label="Street Address"  value={a.street_address} />
+                <Field label="City"            value={a.city} />
+                <Field label="County"          value={a.county} />
                 <Field label="State / Province" value={a.state_province} />
-                <Field label="Country"        value={a.country} />
+                <Field label="Country"         value={a.country} />
                 {a.notes && <Field label="Address Notes" value={a.notes} />}
                 {event.residence_date_from && <Field label="Residence From" value={event.residence_date_from} />}
                 {event.residence_date_to   && <Field label="Residence To"   value={event.residence_date_to} />}
-                {event.residence_current && (
-                  <p className="text-xs font-mono text-[var(--color-gold)]">Current / last known address</p>
-                )}
+                {event.residence_current && <p className="text-xs font-mono text-[var(--color-gold)]">Current / last known address</p>}
               </div>
             ) : (
               event.place_name && (
@@ -302,19 +274,15 @@ export default function EventDetailPage({ params }: { params: Promise<{ id: stri
               )
             )}
 
-            {/* Source */}
             {event.source && (
               <div className="p-4 bg-[var(--color-surface)] border border-[var(--color-border)] rounded space-y-2">
                 <p className="text-xs font-mono text-[var(--color-text-muted)] uppercase tracking-wider">Source</p>
                 <p className="text-sm text-[var(--color-text)]">{event.source.label}</p>
                 <p className="text-xs font-mono text-[var(--color-text-muted)]">{event.source.ee_short_citation}</p>
-                {event.source.ee_full_citation && (
-                  <p className="text-xs text-[var(--color-text-muted)]">{event.source.ee_full_citation}</p>
-                )}
+                {event.source.ee_full_citation && <p className="text-xs text-[var(--color-text-muted)]">{event.source.ee_full_citation}</p>}
               </div>
             )}
 
-            {/* Description + Notes */}
             {event.description && (
               <div className="p-4 bg-[var(--color-surface)] border border-[var(--color-border)] rounded">
                 <Field label="Description" value={event.description} />
@@ -326,7 +294,6 @@ export default function EventDetailPage({ params }: { params: Promise<{ id: stri
               </div>
             )}
 
-            {/* Delete */}
             <div className="pt-4 border-t border-[var(--color-border)]">
               <button
                 onClick={handleDelete}
@@ -336,15 +303,11 @@ export default function EventDetailPage({ params }: { params: Promise<{ id: stri
                 {confirmDelete ? 'Click again to confirm delete' : 'Delete event'}
               </button>
               {confirmDelete && (
-                <button
-                  onClick={() => setConfirmDelete(false)}
-                  className="ml-4 text-xs font-mono text-[var(--color-text-muted)] hover:text-[var(--color-text)] transition-colors"
-                >
+                <button onClick={() => setConfirmDelete(false)} className="ml-4 text-xs font-mono text-[var(--color-text-muted)] hover:text-[var(--color-text)] transition-colors">
                   Cancel
                 </button>
               )}
             </div>
-
           </div>
         )}
 
@@ -359,29 +322,38 @@ export default function EventDetailPage({ params }: { params: Promise<{ id: stri
               </select>
             </div>
 
-            <div className="grid grid-cols-2 gap-4">
-              <div>
-                <label className={labelCls}>Date</label>
-                <input type="date" value={eventDate} onChange={e => setEventDate(e.target.value)} className={inputCls} />
+            <div className="space-y-3">
+              <div className="grid grid-cols-2 gap-4">
+                <div>
+                  <label className={labelCls}>Date</label>
+                  <input
+                    type="text"
+                    value={dateDisplay}
+                    onChange={e => setDateDisplay(e.target.value)}
+                    placeholder="01 Feb 1981"
+                    className={inputCls}
+                  />
+                  <p className="text-xs text-[var(--color-text-muted)] mt-1">e.g. 01 Feb 1981 &bull; abt 1880</p>
+                </div>
+                <div>
+                  <label className={labelCls}>Date Qualifier</label>
+                  <select value={dateQualifier} onChange={e => setDateQualifier(e.target.value)} className={inputCls}>
+                    {DATE_QUALIFIERS.map(q => <option key={q.value} value={q.value}>{q.label}</option>)}
+                  </select>
+                </div>
               </div>
-              <div>
-                <label className={labelCls}>Date Qualifier</label>
-                <select value={dateQualifier} onChange={e => setDateQualifier(e.target.value)} className={inputCls}>
-                  {DATE_QUALIFIERS.map(q => <option key={q.value} value={q.value}>{q.label}</option>)}
-                </select>
+              <div className="grid grid-cols-2 gap-4">
+                <div>
+                  <label className={mutedCls}>ISO date for sorting (YYYY-MM-DD)</label>
+                  <input type="text" value={eventDate} onChange={e => setEventDate(e.target.value)} placeholder="1981-02-01" className={`${inputCls} opacity-60 text-xs`} />
+                </div>
+                {dateQualifier === 'between' && (
+                  <div>
+                    <label className={mutedCls}>End ISO date (YYYY-MM-DD)</label>
+                    <input type="text" value={eventDateEnd} onChange={e => setEventDateEnd(e.target.value)} placeholder="1925-12-31" className={`${inputCls} opacity-60 text-xs`} />
+                  </div>
+                )}
               </div>
-            </div>
-
-            {dateQualifier === 'between' && (
-              <div>
-                <label className={labelCls}>End Date</label>
-                <input type="date" value={eventDateEnd} onChange={e => setEventDateEnd(e.target.value)} className={inputCls} />
-              </div>
-            )}
-
-            <div>
-              <label className={labelCls}>Date Display</label>
-              <input type="text" value={dateDisplay} onChange={e => setDateDisplay(e.target.value)} className={inputCls} />
             </div>
 
             {eventType !== 'residence' && (
@@ -397,11 +369,11 @@ export default function EventDetailPage({ params }: { params: Promise<{ id: stri
                 <div className="grid grid-cols-2 gap-4">
                   <div>
                     <label className={labelCls}>From</label>
-                    <input type="date" value={resFrom} onChange={e => setResFrom(e.target.value)} className={inputCls} />
+                    <input type="text" value={resFrom} onChange={e => setResFrom(e.target.value)} placeholder="1920" className={inputCls} />
                   </div>
                   <div>
                     <label className={labelCls}>To</label>
-                    <input type="date" value={resTo} onChange={e => setResTo(e.target.value)} className={inputCls} />
+                    <input type="text" value={resTo} onChange={e => setResTo(e.target.value)} placeholder="1935" className={inputCls} />
                   </div>
                 </div>
                 <div className="flex items-center gap-2">
@@ -466,7 +438,6 @@ export default function EventDetailPage({ params }: { params: Promise<{ id: stri
                 Cancel
               </button>
             </div>
-
           </div>
         )}
 
