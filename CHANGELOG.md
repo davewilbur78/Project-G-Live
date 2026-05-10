@@ -5,6 +5,66 @@ Format: TIMESTAMP | Session | Change
 
 ---
 
+## 2026-05-11 00:25 UTC -- Session: BUILD (Module 7 Timeline Builder)
+
+BUILD session. Module 7 built in full from a cold start following the EXPLORE session
+that produced the design doc and sql/008. No SQL was needed this session -- sql/008
+had already been run by the user.
+
+- src/types/index.ts -- added Address, TimelineEvent, AddressRole, TimelineEventType interfaces
+
+- src/app/api/timeline/route.ts -- GET (person_id + event_type filters, joins on person/source/address) + POST
+  POST creates address record inline when residence event includes address data,
+  then links via address_id FK. Single round trip from UI.
+
+- src/app/api/timeline/[id]/route.ts -- GET (full joins including ee_full_citation) + PATCH + DELETE
+
+- src/app/api/timeline/addresses/route.ts -- GET (person_id, source_id filters) + POST
+  Standalone address endpoint for direct address access independent of timeline events.
+
+- src/app/api/timeline/normalize-address/route.ts -- POST AI address normalization
+  Calls claude-sonnet-4-6 with a genealogy-aware system prompt. Returns structured JSON
+  (street_address, city, county, state_province, country). Raw text never altered.
+  System prompt: expand abbreviations, use null for missing fields, JSON only, no fences.
+
+- src/app/timeline/page.tsx -- list view
+  Person selector (pulls from /api/persons). Chronological timeline with vertical rule.
+  Filter tabs: All Events / Residential History / Other Events.
+  Stats bar (event count, residence count). Timeline dot: filled gold for residence,
+  outline for other (fills on hover). Residence events: address as headline.
+  Non-residence events: description or place name. Source short citation shown.
+  Empty states for no person selected and no events for selected person.
+
+- src/app/timeline/new/page.tsx -- new event form
+  Suspense wrapper for useSearchParams (Next.js 15 requirement).
+  person_id pre-filled from query param when coming from list view with person selected.
+  Event type drives field visibility: residence expands full address section.
+  Address section: address role, raw text + AI Normalize button, normalized fields
+  (street, city, county, state/province, country), address notes, residence duration
+  (from/to dates + current checkbox).
+  Source picker from Citation Builder. GPS evidence type required (Direct/Indirect/Negative
+  as toggle buttons). Date display field for human-readable date strings.
+  On save: redirects to event detail page.
+
+- src/app/timeline/[id]/page.tsx -- event detail and edit
+  use(params) per Next.js 15 React 19 pattern.
+  Read-only view: all fields displayed cleanly, address section shows raw_text and
+  normalized fields separately (raw in italic mono, normalized in standard text).
+  Source displayed with label, short citation, and full citation.
+  Edit button toggles edit form. Edit form: all event fields editable except address
+  (address editing deferred to v2). Two-step delete (click once to arm, again to confirm).
+  Back link returns to person-filtered timeline: /timeline?person_id=X.
+
+- src/app/page.tsx -- Module 7 updated from NOT STARTED to COMPLETE, wired as Link.
+  Dashboard now shows 8 of 16 modules complete.
+
+- AGENT.md v2.7.3 -- Module 7 COMPLETE, project state updated to 8 of 16
+- CHANGELOG.md -- this entry
+- sessions/SESSION-2026-05-11-0025-UTC.md -- session snapshot
+- sessions/SESSIONS-INDEX.md -- updated
+
+---
+
 ## 2026-05-10 23:00 UTC -- Session: EXPLORE (Module 7 design + Address-as-Evidence)
 
 EXPLORE session. No application code written. Design artifacts committed.

@@ -1,6 +1,6 @@
 Project-G-Live AGENT.md
-Version: 2.7.2
-Last updated: 2026-05-10 23:00 UTC
+Version: 2.7.3
+Last updated: 2026-05-11 00:25 UTC
 Last updated by: Claude
 
 # What This Is
@@ -229,7 +229,7 @@ Semantic versioning: MAJOR.MINOR.PATCH
 
 All timestamps: YYYY-MM-DD HH:MM UTC. Time to the minute required. No date-only stamps.
 
-Current version: 2.7.2
+Current version: 2.7.3
 
 ---
 
@@ -437,19 +437,16 @@ PHASE 3 BUILD ORDER:
     SQL migration: sql/007-add-source-conflicts.sql.
     Pages: list, new, detail (with side-by-side source comparison + AI Analyze).
 
-8.  Timeline Builder (Module 7) -- BUILD READY
-    TIMESTAMP: 2026-05-10 22:45 UTC
-    Design doc committed: docs/modules/07-timeline-builder.md
-    Schema designed: addresses (first-class table) + timeline_events
-    SQL migration: sql/008-add-timeline-addresses.sql
+8.  Timeline Builder (Module 7) -- COMPLETE
+    Committed: 2026-05-11 00:25 UTC.
+    addresses (first-class table) + timeline_events.
+    4 API routes: /api/timeline (GET+POST), /api/timeline/[id] (GET+PATCH+DELETE),
+    /api/timeline/addresses (GET+POST), /api/timeline/normalize-address (POST AI).
+    3 pages: list (person selector, filter tabs, timeline dot visual),
+    new (address section expands for residence, AI Normalize button),
+    detail (read-only + edit toggle, two-step delete).
     Address-as-Evidence is the spine-level principle driving this module.
-    Addresses are a first-class research surface, not profile metadata.
-    The addresses table is queryable across all persons and all record types.
-    Wires to: Module 5 (fact extraction), Module 8 (spatial FAN mapping),
-    Module 16 (narrative fact extraction).
-    USER FOCUS NOTE (TIMESTAMP: 2026-05-10 20:22 UTC):
-    Address and residence data is a first-class fact type throughout.
-    Do not treat addresses as an afterthought in any module.
+    SQL migration: sql/008-add-timeline-addresses.sql.
 
 9.  Research Investigation (Module 16) -- IN DESIGN
     Design doc committed: 2026-05-10 19:30 UTC.
@@ -515,12 +512,11 @@ License: CC BY-NC-SA 4.0. Personal non-commercial research only.
 Phase 1: Documentation and architecture -- COMPLETE
 Phase 2: Prototype artifacts to test interview logic -- COMPLETE
 Phase 3: Full web app built module by module -- ACTIVE
-  7 of 16 modules complete:
+  8 of 16 modules complete:
   Module 4 (Citation Builder), Module 10 (Case Study Builder),
   Module 5 (Document Analysis Worksheet), Module 3 (Research Log),
   Module 15 (Research To-Do Tracker), Module 2 (Research Plan Builder),
-  Module 6 (Source Conflict Resolver)
-  Module 7 (Timeline Builder) -- BUILD READY
+  Module 6 (Source Conflict Resolver), Module 7 (Timeline Builder)
 Phase 4: GEDCOM Bridge built as onboarding layer
 Phase 5: Case Study Builder with PowerPoint export as flagship
 
@@ -629,7 +625,7 @@ RULES FOR CLAUDE CODE SESSIONS:
     /todos/
     /research-plans/
     /conflict-resolver/
-    /timeline/              -- Module 7 (to be built)
+    /timeline/              -- Module 7 COMPLETE
     /api/citation-builder/
     /api/case-study/
     /api/document-analysis/
@@ -637,7 +633,7 @@ RULES FOR CLAUDE CODE SESSIONS:
     /api/todos/
     /api/research-plans/
     /api/conflict-resolver/
-    /api/timeline/          -- Module 7 (to be built)
+    /api/timeline/          -- Module 7 COMPLETE
     /api/persons/              -- Shared persons list + create
   /src/components/case-study/
   /src/lib/
@@ -674,22 +670,22 @@ instruction from the user.
 
 ## Project State
 
-TIMESTAMP last updated: 2026-05-10 23:00 UTC by Claude
+TIMESTAMP last updated: 2026-05-11 00:25 UTC by Claude
 
-Build phase: Phase 3 ACTIVE -- 7 of 16 modules complete, Module 7 BUILD READY
+Build phase: Phase 3 ACTIVE -- 8 of 16 modules complete, Module 16 (Research Investigation) IN DESIGN
 
 Committed and clean:
 - sql/001 through sql/008 -- all migrations
 - docs/modules/07-timeline-builder.md -- Module 7 design doc
-- src/types/index.ts -- all entity interfaces including SourceConflict
-- All Module 4, 10, 5, 3, 15, 2, 6 source files (see CHANGELOG for full list)
+- docs/modules/16-research-investigation.md -- Module 16 design doc
+- src/types/index.ts -- all entity interfaces including Address, TimelineEvent
+- All Module 4, 10, 5, 3, 15, 2, 6, 7 source files (see CHANGELOG for full list)
 - src/app/api/persons/route.ts -- shared persons endpoint
 - src/lib/supabase.ts -- createServerSupabaseClient alias added
 - src/lib/ai.ts -- model string updated to claude-sonnet-4-6
 - prototypes/case_study_builder_v1.html and v2.html
 - docs/architecture.md -- updated with todos, research_plans, source_conflicts,
   addresses, timeline_events specs
-- docs/modules/16-research-investigation.md -- design doc, IN DESIGN
 - src/app/layout.tsx, page.tsx (dashboard updated), globals.css
 - src/lib/ai.ts
 - package.json, next.config.ts, tsconfig.json, tailwind.config.ts, postcss.config.js
@@ -697,19 +693,21 @@ Committed and clean:
 - All [id] pages updated to Next.js 15 params Promise pattern (use(params))
 
 What does not exist yet:
-- Module 7 source code (schema designed, SQL written, ready to build)
 - Steve Little prompt engines not integrated
 - Supabase seed data (Singer/Springer sources)
 - PowerPoint export endpoint
 - File upload to Supabase storage (deferred)
 - Module 16 Supabase tables (5 new tables -- see design doc)
-- Modules 9, 1, 11, 8, 14, 12, 13, 16 (8 modules remaining after Module 7)
+- Address editing from detail page (deferred to v2 for Module 7)
+- Modules 9, 1, 11, 8, 14, 12, 13, 16 (8 modules remaining)
 
 Next immediate action:
-  TIMESTAMP: 2026-05-10 23:00 UTC
-  EXPLORE session complete. Module 7 design committed. AGENT.md v2.7.2.
-  Next: declare BUILD and build Module 7 (Timeline Builder).
-  Before starting code: run sql/008 in Supabase SQL Editor first.
+  TIMESTAMP: 2026-05-11 00:25 UTC
+  Module 7 committed. Pull locally and smoke-test:
+  cd /Users/dave/Project-G-Live && git pull && npm run dev
+  Verify /timeline loads, person selector works, new event form works,
+  AI Normalize button calls the endpoint.
+  Then: declare next session posture. Module 16 is the strongest next candidate.
 
 ---
 
@@ -756,6 +754,10 @@ step into address entry when the map view is built.
 ADDRESS-AS-SEARCH-KEY QUERY
 Cross-person address proximity query: "who else in this database lived near this
 address in this time range?" Surface automatically in Module 16 and Research Plan Builder.
+
+ADDRESS EDITING FROM DETAIL PAGE
+Module 7 v1 shows address read-only on the event detail page. If a normalized address
+field needs correction, user cannot edit in-app. Small FIX session when needed.
 
 FAN CLUB MAPPER REDESIGN NOTE
 Module 8 should eventually be a spatial FAN map using the addresses table as its
