@@ -1,7 +1,7 @@
 # Sessions Index
 
 TIMESTAMP created: 2026-05-08 23:35 UTC
-TIMESTAMP last updated: 2026-05-09 17:45 UTC
+TIMESTAMP last updated: 2026-05-10 05:15 UTC
 
 This index contains one entry per session snapshot committed
 to /sessions/. Most recent first.
@@ -10,7 +10,7 @@ Format: TIMESTAMP | Posture | AI | Summary
 
 ---
 
-2026-05-09 17:45 UTC | EXPLORE->BUILD | Claude | Built Case Study Builder (Module 10) in full while user provisioned Supabase: SQL migration 002, 13 API routes, 6 stage components (including RES Checklist as Stage 4), list/new/detail pages. Created CHANGELOG.md. AGENT.md bumped to v2.3.0. See SESSION-2026-05-09-1745-UTC.md.
+2026-05-10 05:15 UTC | FIX | Claude | Smoke test session. Supabase provisioned, repo cloned, app running at localhost:3000. Two bugs found: GPS radio buttons not selectable, Continue button has no visual styling. Save to Supabase confirmed working. See SESSION-2026-05-10-0515-UTC.md.
 
 2026-05-10 03:30 UTC | BUILD | Claude | Built Citation Builder (Module 4) in full: SQL migration (9 tables + RLS), TypeScript entity types, 5-step structured interview (11 source categories), GPS classification UI, EE citation forms, source library, detail/edit view, API routes with GPS enforcement. All committed. See SESSION-2026-05-10-0330-UTC.md.
 
