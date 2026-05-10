@@ -5,6 +5,45 @@ Format: TIMESTAMP | Session | Change
 
 ---
 
+## 2026-05-09 15:50 UTC -- Session: Phase 3 BUILD (Research Log)
+
+- sql/004-add-research-log.sql -- research_sessions + session_sources tables + RLS
+- src/types/index.ts -- added ResearchSession, ResearchSessionStatus, SessionSource interfaces
+- src/app/api/persons/route.ts -- shared GET list + POST create (new shared endpoint)
+- src/app/api/research-log/route.ts -- GET list + POST create
+- src/app/api/research-log/[id]/route.ts -- GET + PATCH + DELETE
+- src/app/api/research-log/[id]/session-sources/route.ts -- GET list + POST
+- src/app/api/research-log/[id]/session-sources/[sourceId]/route.ts -- PATCH + DELETE
+- src/app/api/research-log/[id]/abstract/route.ts -- POST AI abstraction (Chat Conversation Abstractor pattern)
+- src/app/research-log/page.tsx -- session list
+- src/app/research-log/new/page.tsx -- new session form with person picker
+- src/app/research-log/[id]/page.tsx -- detail: inline edit per section, source tracking with yielded toggle, AI abstractor panel
+- src/app/page.tsx -- Research Log status updated to COMPLETE
+- Module 3 (Research Log): COMPLETE
+- docs/architecture.md -- research_sessions and session_sources column-level specs added
+- AGENT.md bumped to v2.4.0
+
+---
+
+## 2026-05-10 06:00 UTC -- Session: Phase 3 FIX->BUILD (Bug fixes + Document Analysis Worksheet)
+
+- src/app/globals.css -- added --color-* CSS variable aliases (root cause of GPS radio + Continue button bugs)
+- src/app/citation-builder/new/page.tsx -- replaced bg-[var(--color-gold)]/5 with --color-gold-subtle
+- src/app/page.tsx -- COMPLETE modules converted to Link elements (navigation wired)
+- sql/003-add-documents.sql -- documents + document_facts + RLS
+- src/types/index.ts -- added Document, DocumentFact, TranscriptionStatus interfaces
+- src/app/api/document-analysis/route.ts -- GET list + POST create
+- src/app/api/document-analysis/[id]/route.ts -- GET + PATCH + DELETE
+- src/app/api/document-analysis/[id]/extract-facts/route.ts -- POST AI fact extraction
+- src/app/api/document-analysis/[id]/facts/route.ts -- GET list + POST create
+- src/app/api/document-analysis/[id]/facts/[factId]/route.ts -- PATCH + DELETE
+- src/app/document-analysis/page.tsx -- list
+- src/app/document-analysis/new/page.tsx -- new worksheet
+- src/app/document-analysis/[id]/page.tsx -- detail with transcription + AI extraction + Three-Layer classification
+- Module 5 (Document Analysis Worksheet): COMPLETE
+
+---
+
 ## 2026-05-10 03:25 UTC -- Session: Phase 3 BUILD (Citation Builder)
 
 - sql/001-create-tables.sql -- All 9 Supabase tables with RLS policies
