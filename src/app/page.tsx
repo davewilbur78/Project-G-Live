@@ -6,31 +6,33 @@ import Link from 'next/link'
 
 type ModuleStatus = 'COMPLETE' | 'BUILD READY' | 'NOT STARTED'
 
-const MODULES: { id: number; name: string; status: ModuleStatus; href: string; priority: boolean }[] = [
-  { id: 4,  name: 'Citation Builder',           status: 'COMPLETE',     href: '/citation-builder',   priority: true },
-  { id: 10, name: 'Case Study Builder',          status: 'COMPLETE',     href: '/case-study',         priority: true },
-  { id: 5,  name: 'Document Analysis Worksheet', status: 'NOT STARTED',  href: '/document-analysis',  priority: false },
-  { id: 3,  name: 'Research Log',                status: 'NOT STARTED',  href: '/research-log',       priority: false },
-  { id: 2,  name: 'Research Plan Builder',       status: 'NOT STARTED',  href: '/research-plan',      priority: false },
-  { id: 6,  name: 'Source Conflict Resolver',    status: 'NOT STARTED',  href: '/conflict-resolver',  priority: false },
-  { id: 7,  name: 'Timeline Builder',            status: 'NOT STARTED',  href: '/timeline',           priority: false },
-  { id: 9,  name: 'Research Report Writer',      status: 'NOT STARTED',  href: '/report-writer',      priority: false },
-  { id: 1,  name: 'GEDCOM Bridge',               status: 'NOT STARTED',  href: '/gedcom-bridge',      priority: false },
-  { id: 11, name: 'Family Group Sheet Builder',  status: 'NOT STARTED',  href: '/family-group-sheet', priority: false },
-  { id: 8,  name: 'FAN Club Mapper',             status: 'NOT STARTED',  href: '/fan-club',           priority: false },
-  { id: 14, name: 'DNA Evidence Tracker',        status: 'NOT STARTED',  href: '/dna-tracker',        priority: false },
-  { id: 12, name: 'Correspondence Log',          status: 'NOT STARTED',  href: '/correspondence',     priority: false },
-  { id: 13, name: 'File Naming System',          status: 'NOT STARTED',  href: '/file-naming',        priority: false },
-  { id: 15, name: 'Research To-Do Tracker',      status: 'NOT STARTED',  href: '/todos',              priority: false },
+const MODULES: { id: number; name: string; status: ModuleStatus; href: string }[] = [
+  { id: 4,  name: 'Citation Builder',           status: 'COMPLETE',    href: '/citation-builder'   },
+  { id: 10, name: 'Case Study Builder',          status: 'COMPLETE',    href: '/case-study'         },
+  { id: 5,  name: 'Document Analysis Worksheet', status: 'COMPLETE',    href: '/document-analysis'  },
+  { id: 3,  name: 'Research Log',                status: 'NOT STARTED', href: '/research-log'       },
+  { id: 2,  name: 'Research Plan Builder',       status: 'NOT STARTED', href: '/research-plan'      },
+  { id: 6,  name: 'Source Conflict Resolver',    status: 'NOT STARTED', href: '/conflict-resolver'  },
+  { id: 7,  name: 'Timeline Builder',            status: 'NOT STARTED', href: '/timeline'           },
+  { id: 9,  name: 'Research Report Writer',      status: 'NOT STARTED', href: '/report-writer'      },
+  { id: 1,  name: 'GEDCOM Bridge',               status: 'NOT STARTED', href: '/gedcom-bridge'      },
+  { id: 11, name: 'Family Group Sheet Builder',  status: 'NOT STARTED', href: '/family-group-sheet' },
+  { id: 8,  name: 'FAN Club Mapper',             status: 'NOT STARTED', href: '/fan-club'           },
+  { id: 14, name: 'DNA Evidence Tracker',        status: 'NOT STARTED', href: '/dna-tracker'        },
+  { id: 12, name: 'Correspondence Log',          status: 'NOT STARTED', href: '/correspondence'     },
+  { id: 13, name: 'File Naming System',          status: 'NOT STARTED', href: '/file-naming'        },
+  { id: 15, name: 'Research To-Do Tracker',      status: 'NOT STARTED', href: '/todos'              },
 ]
 
 const STATUS_STYLE: Record<ModuleStatus, { bg: string; color: string }> = {
-  'COMPLETE':    { bg: 'var(--green-bg)',       color: 'var(--green-ink)' },
-  'BUILD READY': { bg: 'var(--amber-bg)',       color: 'var(--amber-ink)' },
+  'COMPLETE':    { bg: 'var(--green-bg)',        color: 'var(--green-ink)' },
+  'BUILD READY': { bg: 'var(--amber-bg)',        color: 'var(--amber-ink)' },
   'NOT STARTED': { bg: 'var(--parchment-darker)', color: 'var(--ink-faint)' },
 }
 
 export default function Dashboard() {
+  const complete = MODULES.filter(m => m.status === 'COMPLETE').length
+
   return (
     <div className="max-w-4xl mx-auto px-6 py-12">
       <div className="border-b-2 border-[var(--ink)] pb-6 mb-10">
@@ -54,7 +56,7 @@ export default function Dashboard() {
       <div className="space-y-2">
         {MODULES.map((mod) => {
           const isLive = mod.status === 'COMPLETE'
-          const style = STATUS_STYLE[mod.status]
+          const style  = STATUS_STYLE[mod.status]
 
           const inner = (
             <>
@@ -97,7 +99,7 @@ export default function Dashboard() {
       </div>
 
       <p className="text-xs text-[var(--ink-faint)] mt-8 font-mono">
-        Phase 3 active &mdash; 2 of 15 modules complete
+        Phase 3 active &mdash; {complete} of {MODULES.length} modules complete
       </p>
     </div>
   )
