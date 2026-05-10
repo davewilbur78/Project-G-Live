@@ -1,6 +1,6 @@
 Project-G-Live AGENT.md
-Version: 2.0.0
-Last updated: 2026-05-09 22:00 UTC
+Version: 2.1.0
+Last updated: 2026-05-10 02:50 UTC
 Last updated by: Claude
 
 # What This Is
@@ -229,7 +229,7 @@ Semantic versioning: MAJOR.MINOR.PATCH
 
 All timestamps: YYYY-MM-DD HH:MM UTC. Time to the minute required. No date-only stamps.
 
-Current version: 2.0.0
+Current version: 2.1.0
 
 ---
 
@@ -247,6 +247,35 @@ translated into plain language.
 
 ---
 
+## The Case Study Builder Prototype -- What It Actually Is
+
+IMPORTANT: Read this before assuming anything about build order or schema work.
+
+The Case Study Builder v2 prototype (prototypes/case_study_builder_v2.html)
+is NOT a wireframe. It is a fully functional, production-quality HTML
+application with real Singer/Springer research data throughout.
+
+What is built and proven in the prototype:
+- Complete 5-stage GPS workflow, all stages implemented and navigable
+- 17 real sources with full EE citations, short footnote forms, and
+  Three-Layer analysis for every source (12 Green / 2 Yellow / 3 Red)
+- 7 evidence chain links with weight color-coding and footnote references
+- 2 conflicts with full researcher analysis and live textarea validation
+- Complete proof argument with inline superscript footnotes and rendered
+  footnote section
+- Full CSS design system (Playfair Display, Source Serif 4, JetBrains Mono)
+
+The JavaScript data structures in the prototype (SOURCES, EVIDENCE,
+CONFLICTS, PROOF_PARAGRAPHS, FOOTNOTE_DEFS) ARE the schema design.
+Every field in the Supabase tables was derived from them. The prototype
+did not just prove the UX -- it answered the schema questions.
+
+The prototype's design system is the canonical visual reference for
+all Phase 3 module builds. Colors, typography, and component patterns
+must match it.
+
+---
+
 ## The Modules: Status and Build Order
 
 15 modules. Design docs in /docs/modules/. Build order reflects dependencies.
@@ -254,20 +283,27 @@ Do not start a module before its prerequisites are complete.
 
 Status: NOT STARTED / IN DESIGN / PROTOTYPE / BUILD READY / COMPLETE
 
-BUILD STRATEGY: Get Case Study Builder running as a real application as fast
-as possible, then build outward. GEDCOM Bridge comes last -- it is onboarding
-convenience, not core workflow. The working app does not depend on it.
+BUILD STRATEGY: Build Case Study Builder as a real application as fast
+as possible, then build outward. Citation Builder is built first because
+Case Study Builder's Stage 2 pulls from it -- but do not wait for Citation
+Builder to be 100% complete before starting Case Study Builder. Build
+them in close succession and wire them together when both exist.
+GEDCOM Bridge comes last -- it is onboarding convenience, not core workflow.
 
 PHASE 3 BUILD ORDER:
 
 1.  Citation Builder (Module 4) -- NOT STARTED
     Foundation. Manages all sources, EE citations, Three-Layer analysis.
     Required by every module that touches sources. Build first.
+    The schema is defined in architecture.md (sources, citations tables).
 
-2.  Case Study Builder (Module 10) -- PROTOTYPE COMPLETE (v2)
-    Prototype: /prototypes/case_study_builder_v2.html
+2.  Case Study Builder (Module 10) -- BUILD READY
+    Prototype v2: /prototypes/case_study_builder_v2.html (48,917 bytes)
     Test case: Jacob Singer / Yankel Springer identity proof (2026-05-07)
-    Flagship. Build immediately after Citation Builder.
+    Schema defined in architecture.md (case_studies, case_study_sources,
+    evidence_chain_links, conflicts, proof_paragraphs, footnote_definitions).
+    Stub pages exist in src/app/case-study/.
+    Do not wait for all upstream modules -- build now, wire up as they come.
 
 3.  Document Analysis Worksheet (Module 5) -- NOT STARTED
     Feeds sources into Case Study Builder. Requires: Citation Builder.
@@ -280,6 +316,7 @@ PHASE 3 BUILD ORDER:
 
 6.  Source Conflict Resolver (Module 6) -- NOT STARTED
     Requires: Citation Builder, sources in Supabase.
+    Schema for conflicts table defined in architecture.md.
 
 7.  Timeline Builder (Module 7) -- NOT STARTED
     Requires: Citation Builder, facts in Supabase.
@@ -325,10 +362,10 @@ License: CC BY-NC-SA 4.0. Personal non-commercial research only.
 
 ## Tech Stack
 
-- Frontend: Next.js with React and Tailwind CSS
-- Backend: Next.js API routes
+- Frontend: Next.js 15 with React 19, App Router, Tailwind CSS
+- Backend: Next.js API route handlers
 - Database: Supabase (PostgreSQL)
-- AI: Anthropic Claude API (use current Sonnet model at time of build)
+- AI: Anthropic Claude API (claude-sonnet-4-20250514 -- update when newer model available)
 - File storage: Supabase storage bucket
 - PowerPoint export: python-pptx via lightweight Python endpoint
 - Deployment: Vercel
@@ -338,9 +375,13 @@ License: CC BY-NC-SA 4.0. Personal non-commercial research only.
 ## Build Path
 
 Phase 1: Documentation and architecture -- COMPLETE
-Phase 2: Prototype artifacts to test interview logic -- ACTIVE
-  Case Study Builder prototype v2 complete (2026-05-07)
-Phase 3: Full web app built module by module
+Phase 2: Prototype artifacts to test interview logic -- COMPLETE
+  Case Study Builder v1: /prototypes/case_study_builder_v1.html (39,979 bytes)
+  Case Study Builder v2: /prototypes/case_study_builder_v2.html (48,917 bytes)
+  Test case: Jacob Singer / Yankel Springer identity proof (2026-05-07)
+Phase 3: Full web app built module by module -- ACTIVE
+  Scaffold committed 2026-05-10. src/ structure live.
+  Next: build Citation Builder (Module 4), then Case Study Builder (Module 10).
 Phase 4: GEDCOM Bridge built as onboarding layer
 Phase 5: Case Study Builder with PowerPoint export as flagship
 
@@ -359,6 +400,7 @@ Phase 5: Case Study Builder with PowerPoint export as flagship
 - All citations follow Evidence Explained (EE) format
 - Every source carries both a full citation and a short footnote form
 - Every factual claim in a proof argument carries an inline footnote. No naked claims.
+- The prototype design system is the visual standard. Match it.
 
 ---
 
@@ -397,8 +439,10 @@ INTERNAL PLATFORM IDs are plumbing. Never surface in researcher-facing output.
 /prototypes/        -- HTML prototype files
 /docs/research/     -- Research output files
 /docs/modules/      -- Module design documents (15 files, one per module)
-/docs/architecture.md -- Supabase schema reference
-/src/               -- Application source code (unstubbed -- Phase 3 first task)
+/docs/architecture.md -- Supabase schema reference (column-level as of 2026-05-10)
+/src/               -- Application source code (Phase 3 scaffold committed 2026-05-10)
+  /src/app/         -- Next.js App Router pages
+  /src/lib/         -- Supabase client, AI wrapper
 wip/ branch         -- Partially built work, committed even if broken
 
 Claude Code local path: /Users/dave/Project-G-Live/
@@ -431,45 +475,53 @@ instruction from the user.
 
 ## Project State
 
-TIMESTAMP last updated: 2026-05-09 22:00 UTC by Claude
+TIMESTAMP last updated: 2026-05-10 02:50 UTC by Claude
 
-Build phase: Phase 2 active
-Last committed substantive work: Case Study Builder prototype v2 -- 2026-05-07
-Module 10 test case: Jacob Singer / Yankel Springer identity proof
-  Research record: /docs/research/Singer_Springer_Research_Record.docx
-  Prototype: /prototypes/case_study_builder_v2.html
-Supabase schema: /docs/architecture.md (table names defined; expand to column-level before Phase 3)
-AGENT.md: v2.0.0 -- lean Claude-native rewrite committed 2026-05-09
+Build phase: Phase 3 ACTIVE
+Phase 3 scaffold committed: 2026-05-10 02:45 UTC
+
+Committed and clean:
+- prototypes/case_study_builder_v1.html (39,979 bytes) -- historical archive
+- prototypes/case_study_builder_v2.html (48,917 bytes) -- canonical, fully functional
+- docs/architecture.md -- column-level schema for all Case Study Builder tables,
+  plus persons, sources, citations. Other supporting module tables named but TBD.
+- src/app/layout.tsx, src/app/page.tsx (dashboard), src/app/globals.css
+- src/app/case-study/page.tsx (list stub), src/app/case-study/[id]/page.tsx (detail stub)
+- src/lib/supabase.ts -- browser + server Supabase client with type aliases
+- src/lib/ai.ts -- Claude API wrapper with GPS enforcement system prompt
+- package.json, next.config.ts, tsconfig.json, tailwind.config.ts, postcss.config.js
+- .env.local.example, .gitignore
+
+What does not exist yet:
+- Supabase project not yet provisioned. No tables created. No data.
+  Run: create Supabase project, run SQL from architecture.md to create tables.
+- npm install not yet run. User must run locally.
+- Citation Builder (Module 4) -- not started
+- Case Study Builder production components -- stub pages only
+
+Next immediate action:
+  Build Citation Builder (Module 4) -- the sources/citations data layer.
+  This is what Case Study Builder's Stage 2 will pull from.
 
 ---
 
 ## Backlog
 
-STUB src/ DIRECTORY
-First task of first Phase 3 BUILD session. Run Next.js App Router scaffold,
-add Supabase client configuration. Update architecture.md with folder conventions.
+REASONABLY EXHAUSTIVE SEARCH CHECKLIST
+Dedicated stage in Case Study Builder between Evidence Chain and Conflict Analysis.
+Add to Module 10 design doc before completing the production build.
 
-EXPAND SUPABASE SCHEMA
-/docs/architecture.md has table names. Expand to full column-level specification
-for all tables before building any data-touching module.
-
-SOURCE CONFLICT RESOLVER SCHEMA
-The `conflicts` table is TBD. Design before building Module 6.
-
-CASE STUDY BUILDER SCHEMA
-Case study storage table is TBD. Design before full production build of Module 10.
+SUPABASE PROJECT PROVISIONING
+Create the Supabase project. Run the SQL from docs/architecture.md to create tables.
+Seed with Singer/Springer data from the prototype as the first test case.
 
 DOCUMENT VIEWER
 Source images render inline in the source record panel.
 Stored in Supabase, displayed alongside the citation and analysis.
 
-REASONABLY EXHAUSTIVE SEARCH CHECKLIST
-Dedicated stage in Case Study Builder between Evidence Chain and Conflict Analysis.
-Add to Module 10 design doc before full build begins.
+POWERPOINTEXPORT ENDPOINT
+Design the python-pptx endpoint when beginning the PowerPoint export feature.
 
-CLAUDE.AI PROJECT INSTRUCTIONS
-Update the claude.ai project settings for Project-G-Live to read:
-"This is Project-G-Live. At session start, read AGENT.md from the repo
-(use the GitHub connector), confirm the version and date in your own words,
-fetch the most recent session snapshot from /sessions/, then ask for session
-posture: BUILD, FIX, or EXPLORE. Do not begin any work until posture is confirmed."
+STEVE LITTLE PROMPT INTEGRATION
+Load engine prompts from /prompts/ directory into src/lib/ai.ts callWithEngine().
+Currently routed with a stub. Integrate actual prompt text before using in production.
