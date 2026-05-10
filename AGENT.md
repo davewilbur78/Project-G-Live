@@ -1,6 +1,6 @@
 Project-G-Live AGENT.md
-Version: 2.1.0
-Last updated: 2026-05-10 02:50 UTC
+Version: 2.2.0
+Last updated: 2026-05-10 03:30 UTC
 Last updated by: Claude
 
 # What This Is
@@ -229,7 +229,7 @@ Semantic versioning: MAJOR.MINOR.PATCH
 
 All timestamps: YYYY-MM-DD HH:MM UTC. Time to the minute required. No date-only stamps.
 
-Current version: 2.1.0
+Current version: 2.2.0
 
 ---
 
@@ -292,10 +292,12 @@ GEDCOM Bridge comes last -- it is onboarding convenience, not core workflow.
 
 PHASE 3 BUILD ORDER:
 
-1.  Citation Builder (Module 4) -- NOT STARTED
-    Foundation. Manages all sources, EE citations, Three-Layer analysis.
-    Required by every module that touches sources. Build first.
-    The schema is defined in architecture.md (sources, citations tables).
+1.  Citation Builder (Module 4) -- COMPLETE
+    Source library, 5-step structured interview (11 source categories),
+    GPS classification UI, EE citation forms, detail/edit view.
+    API routes: GET/POST/PATCH/DELETE with GPS enforcement.
+    SQL migration: sql/001-create-tables.sql (all 9 tables + RLS).
+    Awaiting: Supabase provisioning and smoke test by user.
 
 2.  Case Study Builder (Module 10) -- BUILD READY
     Prototype v2: /prototypes/case_study_builder_v2.html (48,917 bytes)
@@ -303,7 +305,7 @@ PHASE 3 BUILD ORDER:
     Schema defined in architecture.md (case_studies, case_study_sources,
     evidence_chain_links, conflicts, proof_paragraphs, footnote_definitions).
     Stub pages exist in src/app/case-study/.
-    Do not wait for all upstream modules -- build now, wire up as they come.
+    Build after Citation Builder smoke test passes.
 
 3.  Document Analysis Worksheet (Module 5) -- NOT STARTED
     Feeds sources into Case Study Builder. Requires: Citation Builder.
@@ -363,7 +365,7 @@ License: CC BY-NC-SA 4.0. Personal non-commercial research only.
 ## Tech Stack
 
 - Frontend: Next.js 15 with React 19, App Router, Tailwind CSS
-- Backend: Next.js API route handlers
+- Backend: Next.js API route handlers (routes live at src/app/api/, not src/api/)
 - Database: Supabase (PostgreSQL)
 - AI: Anthropic Claude API (claude-sonnet-4-20250514 -- update when newer model available)
 - File storage: Supabase storage bucket
@@ -380,8 +382,9 @@ Phase 2: Prototype artifacts to test interview logic -- COMPLETE
   Case Study Builder v2: /prototypes/case_study_builder_v2.html (48,917 bytes)
   Test case: Jacob Singer / Yankel Springer identity proof (2026-05-07)
 Phase 3: Full web app built module by module -- ACTIVE
-  Scaffold committed 2026-05-10. src/ structure live.
-  Next: build Citation Builder (Module 4), then Case Study Builder (Module 10).
+  Scaffold committed: 2026-05-10 02:45 UTC
+  Citation Builder (Module 4): COMPLETE -- committed 2026-05-10 03:25 UTC
+  Next: smoke test Citation Builder, then build Case Study Builder (Module 10).
 Phase 4: GEDCOM Bridge built as onboarding layer
 Phase 5: Case Study Builder with PowerPoint export as flagship
 
@@ -401,6 +404,7 @@ Phase 5: Case Study Builder with PowerPoint export as flagship
 - Every source carries both a full citation and a short footnote form
 - Every factual claim in a proof argument carries an inline footnote. No naked claims.
 - The prototype design system is the visual standard. Match it.
+- API routes live at src/app/api/ -- never src/api/ (wrong for Next.js App Router)
 
 ---
 
@@ -440,9 +444,15 @@ INTERNAL PLATFORM IDs are plumbing. Never surface in researcher-facing output.
 /docs/research/     -- Research output files
 /docs/modules/      -- Module design documents (15 files, one per module)
 /docs/architecture.md -- Supabase schema reference (column-level as of 2026-05-10)
-/src/               -- Application source code (Phase 3 scaffold committed 2026-05-10)
+/sql/               -- SQL migration files. Run in Supabase SQL editor.
+  001-create-tables.sql -- Full schema: all 9 tables + RLS policies
+/src/               -- Application source code
   /src/app/         -- Next.js App Router pages
+    /citation-builder/         -- Module 4: source library + new/edit flow
+    /case-study/               -- Module 10: stub pages (not yet built)
+    /api/citation-builder/     -- API routes for Module 4
   /src/lib/         -- Supabase client, AI wrapper
+  /src/types/       -- Entity interfaces and GPS type re-exports
 wip/ branch         -- Partially built work, committed even if broken
 
 Claude Code local path: /Users/dave/Project-G-Live/
@@ -475,33 +485,43 @@ instruction from the user.
 
 ## Project State
 
-TIMESTAMP last updated: 2026-05-10 02:50 UTC by Claude
+TIMESTAMP last updated: 2026-05-10 03:30 UTC by Claude
 
 Build phase: Phase 3 ACTIVE
-Phase 3 scaffold committed: 2026-05-10 02:45 UTC
 
 Committed and clean:
+- sql/001-create-tables.sql -- all 9 tables, RLS policies. Run in Supabase SQL editor.
+- src/types/index.ts -- entity interfaces (Source, Person, CaseStudy, etc.)
+- src/app/citation-builder/page.tsx -- source library (search, filter, empty state)
+- src/app/citation-builder/new/page.tsx -- 5-step new source interview (11 categories)
+- src/app/citation-builder/[id]/page.tsx -- source detail with copy and edit
+- src/app/api/citation-builder/route.ts -- GET list + POST create (GPS validated)
+- src/app/api/citation-builder/[id]/route.ts -- GET + PATCH + DELETE
 - prototypes/case_study_builder_v1.html (39,979 bytes) -- historical archive
 - prototypes/case_study_builder_v2.html (48,917 bytes) -- canonical, fully functional
-- docs/architecture.md -- column-level schema for all Case Study Builder tables,
-  plus persons, sources, citations. Other supporting module tables named but TBD.
+- docs/architecture.md -- column-level schema for all tables
 - src/app/layout.tsx, src/app/page.tsx (dashboard), src/app/globals.css
 - src/app/case-study/page.tsx (list stub), src/app/case-study/[id]/page.tsx (detail stub)
 - src/lib/supabase.ts -- browser + server Supabase client with type aliases
 - src/lib/ai.ts -- Claude API wrapper with GPS enforcement system prompt
 - package.json, next.config.ts, tsconfig.json, tailwind.config.ts, postcss.config.js
 - .env.local.example, .gitignore
+- CHANGELOG.md
 
 What does not exist yet:
-- Supabase project not yet provisioned. No tables created. No data.
-  Run: create Supabase project, run SQL from architecture.md to create tables.
-- npm install not yet run. User must run locally.
-- Citation Builder (Module 4) -- not started
-- Case Study Builder production components -- stub pages only
+- Supabase project not yet provisioned. User must:
+    1. Create project at supabase.com
+    2. Run sql/001-create-tables.sql in SQL editor
+    3. Copy URL + anon key + service role key into .env.local
+    4. Run npm install && npm run dev locally
+    5. Add one real source as smoke test
+- Case Study Builder production components -- stub pages only in src/app/case-study/
+- Steve Little prompt engines not integrated into src/lib/ai.ts
+- Supabase seed data (Singer/Springer sources from prototype)
 
 Next immediate action:
-  Build Citation Builder (Module 4) -- the sources/citations data layer.
-  This is what Case Study Builder's Stage 2 will pull from.
+  User provisions Supabase and completes smoke test.
+  Next Claude session: build Case Study Builder (Module 10) production components.
 
 ---
 
@@ -511,9 +531,9 @@ REASONABLY EXHAUSTIVE SEARCH CHECKLIST
 Dedicated stage in Case Study Builder between Evidence Chain and Conflict Analysis.
 Add to Module 10 design doc before completing the production build.
 
-SUPABASE PROJECT PROVISIONING
-Create the Supabase project. Run the SQL from docs/architecture.md to create tables.
-Seed with Singer/Springer data from the prototype as the first test case.
+SUPABASE SEED DATA
+After provisioning, seed with the 17 Singer/Springer sources from the prototype
+as the first real test case. This can be done via Citation Builder UI or a seed script.
 
 DOCUMENT VIEWER
 Source images render inline in the source record panel.
@@ -525,3 +545,7 @@ Design the python-pptx endpoint when beginning the PowerPoint export feature.
 STEVE LITTLE PROMPT INTEGRATION
 Load engine prompts from /prompts/ directory into src/lib/ai.ts callWithEngine().
 Currently routed with a stub. Integrate actual prompt text before using in production.
+
+architecture.md CORRECTION
+Directory structure in architecture.md shows src/api/ for API routes.
+Correct path for Next.js App Router is src/app/api/. Fix in a future session.
