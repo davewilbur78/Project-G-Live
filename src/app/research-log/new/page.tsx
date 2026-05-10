@@ -18,15 +18,11 @@ export default function NewResearchSessionPage() {
   const [error,       setError]       = useState<string | null>(null)
 
   useEffect(() => {
-    fetch('/api/citation-builder')   // persons are created via citation builder flow for now
-      .then(() => {})
-      .catch(() => {})
-
-    // Load persons for the subject dropdown
-    fetch('/api/research-log/persons')
+    // Load persons for the subject dropdown -- optional, suppress errors gracefully
+    fetch('/api/persons')
       .then(r => r.json())
       .then(d => setPersons(d.persons ?? []))
-      .catch(() => {}) // persons are optional; suppress error
+      .catch(() => {})
   }, [])
 
   async function handleSubmit() {
