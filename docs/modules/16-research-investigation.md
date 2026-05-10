@@ -282,3 +282,67 @@ individuals named Abe Barnholtz in St. Louis in the 1920s-1930s --
 a real research problem that revealed the need for a persistent,
 AI-collaborative investigation workspace not provided by any existing
 module or external tool.
+
+---
+
+## Elevator Pitch
+
+Genealogical research has a problem that no existing tool solves.
+
+When a researcher hits a wall -- a DNA match they can't identify, a name
+that belongs to three different people, a record that puts someone in two
+places at once -- they leave their research platform and start improvising.
+A chat window here, a spreadsheet there, handwritten notes on the desk,
+saved files scattered across a hard drive. The thinking happens outside
+the tools. Nothing is connected. Nothing is saved in a way that's findable
+six months later. And the platform they paid for has no idea any of it
+happened.
+
+Research Investigation brings that work inside the platform.
+
+It is a named, persistent, AI-collaborative workspace for open-ended
+research problems. You open an investigation, describe what you're seeing,
+and your AI partner -- who already knows your existing sources, persons,
+and case studies -- helps you think it through. As the conversation
+unfolds, structured outputs emerge automatically: a disambiguation matrix,
+an evidence list, a catalog of candidate individuals. Everything is saved.
+Everything is connected to the rest of your research. When you solve the
+problem, the conclusion gets handed off to a formal proof argument. When
+you come back after six months, the AI orients you in seconds.
+
+It is the difference between doing research and doing research with a
+partner who remembers everything, never loses a note, and already knows
+your files.
+
+---
+
+## Standalone Product Vision
+
+TIMESTAMP noted: 2026-05-10 19:45 UTC. This is a long-range idea only.
+Not a build concern now. Recorded here so it travels with the project.
+
+This module -- and the platform as a whole -- is built modular by design.
+That modularity means individual modules could be extracted and packaged
+as standalone tools. Research Investigation is a strong candidate: it is
+self-contained, solves a universal genealogical problem, and its core
+pattern (persistent AI-collaborative workspace with context pre-loading)
+is applicable far beyond a single researcher's workflow.
+
+The broader vision: a version of this platform -- or individual modules
+from it -- that could be shared with other serious researchers or
+organizations in the genealogical community. Steve Little's Open-Genealogy
+project (whose prompt engines power this platform) is one example of a
+potential collaborator or distribution partner. The GPS and EE machinery
+would remain underneath; the branding, data model, and configuration
+would be flexible enough for another researcher or organization to run
+their own instance.
+
+This is not a pivot. The platform remains personal and private as built.
+But the architecture decisions being made now -- modular design, clean
+API boundaries, GPS enforcement as a layer rather than hardcoded behavior
+-- are the same decisions that would make a future shared or distributed
+version possible.
+
+When this idea matures, it belongs in a product vision document separate
+from this module doc. For now it lives here as a named, timestamped
+intention.
