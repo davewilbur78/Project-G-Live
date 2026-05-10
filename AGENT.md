@@ -1,6 +1,6 @@
 Project-G-Live AGENT.md
-Version: 2.7.1
-Last updated: 2026-05-10 21:30 UTC
+Version: 2.7.2
+Last updated: 2026-05-10 23:00 UTC
 Last updated by: Claude
 
 # What This Is
@@ -229,7 +229,116 @@ Semantic versioning: MAJOR.MINOR.PATCH
 
 All timestamps: YYYY-MM-DD HH:MM UTC. Time to the minute required. No date-only stamps.
 
-Current version: 2.7.1
+Current version: 2.7.2
+
+---
+
+# Foundational Research Principles
+
+These principles are spine-level. They inform every module, every AI prompt,
+and every design decision. They are not feature descriptions.
+
+## Address-as-Evidence
+
+TIMESTAMP established: 2026-05-10 22:45 UTC
+
+Every address in every record is a first-class piece of evidence, not a
+descriptive label attached to a person's profile. Ancestry.com and most
+genealogy tools treat addresses as metadata about a person (where they lived).
+This platform treats addresses as evidence artifacts from a source (what this
+record says about where this person was at this moment).
+
+Those are completely different things. The first produces a profile field.
+The second produces a research engine.
+
+Practical consequence: every record attached to any person should produce at
+least one address record in the addresses table. The addresses table is a
+first-class research surface, queryable across all persons and all record types.
+
+## Address-as-Search-Key
+
+TIMESTAMP established: 2026-05-10 22:45 UTC
+
+An address in any record is a search key independent of the person being
+researched. Searching a known address across record types and time ranges
+surfaces people not being searched for -- neighbors, relatives, associates --
+and solves cases that name-search cannot reach.
+
+Name search has a ceiling: you can only find what you already know to look for.
+Address search has no such ceiling.
+
+Proof of concept documented in session SESSION-2026-05-10-2300-UTC.md:
+A known Coney Island address belonging to Sam Klein was searched on
+newspapers.com and surfaced a 1937 death notice for his sister Julia Klein,
+previously unfindable by name. That notice named two previously unknown sisters
+with addresses, leading to living cousins who had spent decades searching
+for the New York Kleins. All from searching an address that belonged to
+someone else.
+
+## The Brick Wall Reframe
+
+TIMESTAMP established: 2026-05-10 22:45 UTC
+
+Most brick walls in genealogical research are not walls -- they are the edge
+of the current search strategy. The records often exist. The data is frequently
+there. What changes the outcome is not more searching by name, but a different
+search key entirely: an address, a witness, a neighbor, a street.
+
+This principle should surface in the Research Plan Builder when a stalled
+investigation is detected, and in the Research Investigation workspace (Module 16)
+as a framing prompt for open-ended research problems.
+
+## Conversational Fact Extraction Protocol
+
+TIMESTAMP established: 2026-05-10 22:45 UTC
+
+When the researcher narrates -- tells a story, recounts a find, describes a
+research path -- that narrative contains structured genealogical data embedded
+in context and interpretation. Both are valuable. Neither should be lost.
+
+Protocol:
+- When the researcher tells a story containing genealogical data, Claude
+  extracts the discrete facts and presents them as a structured list.
+- The researcher confirms, corrects, or discards each item.
+- Confirmed facts are entered into the appropriate module.
+- The narrative itself stays in the session snapshot -- not the database.
+  It belongs to the research journal, not the structured data.
+
+The Steve Little Chat Conversation Abstractor engine is designed for this.
+Wire it into Module 16 (Research Investigation) as a first-class feature.
+
+## The Macro Vision: Research-to-Family Flywheel
+
+TIMESTAMP noted: 2026-05-10 22:45 UTC
+Status: named, not yet fully articulated. Will be developed into a
+dedicated document when ready.
+
+The platform is the engine room of a larger connected vision:
+
+  Layer 1 -- Research platform (this software)
+  GPS-compliant working layer. Structured data. Case studies. Evidence chains.
+  Most of the family will never see this layer directly.
+
+  Layer 2 -- Narrative layer
+  Stories told in the researcher's voice, structured by AI, turned into
+  case studies, research reports, and family narratives. The AI learns
+  the researcher's voice over time. Output of Layer 1 becomes raw material
+  for Layer 2.
+
+  Layer 3 -- Family-facing layer
+  A website or presentation layer built from Layer 2 output. Rich with
+  stories, photos, maps, timelines. Designed to engage cousins, aunts,
+  uncles -- people who have photos and documents and oral histories that
+  feed back into Layer 1.
+
+  The flywheel: research produces stories, stories produce engagement,
+  engagement produces new documents and oral histories, those feed back
+  into research. The whole thing compounds.
+
+Architectural implication: design clean output interfaces on every module
+now. The data model built for the research platform is the same data model
+that generates family website pages. If the data is clean and well-structured,
+the family website layer is a rendering problem later, not a data problem.
 
 ---
 
@@ -328,14 +437,19 @@ PHASE 3 BUILD ORDER:
     SQL migration: sql/007-add-source-conflicts.sql.
     Pages: list, new, detail (with side-by-side source comparison + AI Analyze).
 
-8.  Timeline Builder (Module 7) -- NOT STARTED
-    Requires: Citation Builder, facts in Supabase.
+8.  Timeline Builder (Module 7) -- BUILD READY
+    TIMESTAMP: 2026-05-10 22:45 UTC
+    Design doc committed: docs/modules/07-timeline-builder.md
+    Schema designed: addresses (first-class table) + timeline_events
+    SQL migration: sql/008-add-timeline-addresses.sql
+    Address-as-Evidence is the spine-level principle driving this module.
+    Addresses are a first-class research surface, not profile metadata.
+    The addresses table is queryable across all persons and all record types.
+    Wires to: Module 5 (fact extraction), Module 8 (spatial FAN mapping),
+    Module 16 (narrative fact extraction).
     USER FOCUS NOTE (TIMESTAMP: 2026-05-10 20:22 UTC):
-    The user is very focused on addresses and residences for this module.
-    The Timeline Builder must treat address/residence data as a first-class
-    fact type. Design the fact schema, UI, filters, and any AI features with
-    residential history as a primary use case. Do not build a generic timeline
-    that treats addresses as an afterthought.
+    Address and residence data is a first-class fact type throughout.
+    Do not treat addresses as an afterthought in any module.
 
 9.  Research Investigation (Module 16) -- IN DESIGN
     Design doc committed: 2026-05-10 19:30 UTC.
@@ -355,6 +469,9 @@ PHASE 3 BUILD ORDER:
 12. Family Group Sheet Builder (Module 11) -- NOT STARTED
 
 13. FAN Club Mapper (Module 8) -- NOT STARTED
+    NOTE: Should eventually be redesigned as a spatial FAN map using the
+    addresses table as its primary data source. See Address-as-Evidence
+    principle and Module 7 design doc.
 
 14. DNA Evidence Tracker (Module 14) -- NOT STARTED
 
@@ -374,7 +491,8 @@ License: CC BY-NC-SA 4.0. Personal non-commercial research only.
 - Fact Narrator v4 -- turns extracted facts into narrative prose
 - GEDCOM Analysis assistant -- powers the GEDCOM Bridge parsing layer
 - Image Citation Builder v2 -- citation generation for uploaded images
-- Chat Conversation Abstractor v2 -- Research Log session summaries
+- Chat Conversation Abstractor v2 -- Research Log session summaries;
+  also powers conversational fact extraction in Module 16
 - Research Agent Assignment v2.1 -- Research Plan Builder logic
 - GRA v8.5c -- GPS enforcement layer across all modules
 
@@ -402,6 +520,7 @@ Phase 3: Full web app built module by module -- ACTIVE
   Module 5 (Document Analysis Worksheet), Module 3 (Research Log),
   Module 15 (Research To-Do Tracker), Module 2 (Research Plan Builder),
   Module 6 (Source Conflict Resolver)
+  Module 7 (Timeline Builder) -- BUILD READY
 Phase 4: GEDCOM Bridge built as onboarding layer
 Phase 5: Case Study Builder with PowerPoint export as flagship
 
@@ -500,6 +619,7 @@ RULES FOR CLAUDE CODE SESSIONS:
   006-add-research-plans.sql -- research_plans + research_plan_items +
                                ALTER research_sessions ADD research_plan_id
   007-add-source-conflicts.sql -- source_conflicts table (Module 6)
+  008-add-timeline-addresses.sql -- addresses + timeline_events (Module 7)
 /src/               -- Application source code
   /src/app/         -- Next.js App Router pages
     /citation-builder/
@@ -509,6 +629,7 @@ RULES FOR CLAUDE CODE SESSIONS:
     /todos/
     /research-plans/
     /conflict-resolver/
+    /timeline/              -- Module 7 (to be built)
     /api/citation-builder/
     /api/case-study/
     /api/document-analysis/
@@ -516,6 +637,7 @@ RULES FOR CLAUDE CODE SESSIONS:
     /api/todos/
     /api/research-plans/
     /api/conflict-resolver/
+    /api/timeline/          -- Module 7 (to be built)
     /api/persons/              -- Shared persons list + create
   /src/components/case-study/
   /src/lib/
@@ -552,19 +674,21 @@ instruction from the user.
 
 ## Project State
 
-TIMESTAMP last updated: 2026-05-10 21:30 UTC by Claude
+TIMESTAMP last updated: 2026-05-10 23:00 UTC by Claude
 
-Build phase: Phase 3 ACTIVE -- 7 of 16 modules complete
+Build phase: Phase 3 ACTIVE -- 7 of 16 modules complete, Module 7 BUILD READY
 
 Committed and clean:
-- sql/001 through sql/007 -- all migrations (all confirmed present in Supabase)
+- sql/001 through sql/008 -- all migrations
+- docs/modules/07-timeline-builder.md -- Module 7 design doc
 - src/types/index.ts -- all entity interfaces including SourceConflict
 - All Module 4, 10, 5, 3, 15, 2, 6 source files (see CHANGELOG for full list)
 - src/app/api/persons/route.ts -- shared persons endpoint
 - src/lib/supabase.ts -- createServerSupabaseClient alias added
 - src/lib/ai.ts -- model string updated to claude-sonnet-4-6
 - prototypes/case_study_builder_v1.html and v2.html
-- docs/architecture.md -- updated with todos, research_plans, source_conflicts specs
+- docs/architecture.md -- updated with todos, research_plans, source_conflicts,
+  addresses, timeline_events specs
 - docs/modules/16-research-investigation.md -- design doc, IN DESIGN
 - src/app/layout.tsx, page.tsx (dashboard updated), globals.css
 - src/lib/ai.ts
@@ -573,19 +697,19 @@ Committed and clean:
 - All [id] pages updated to Next.js 15 params Promise pattern (use(params))
 
 What does not exist yet:
+- Module 7 source code (schema designed, SQL written, ready to build)
 - Steve Little prompt engines not integrated
 - Supabase seed data (Singer/Springer sources)
 - PowerPoint export endpoint
 - File upload to Supabase storage (deferred)
 - Module 16 Supabase tables (5 new tables -- see design doc)
-- Modules 7, 9, 1, 11, 8, 14, 12, 13, 16 (9 modules remaining)
+- Modules 9, 1, 11, 8, 14, 12, 13, 16 (8 modules remaining after Module 7)
 
 Next immediate action:
-  TIMESTAMP: 2026-05-10 21:30 UTC
-  FIX session complete. All 7 modules confirmed live and operational.
-  Next BUILD: Module 7 (Timeline Builder) -- address/residence as first-class fact.
-  Before starting: read docs/architecture.md timeline_events section (does not exist yet --
-  design the schema first in an EXPLORE session or inline at BUILD start).
+  TIMESTAMP: 2026-05-10 23:00 UTC
+  EXPLORE session complete. Module 7 design committed. AGENT.md v2.7.2.
+  Next: declare BUILD and build Module 7 (Timeline Builder).
+  Before starting code: run sql/008 in Supabase SQL Editor first.
 
 ---
 
@@ -624,6 +748,19 @@ The new conflict form does not currently warn when Source B has incomplete GPS d
 either selected source is missing GPS classification. Low priority -- real sources
 from Citation Builder will always be properly classified.
 
+ADDRESS GEOCODING
+The addresses table has lat/lng fields. Geocoding historical addresses is imperfect
+but workable -- even approximate coordinates produce meaningful maps. Wire a geocoding
+step into address entry when the map view is built.
+
+ADDRESS-AS-SEARCH-KEY QUERY
+Cross-person address proximity query: "who else in this database lived near this
+address in this time range?" Surface automatically in Module 16 and Research Plan Builder.
+
+FAN CLUB MAPPER REDESIGN NOTE
+Module 8 should eventually be a spatial FAN map using the addresses table as its
+primary data source, not a relationship diagram.
+
 STANDALONE / SHAREABLE PRODUCT VISION
 TIMESTAMP noted: 2026-05-10 19:45 UTC. Long-range idea only. Not a build concern now.
 
@@ -644,3 +781,9 @@ The architecture decisions being made now -- modular design, clean API boundarie
 GPS enforcement as a layer -- are the same decisions that make a future shared
 version possible. When this idea matures, it belongs in a dedicated product
 vision document. For now it lives here as a named, timestamped intention.
+
+PLATFORM NAME
+TIMESTAMP noted: 2026-05-10 22:45 UTC.
+The application needs a real name -- something that could appear on a webpage
+or presentation without sounding like a GitHub slug. Name is pending.
+Ask the user about this from time to time.
