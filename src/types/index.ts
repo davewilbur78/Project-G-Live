@@ -315,3 +315,92 @@ export type SourceCategory =
   | 'database'
   | 'website'
   | 'other'
+
+// -----------------------------------------------------------------------
+// Timeline Builder (Module 7)
+// TIMESTAMP added: 2026-05-11 00:25 UTC
+// -----------------------------------------------------------------------
+
+export type AddressRole =
+  | 'residence'
+  | 'employer'
+  | 'next_of_kin'
+  | 'witness'
+  | 'informant'
+  | 'decedent'
+  | 'applicant'
+  | 'beneficiary'
+  | 'other'
+
+export type TimelineEventType =
+  | 'birth'
+  | 'death'
+  | 'marriage'
+  | 'divorce'
+  | 'residence'
+  | 'immigration'
+  | 'emigration'
+  | 'naturalization'
+  | 'military_service'
+  | 'occupation'
+  | 'land_record'
+  | 'census'
+  | 'baptism'
+  | 'burial'
+  | 'education'
+  | 'other'
+
+export interface Address {
+  id: string
+  person_id?: string | null
+  source_id?: string | null
+  address_role: AddressRole
+  raw_text?: string | null
+  street_address?: string | null
+  city?: string | null
+  county?: string | null
+  state_province?: string | null
+  country?: string | null
+  lat?: number | null
+  lng?: number | null
+  address_date?: string | null
+  date_qualifier: string
+  date_display?: string | null
+  notes?: string | null
+  created_at: string
+  updated_at: string
+  // Joined
+  person?: Person | null
+  source?: Source | null
+}
+
+export interface TimelineEvent {
+  id: string
+  person_id?: string | null
+  event_type: TimelineEventType
+  event_date?: string | null
+  event_date_end?: string | null
+  date_qualifier: string
+  date_display?: string | null
+  place_name?: string | null
+  city?: string | null
+  county?: string | null
+  state_province?: string | null
+  country?: string | null
+  address_id?: string | null
+  residence_date_from?: string | null
+  residence_date_to?: string | null
+  residence_from_qualifier?: string | null
+  residence_to_qualifier?: string | null
+  residence_current?: boolean | null
+  source_id?: string | null
+  evidence_type?: 'Direct' | 'Indirect' | 'Negative' | null
+  description?: string | null
+  notes?: string | null
+  created_at: string
+  updated_at: string
+  // Joined
+  person?: Person | null
+  source?: Source | null
+  address?: Address | null
+}
