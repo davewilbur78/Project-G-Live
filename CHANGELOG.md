@@ -5,6 +5,40 @@ Format: TIMESTAMP | Session | Change
 
 ---
 
+## 2026-05-10 23:00 UTC -- Session: EXPLORE (Module 7 design + Address-as-Evidence)
+
+EXPLORE session. No application code written. Design artifacts committed.
+
+- docs/modules/07-timeline-builder.md -- full Module 7 design doc
+  addresses table as first-class entity; timeline_events FK to addresses;
+  complete schema for both tables; UI page plan; AI feature spec;
+  wiring notes to Modules 5, 8, 16; Address-as-Evidence rationale documented.
+
+- sql/008-add-timeline-addresses.sql -- addresses + timeline_events tables + RLS + indexes
+  addresses: person_id, source_id, address_role (8 roles), raw_text, normalized fields,
+  lat/lng, address_date, date_qualifier, date_display.
+  timeline_events: person_id, event_type (16 types), date fields with qualifier,
+  place fields, address_id FK, residence duration fields, source_id, evidence_type.
+
+- AGENT.md v2.7.2 -- major additions:
+  * Address-as-Evidence named as spine-level platform principle (TIMESTAMP: 2026-05-10 22:45 UTC)
+  * Address-as-Search-Key named as corollary principle (TIMESTAMP: 2026-05-10 22:45 UTC)
+  * Brick Wall Reframe documented (TIMESTAMP: 2026-05-10 22:45 UTC)
+  * Conversational Fact Extraction Protocol established (TIMESTAMP: 2026-05-10 22:45 UTC)
+  * Research-to-Family Flywheel macro vision named (TIMESTAMP: 2026-05-10 22:45 UTC)
+  * Module 7 status updated to BUILD READY
+  * Module 8 redesign note added (spatial FAN map, not relationship diagram)
+  * Platform name pending -- note to ask user periodically
+  * New backlog items: address geocoding, address-as-search-key query,
+    FAN Club Mapper redesign note
+
+- sessions/SESSION-2026-05-10-2300-UTC.md -- session snapshot with Julia/Jenny Klein
+  fact extraction (first live use of conversational fact extraction protocol)
+
+- sessions/SESSIONS-INDEX.md -- updated
+
+---
+
 ## 2026-05-10 20:30 UTC -- Session: FIX->BUILD (Supabase alias fix + Module 6 Source Conflict Resolver)
 
 FIX (2026-05-10 20:20 UTC):
