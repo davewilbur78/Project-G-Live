@@ -5,6 +5,31 @@ Format: TIMESTAMP | Session | Change
 
 ---
 
+## 2026-05-10 17:00 UTC -- Session: Phase 3 BUILD (Research Plan Builder)
+
+- sql/006-add-research-plans.sql -- research_plans + research_plan_items tables + RLS
+  Also: ALTER TABLE research_sessions ADD COLUMN research_plan_id (deferred FK from Module 3)
+- src/types/index.ts -- added ResearchPlan, ResearchPlanItem, ResearchPlanStatus,
+  ResearchPlanItemStatus, ResearchPlanItemPriority; updated ResearchSession with research_plan_id
+- src/app/api/research-plans/route.ts -- GET list (with person + item counts) + POST create
+- src/app/api/research-plans/[id]/route.ts -- GET + PATCH + DELETE
+- src/app/api/research-plans/[id]/generate/route.ts -- POST: AI strategy generation
+  (Research Agent Assignment v2.1 pattern; returns strategy_summary + 8-12 prioritized items)
+- src/app/api/research-plans/[id]/items/route.ts -- GET list + POST create (manual items)
+- src/app/api/research-plans/[id]/items/[itemId]/route.ts -- PATCH + DELETE
+- src/app/research-plans/page.tsx -- list with person, status, item counts, High-pending callout
+- src/app/research-plans/new/page.tsx -- new plan form: person picker, auto-fill title,
+  research question, AI context fields (time period, geography, community)
+- src/app/research-plans/[id]/page.tsx -- detail: inline plan edit, status selector,
+  AI strategy generation, items sorted by priority, inline status cycling,
+  inline item edit, add item form, delete plan
+- src/app/page.tsx -- Module 2 updated to COMPLETE, href fixed to /research-plans
+- Dashboard breadcrumb navigation added by design to all three new pages
+- Module 2 (Research Plan Builder): COMPLETE
+- AGENT.md bumped to v2.6.0
+
+---
+
 ## 2026-05-09 16:15 UTC -- Session: Phase 3 BUILD (Research To-Do Tracker)
 
 - sql/005-add-todos.sql -- todos table + RLS
@@ -29,11 +54,8 @@ Format: TIMESTAMP | Session | Change
 - src/app/api/research-log/[id]/route.ts -- GET + PATCH + DELETE
 - src/app/api/research-log/[id]/session-sources/route.ts -- GET list + POST
 - src/app/api/research-log/[id]/session-sources/[sourceId]/route.ts -- PATCH + DELETE
-- src/app/api/research-log/[id]/abstract/route.ts -- POST AI abstraction (Chat Conversation Abstractor pattern)
-- src/app/research-log/page.tsx -- session list
-- src/app/research-log/new/page.tsx -- new session form with person picker
-- src/app/research-log/[id]/page.tsx -- detail: inline edit per section, source tracking with yielded toggle, AI abstractor panel
-- src/app/page.tsx -- Research Log status updated to COMPLETE
+- src/app/api/research-log/[id]/abstract/route.ts -- POST AI abstraction
+- src/app/research-log/page.tsx, new/page.tsx, [id]/page.tsx
 - Module 3 (Research Log): COMPLETE
 - docs/architecture.md -- research_sessions and session_sources column-level specs added
 - AGENT.md bumped to v2.4.0
@@ -47,14 +69,9 @@ Format: TIMESTAMP | Session | Change
 - src/app/page.tsx -- COMPLETE modules converted to Link elements (navigation wired)
 - sql/003-add-documents.sql -- documents + document_facts + RLS
 - src/types/index.ts -- added Document, DocumentFact, TranscriptionStatus interfaces
-- src/app/api/document-analysis/route.ts -- GET list + POST create
-- src/app/api/document-analysis/[id]/route.ts -- GET + PATCH + DELETE
-- src/app/api/document-analysis/[id]/extract-facts/route.ts -- POST AI fact extraction
-- src/app/api/document-analysis/[id]/facts/route.ts -- GET list + POST create
-- src/app/api/document-analysis/[id]/facts/[factId]/route.ts -- PATCH + DELETE
-- src/app/document-analysis/page.tsx -- list
-- src/app/document-analysis/new/page.tsx -- new worksheet
-- src/app/document-analysis/[id]/page.tsx -- detail with transcription + AI extraction + Three-Layer classification
+- src/app/api/document-analysis/route.ts, [id]/route.ts, [id]/extract-facts/route.ts,
+  [id]/facts/route.ts, [id]/facts/[factId]/route.ts
+- src/app/document-analysis/page.tsx, new/page.tsx, [id]/page.tsx
 - Module 5 (Document Analysis Worksheet): COMPLETE
 
 ---
@@ -62,20 +79,17 @@ Format: TIMESTAMP | Session | Change
 ## 2026-05-10 03:25 UTC -- Session: Phase 3 BUILD (Citation Builder)
 
 - sql/001-create-tables.sql -- All 9 Supabase tables with RLS policies
-- src/types/index.ts -- Entity interfaces (Source, Person, CaseStudy, CaseStudySource, etc.)
-- src/app/citation-builder/page.tsx -- Source library with search and filter
-- src/app/citation-builder/new/page.tsx -- 5-step structured source interview (11 categories)
-- src/app/citation-builder/[id]/page.tsx -- Source detail with copy and edit
-- src/app/api/citation-builder/route.ts -- GET list + POST create (GPS validated)
-- src/app/api/citation-builder/[id]/route.ts -- GET + PATCH + DELETE
+- src/types/index.ts -- Entity interfaces
+- src/app/citation-builder/page.tsx, new/page.tsx, [id]/page.tsx
+- src/app/api/citation-builder/route.ts, [id]/route.ts
 - Module 4 (Citation Builder): COMPLETE
 
 ---
 
 ## 2026-05-09 17:38 UTC -- Session: Phase 3 BUILD (Case Study Builder)
 
-- sql/002-add-res-checklist.sql -- RES checklist table, gps_stage_reached constraint expanded to 6
-- 13 API routes for case study (list, CRUD, sources, evidence, RES checklist, conflicts, proof)
-- 6 stage components (StageNav + Stages 1-6)
+- sql/002-add-res-checklist.sql -- RES checklist table
+- 13 API routes for case study
+- 6 stage components
 - src/app/case-study/page.tsx, new/page.tsx, [id]/page.tsx
 - Module 10 (Case Study Builder): COMPLETE

@@ -1,6 +1,6 @@
 Project-G-Live AGENT.md
-Version: 2.5.0
-Last updated: 2026-05-09 16:15 UTC
+Version: 2.6.0
+Last updated: 2026-05-10 17:00 UTC
 Last updated by: Claude
 
 # What This Is
@@ -229,7 +229,7 @@ Semantic versioning: MAJOR.MINOR.PATCH
 
 All timestamps: YYYY-MM-DD HH:MM UTC. Time to the minute required. No date-only stamps.
 
-Current version: 2.5.0
+Current version: 2.6.0
 
 ---
 
@@ -310,15 +310,15 @@ PHASE 3 BUILD ORDER:
 
 5.  Research To-Do Tracker (Module 15) -- COMPLETE
     Committed: 2026-05-09 16:10 UTC.
-    Priority/status tracking, person linking, source type hint,
-    inline status cycling on list, full edit on detail page.
-    SQL migration: sql/005-add-todos.sql.
     origin_module field supports future automated aggregation from other modules.
-    Awaiting: user runs sql/005 and smoke tests.
 
-6.  Research Plan Builder (Module 2) -- NOT STARTED
-    Requires: Citation Builder.
-    Note: research_plan_id FK in research_sessions will be added by this module's migration.
+6.  Research Plan Builder (Module 2) -- COMPLETE
+    Committed: 2026-05-10 17:00 UTC.
+    research_plans + research_plan_items tables. AI strategy generation
+    (Research Agent Assignment v2.1 pattern). research_plan_id FK added to
+    research_sessions. Dashboard breadcrumb navigation on all three pages.
+    SQL migration: sql/006-add-research-plans.sql.
+    Awaiting: user runs sql/006 and smoke tests.
 
 7.  Source Conflict Resolver (Module 6) -- NOT STARTED
     Requires: Citation Builder, sources in Supabase.
@@ -377,10 +377,10 @@ License: CC BY-NC-SA 4.0. Personal non-commercial research only.
 Phase 1: Documentation and architecture -- COMPLETE
 Phase 2: Prototype artifacts to test interview logic -- COMPLETE
 Phase 3: Full web app built module by module -- ACTIVE
-  5 of 15 modules complete:
+  6 of 15 modules complete:
   Module 4 (Citation Builder), Module 10 (Case Study Builder),
   Module 5 (Document Analysis Worksheet), Module 3 (Research Log),
-  Module 15 (Research To-Do Tracker)
+  Module 15 (Research To-Do Tracker), Module 2 (Research Plan Builder)
 Phase 4: GEDCOM Bridge built as onboarding layer
 Phase 5: Case Study Builder with PowerPoint export as flagship
 
@@ -401,6 +401,7 @@ Phase 5: Case Study Builder with PowerPoint export as flagship
 - Every factual claim in a proof argument carries an inline footnote. No naked claims.
 - The prototype design system is the visual standard. Match it.
 - API routes live at src/app/api/ -- never src/api/ (wrong for Next.js App Router)
+- All new module pages include a back-to-dashboard breadcrumb link
 
 ---
 
@@ -446,6 +447,8 @@ INTERNAL PLATFORM IDs are plumbing. Never surface in researcher-facing output.
   003-add-documents.sql     -- documents + document_facts
   004-add-research-log.sql  -- research_sessions + session_sources
   005-add-todos.sql         -- todos table
+  006-add-research-plans.sql -- research_plans + research_plan_items +
+                               ALTER research_sessions ADD research_plan_id
 /src/               -- Application source code
   /src/app/         -- Next.js App Router pages
     /citation-builder/
@@ -453,11 +456,13 @@ INTERNAL PLATFORM IDs are plumbing. Never surface in researcher-facing output.
     /document-analysis/
     /research-log/
     /todos/
+    /research-plans/
     /api/citation-builder/
     /api/case-study/
     /api/document-analysis/
     /api/research-log/
     /api/todos/
+    /api/research-plans/
     /api/persons/              -- Shared persons list + create
   /src/components/case-study/
   /src/lib/
@@ -494,14 +499,14 @@ instruction from the user.
 
 ## Project State
 
-TIMESTAMP last updated: 2026-05-09 16:15 UTC by Claude
+TIMESTAMP last updated: 2026-05-10 17:00 UTC by Claude
 
-Build phase: Phase 3 ACTIVE -- 5 of 15 modules complete
+Build phase: Phase 3 ACTIVE -- 6 of 15 modules complete
 
 Committed and clean:
-- sql/001 through sql/005 -- all migrations
+- sql/001 through sql/006 -- all migrations
 - src/types/index.ts -- all entity interfaces
-- All Module 4, 10, 5, 3, 15 source files (see CHANGELOG for full list)
+- All Module 4, 10, 5, 3, 15, 2 source files (see CHANGELOG for full list)
 - src/app/api/persons/route.ts -- shared persons endpoint
 - prototypes/case_study_builder_v1.html and v2.html
 - docs/architecture.md
@@ -511,31 +516,41 @@ Committed and clean:
 - .env.local.example, .gitignore, CHANGELOG.md
 
 What does not exist yet:
-- Supabase migrations 003, 004, 005 may not yet be run by user.
-  User must run sql/003, sql/004, sql/005 in Supabase SQL editor.
+- Supabase migrations 003 through 006 may not yet be run by user.
+  User must run sql/003, sql/004, sql/005, sql/006 in Supabase SQL editor (in order).
 - Steve Little prompt engines not integrated
 - Supabase seed data (Singer/Springer sources)
 - PowerPoint export endpoint
 - File upload to Supabase storage (deferred)
-- Modules 2, 6, 7, 9, 1, 11, 8, 14, 12, 13 (10 modules remaining)
+- Modules 6, 7, 9, 1, 11, 8, 14, 12, 13 (9 modules remaining)
+- Dashboard breadcrumb not yet added to pre-Module-2 pages (Citation Builder,
+  Case Study Builder, Document Analysis, Research Log, Todos) -- backlog item
 
 Next immediate action:
-  TIMESTAMP: 2026-05-09 16:15 UTC
-  User: pull main, run sql/005-add-todos.sql, smoke test /todos.
-  Also smoke test /research-log and /document-analysis if not yet done.
-  Next BUILD target: Research Plan Builder (Module 2) -- requires Citation Builder (done).
+  TIMESTAMP: 2026-05-10 17:00 UTC
+  User: pull main, run sql/006-add-research-plans.sql (and any of 003-005 not yet run),
+  smoke test /research-plans. Then declare posture for next session.
 
 ---
 
 ## Backlog
+
+SETTINGS / ADMIN MODULE
+- Dashboard back-navigation on all module screens (breadcrumb pattern; added to Module 2
+  pages; not yet added to pre-existing modules -- Citation Builder, Case Study,
+  Document Analysis, Research Log, Todos)
+- API configuration panel: surface active model + health check; confirm Sonnet vs Opus
+- Model selection: make MODEL string a config value, not a hardcoded literal in ai.ts
+- Multi-provider support: design ai.ts to be provider-agnostic (Gemini, OpenAI, etc.)
+- User preferences panel
+- Autocomplete on forms for persons and places already in system
 
 SUPABASE SEED DATA
 After smoke tests pass, seed with the 17 Singer/Springer sources from the prototype.
 
 TODO AGGREGATION FEEDS
 Module 15 has an origin_module field to support automated aggregation from Research Log,
-Source Conflict Resolver, Timeline, and Correspondence Log. Wire these feeds as each
-upstream module comes online.
+Source Conflict Resolver, Timeline, and Correspondence Log. Wire as upstream modules ship.
 
 DOCUMENT VIEWER
 Source images render inline in the source record panel. Needs Supabase storage bucket.
@@ -545,6 +560,7 @@ Design the python-pptx endpoint when beginning the PowerPoint export feature.
 
 STEVE LITTLE PROMPT INTEGRATION
 Load engine prompts from /prompts/ directory into src/lib/ai.ts callWithEngine().
+Research Agent Assignment v2.1 is approximated inline in the generate route for now.
 
 FILE UPLOAD + OCR-HTR TRANSCRIPTION
 Module 5 v1 uses manual transcription entry. Deferred until Supabase storage bucket is set up.
