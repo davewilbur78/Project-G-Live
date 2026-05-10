@@ -32,8 +32,7 @@ export async function GET(req: Request) {
 }
 
 // POST /api/timeline
-// Accepts optional nested address object for residence events.
-// If address data is present, creates address record first, then links event.
+// evidence_type is optional -- classify during analysis, not required at entry.
 export async function POST(req: Request) {
   try {
     const body = await req.json()
@@ -50,14 +49,11 @@ export async function POST(req: Request) {
     if (!event_type?.trim()) {
       return NextResponse.json({ error: 'event_type is required' }, { status: 400 })
     }
-    if (!evidence_type?.trim()) {
-      return NextResponse.json({ error: 'evidence_type is required' }, { status: 400 })
-    }
+    // evidence_type intentionally not required -- classify later during GPS analysis
 
     const supabase = createServerSupabaseClient()
     let address_id: string | null = null
 
-    // Create address record if address data is provided and has content
     if (
       addressData &&
       (addressData.raw_text?.trim() || addressData.street_address?.trim() || addressData.city?.trim())
@@ -65,19 +61,19 @@ export async function POST(req: Request) {
       const { data: addr, error: addrErr } = await supabase
         .from('addresses')
         .insert({
-          person_id:      person_id                        ?? null,
-          source_id:      source_id                        ?? null,
-          address_role:   addressData.address_role         ?? 'residence',
-          raw_text:       addressData.raw_text?.trim()     ?? null,
-          street_address: addressData.street_address?.trim() ?? null,
-          city:           addressData.city?.trim()         ?? null,
-          county:         addressData.county?.trim()       ?? null,
-          state_province: addressData.state_province?.trim() ?? null,
-          country:        addressData.country?.trim()      ?? null,
-          address_date:   event_date                       ?? null,
-          date_qualifier: date_qualifier                   ?? 'exact',
-          date_display:   date_display?.trim()             ?? null,
-          notes:          addressData.notes?.trim()        ?? null,
+          person_id:      person_id                           ?? null,
+          source_id:      source_id                           ?? null,
+          address_role:   addressData.address_role            ?? 'residence',
+          raw_text:       addressData.raw_text?.trim()        ?? null,
+          street_address: addressData.street_address?.trim()  ?? null,
+          city:           addressData.city?.trim()            ?? null,
+          county:         addressData.county?.trim()          ?? null,
+          state_province: addressData.state_province?.trim()  ?? null,
+          country:        addressData.country?.trim()         ?? null,
+          address_date:   event_date                          ?? null,
+          date_qualifier: date_qualifier                      ?? 'exact',
+          date_display:   date_display?.trim()                ?? null,
+          notes:          addressData.notes?.trim()           ?? null,
         })
         .select('id')
         .single()
@@ -88,27 +84,27 @@ export async function POST(req: Request) {
     const { data, error } = await supabase
       .from('timeline_events')
       .insert({
-        person_id:                  person_id           ?? null,
+        person_id:                person_id             ?? null,
         event_type,
-        event_date:                 event_date          ?? null,
-        event_date_end:             event_date_end      ?? null,
-        date_qualifier:             date_qualifier      ?? 'exact',
-        date_display:               date_display?.trim() ?? null,
-        place_name:                 place_name?.trim()  ?? null,
-        city:                       city?.trim()        ?? null,
-        county:                     county?.trim()      ?? null,
-        state_province:             state_province?.trim() ?? null,
-        country:                    country?.trim()     ?? null,
+        event_date:               event_date            ?? null,
+        event_date_end:           event_date_end        ?? null,
+        date_qualifier:           date_qualifier        ?? 'exact',
+        date_display:             date_display?.trim()  ?? null,
+        place_name:               place_name?.trim()    ?? null,
+        city:                     city?.trim()          ?? null,
+        county:                   county?.trim()        ?? null,
+        state_province:           state_province?.trim() ?? null,
+        country:                  country?.trim()       ?? null,
         address_id,
-        residence_date_from:        residence_date_from ?? null,
-        residence_date_to:          residence_date_to   ?? null,
-        residence_from_qualifier:   residence_from_qualifier ?? null,
-        residence_to_qualifier:     residence_to_qualifier   ?? null,
-        residence_current:          residence_current   ?? false,
-        source_id:                  source_id           ?? null,
-        evidence_type:              evidence_type       ?? null,
-        description:                description?.trim() ?? null,
-        notes:                      notes?.trim()       ?? null,
+        residence_date_from:      residence_date_from   ?? null,
+        residence_date_to:        residence_date_to     ?? null,
+        residence_from_qualifier: residence_from_qualifier ?? null,
+        residence_to_qualifier:   residence_to_qualifier   ?? null,
+        residence_current:        residence_current     ?? false,
+        source_id:                source_id             ?? null,
+        evidence_type:            evidence_type         ?? null,
+        description:              description?.trim()   ?? null,
+        notes:                    notes?.trim()         ?? null,
       })
       .select('*')
       .single()

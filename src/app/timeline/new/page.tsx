@@ -60,20 +60,18 @@ function NewEventForm() {
   const [eventType,     setEventType]     = useState('residence')
   const [dateDisplay,   setDateDisplay]   = useState('')
   const [dateQualifier, setDateQualifier] = useState('exact')
-  const [eventDate,     setEventDate]     = useState('')   // YYYY-MM-DD, for sorting only
-  const [eventDateEnd,  setEventDateEnd]  = useState('')   // YYYY-MM-DD, for between ranges
+  const [eventDate,     setEventDate]     = useState('')
+  const [eventDateEnd,  setEventDateEnd]  = useState('')
   const [placeName,     setPlaceName]     = useState('')
   const [sourceId,      setSourceId]      = useState('')
   const [evidenceType,  setEvidenceType]  = useState('')
   const [description,   setDescription]   = useState('')
   const [notes,         setNotes]         = useState('')
 
-  // Residence duration -- free text, same style as genealogy dates
   const [resFrom,    setResFrom]    = useState('')
   const [resTo,      setResTo]      = useState('')
   const [resCurrent, setResCurrent] = useState(false)
 
-  // Address
   const [addrRole,    setAddrRole]    = useState('residence')
   const [addrRaw,     setAddrRaw]     = useState('')
   const [addrStreet,  setAddrStreet]  = useState('')
@@ -113,8 +111,8 @@ function NewEventForm() {
   }
 
   const handleSubmit = async () => {
-    if (!eventType)    { setError('Event type is required.');       return }
-    if (!evidenceType) { setError('GPS evidence type is required.'); return }
+    if (!eventType) { setError('Event type is required.'); return }
+    // evidence_type not required -- classify later
 
     setSaving(true)
     setError(null)
@@ -130,7 +128,7 @@ function NewEventForm() {
       date_display:   dateDisplay  || null,
       place_name:     placeName    || null,
       source_id:      sourceId     || null,
-      evidence_type:  evidenceType,
+      evidence_type:  evidenceType || null,
       description:    description  || null,
       notes:          notes        || null,
     }
@@ -183,7 +181,7 @@ function NewEventForm() {
         </Link>
         <h1 className="font-display text-3xl text-[var(--color-gold)] mb-1">New Timeline Event</h1>
         <p className="text-sm text-[var(--color-text-muted)] mb-8">
-          Every event must have a GPS evidence type. Residence events include full address-as-evidence capture.
+          Capture what you know. GPS classification can be added later.
         </p>
 
         {error && (
@@ -194,7 +192,6 @@ function NewEventForm() {
 
         <div className="space-y-6">
 
-          {/* Person */}
           <div>
             <label className={labelCls}>Person</label>
             <select value={personId} onChange={e => setPersonId(e.target.value)} className={inputCls}>
@@ -203,7 +200,6 @@ function NewEventForm() {
             </select>
           </div>
 
-          {/* Event type */}
           <div>
             <label className={labelCls}>Event Type *</label>
             <select value={eventType} onChange={e => setEventType(e.target.value)} className={inputCls}>
@@ -211,11 +207,10 @@ function NewEventForm() {
             </select>
           </div>
 
-          {/* Date -- display is primary, ISO is secondary for sorting */}
           <div className="space-y-3">
             <div className="grid grid-cols-2 gap-4">
               <div>
-                <label className={labelCls}>Date *</label>
+                <label className={labelCls}>Date</label>
                 <input
                   type="text"
                   value={dateDisplay}
@@ -232,8 +227,6 @@ function NewEventForm() {
                 </select>
               </div>
             </div>
-
-            {/* ISO date -- small, secondary, for sorting only */}
             <div className="grid grid-cols-2 gap-4">
               <div>
                 <label className={mutedCls}>ISO date for sorting (YYYY-MM-DD)</label>
@@ -260,7 +253,6 @@ function NewEventForm() {
             </div>
           </div>
 
-          {/* Place -- non-residence events */}
           {!isResidence && (
             <div>
               <label className={labelCls}>Place</label>
@@ -268,13 +260,12 @@ function NewEventForm() {
                 type="text"
                 value={placeName}
                 onChange={e => setPlaceName(e.target.value)}
-                placeholder="Chicago, Cook County, Illinois, USA"
+                placeholder="Oakland, Bergen, New Jersey, USA"
                 className={inputCls}
               />
             </div>
           )}
 
-          {/* Address section -- residence events */}
           {isResidence && (
             <div className="border border-[var(--color-border)] rounded-lg p-5 space-y-4">
               <div className="flex items-center justify-between">
@@ -308,9 +299,6 @@ function NewEventForm() {
                     {normalizing ? 'Working...' : 'AI Normalize'}
                   </button>
                 </div>
-                <p className="text-xs text-[var(--color-text-muted)] mt-1">
-                  Paste raw text, then click AI Normalize to fill the fields below.
-                </p>
               </div>
 
               <div className="grid grid-cols-2 gap-4">
@@ -338,74 +326,46 @@ function NewEventForm() {
 
               <div>
                 <label className={labelCls}>Address Notes</label>
-                <input
-                  type="text"
-                  value={addrNotes}
-                  onChange={e => setAddrNotes(e.target.value)}
-                  placeholder="Any notes about this address record"
-                  className={inputCls}
-                />
+                <input type="text" value={addrNotes} onChange={e => setAddrNotes(e.target.value)} className={inputCls} />
               </div>
 
-              {/* Residence duration -- free text */}
               <div className="pt-3 border-t border-[var(--color-border)]">
                 <p className="text-xs font-mono text-[var(--color-text-muted)] uppercase tracking-wider mb-3">Residence Duration</p>
                 <div className="grid grid-cols-2 gap-4">
                   <div>
                     <label className={labelCls}>From</label>
-                    <input
-                      type="text"
-                      value={resFrom}
-                      onChange={e => setResFrom(e.target.value)}
-                      placeholder="1920"
-                      className={inputCls}
-                    />
+                    <input type="text" value={resFrom} onChange={e => setResFrom(e.target.value)} placeholder="1920" className={inputCls} />
                   </div>
                   <div>
                     <label className={labelCls}>To</label>
-                    <input
-                      type="text"
-                      value={resTo}
-                      onChange={e => setResTo(e.target.value)}
-                      placeholder="1935"
-                      className={inputCls}
-                    />
+                    <input type="text" value={resTo} onChange={e => setResTo(e.target.value)} placeholder="1935" className={inputCls} />
                   </div>
                 </div>
                 <div className="flex items-center gap-2 mt-3">
-                  <input
-                    type="checkbox"
-                    id="resCurrent"
-                    checked={resCurrent}
-                    onChange={e => setResCurrent(e.target.checked)}
-                    className="accent-[var(--color-gold)]"
-                  />
-                  <label htmlFor="resCurrent" className="text-sm text-[var(--color-text-muted)]">
-                    Current / last known address
-                  </label>
+                  <input type="checkbox" id="resCurrent" checked={resCurrent} onChange={e => setResCurrent(e.target.checked)} className="accent-[var(--color-gold)]" />
+                  <label htmlFor="resCurrent" className="text-sm text-[var(--color-text-muted)]">Current / last known address</label>
                 </div>
               </div>
             </div>
           )}
 
-          {/* Source */}
           <div>
             <label className={labelCls}>Source</label>
             <select value={sourceId} onChange={e => setSourceId(e.target.value)} className={inputCls}>
-              <option value="">-- No source linked --</option>
+              <option value="">-- No source linked yet --</option>
               {sources.map(s => <option key={s.id} value={s.id}>{s.label}</option>)}
             </select>
           </div>
 
-          {/* GPS Evidence type */}
+          {/* GPS evidence type -- optional, classify during analysis */}
           <div>
-            <label className={labelCls}>GPS Evidence Type *</label>
+            <label className={labelCls}>GPS Evidence Type <span className="normal-case opacity-60 ml-1">(optional -- classify later)</span></label>
             <div className="flex gap-2 mb-1">
               {(['Direct', 'Indirect', 'Negative'] as const).map(t => (
                 <button
                   key={t}
                   type="button"
-                  onClick={() => setEvidenceType(t)}
+                  onClick={() => setEvidenceType(prev => prev === t ? '' : t)}
                   className={`px-4 py-2 text-sm font-mono rounded border transition-colors ${
                     evidenceType === t
                       ? 'border-[var(--color-gold)] text-[var(--color-gold)] bg-[var(--color-gold-subtle)]'
@@ -421,26 +381,24 @@ function NewEventForm() {
             </p>
           </div>
 
-          {/* Description */}
           <div>
             <label className={labelCls}>Description</label>
             <textarea
               value={description}
               onChange={e => setDescription(e.target.value)}
               rows={3}
-              placeholder="What this event tells you and why it matters to the research"
+              placeholder="What this event tells you"
               className={`${inputCls} resize-none`}
             />
           </div>
 
-          {/* Notes */}
           <div>
             <label className={labelCls}>Notes</label>
             <textarea
               value={notes}
               onChange={e => setNotes(e.target.value)}
               rows={2}
-              placeholder="Internal notes, research leads, follow-up questions"
+              placeholder="Research leads, follow-up questions"
               className={`${inputCls} resize-none`}
             />
           </div>
