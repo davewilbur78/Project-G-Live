@@ -29,6 +29,28 @@
   --blue-ink: #1a3d5c;
   --blue-bg: #eef4fb;
   --blue-rule: #4a8ab5;
+
+  /*
+   * --color-* aliases
+   * Module components use this naming convention.
+   * All values are hardcoded (not references to other vars)
+   * so they resolve correctly in all browsers.
+   */
+  --color-bg: #f2ede4;
+  --color-surface: #faf7f2;
+  --color-text: #1a1410;
+  --color-text-muted: #6b5c4e;
+  --color-gold: #c8941e;
+  --color-border: #d4c9b8;
+
+  /*
+   * --color-gold-subtle
+   * Used for selected-state backgrounds on GPS classification buttons
+   * and category selectors. A direct CSS variable is required because
+   * Tailwind's opacity modifier (e.g. bg-[var(--color-gold)]/5) does not
+   * work with CSS variable colors -- it requires RGB channel format.
+   */
+  --color-gold-subtle: #f5ead0;
 }
 
 body {
