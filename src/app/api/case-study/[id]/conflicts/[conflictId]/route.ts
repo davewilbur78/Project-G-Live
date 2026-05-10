@@ -1,57 +1,47 @@
-// PATCH  /api/case-study/[id]/conflicts/[conflictId]
-// DELETE /api/case-study/[id]/conflicts/[conflictId]
+// Conflicts -- update and delete
+// PATCH: update conflict details, analysis, or resolution status
+// DELETE: remove conflict record
+// TIMESTAMP: 2026-05-09 17:20 UTC
 
 import { createServerClient } from '@/lib/supabase'
-import { NextRequest, NextResponse } from 'next/server'
+import { NextResponse } from 'next/server'
 
-type RouteContext = { params: Promise<{ id: string; conflictId: string }> }
+interface Params { params: { id: string; conflictId: string } }
 
-export async function PATCH(
-  request: NextRequest,
-  { params }: RouteContext
-) {
-  try {
-    const { conflictId } = await params
-    const body = await request.json()
+export async function PATCH(req: Request, { params }: Params) {
+  const body = await req.json()
+  const supabase = createServerClient()
 
-    const allowed = ['title', 'source_a_id', 'source_b_id', 'name_in_a', 'name_in_b', 'analysis_text', 'is_resolved', 'display_order']
-    const updates: Record<string, unknown> = {}
-    for (const key of allowed) {
-      if (key in body) {
-        updates[key] = typeof body[key] === 'string' ? body[key].trim() || null : body[key]
-      }
-    }
-
-    updates.updated_at = new Date().toISOString()
-
-    const supabase = createServerClient()
-    const { data, error } = await supabase
-      .from('conflicts')
-      .update(updates)
-      .eq('id', conflictId)
-      .select()
-      .single()
-
-    if (error) throw error
-    return NextResponse.json({ conflict: data })
-  } catch (error) {
-    const message = error instanceof Error ? error.message : 'Unknown error'
-    return NextResponse.json({ error: message }, { status: 500 })
+  const allowed = [
+    'title', 'source_a_id', 'source_b_id',
+    'name_in_a', 'name_in_b', 'analysis_text',
+    'is_resolved', 'display_order',
+  ]
+  const update: Record<string, unknown> = { updated_at: new Date().toISOString() }
+  for (const key of allowed) {
+    if (key in body) update[key] = body[key]
   }
+
+  const { data, error } = await supabase
+    .from('conflicts')
+    .update(update)
+    .eq('id', params.conflictId)
+    .eq('case_study_id', params.id)
+    .select()
+    .single()
+
+  if (error) return NextResponse.json({ error: error.message }, { status: 500 })
+  return NextResponse.json({ conflict: data })
 }
 
-export async function DELETE(
-  _req: NextRequest,
-  { params }: RouteContext
-) {
-  try {
-    const { conflictId } = await params
-    const supabase = createServerClient()
-    const { error } = await supabase.from('conflicts').delete().eq('id', conflictId)
-    if (error) throw error
-    return NextResponse.json({ deleted: true })
-  } catch (error) {
-    const message = error instanceof Error ? error.message : 'Unknown error'
-    return NextResponse.json({ error: message }, { status: 500 })
-  }
+export async function DELETE(_req: Request, { params }: Params) {
+  const supabase = createServerClient()
+  const { error } = await supabase
+    .from('conflicts')
+    .delete()
+    .eq('id', params.conflictId)
+    .eq('case_study_id', params.id)
+
+  if (error) return NextResponse.json({ error: error.message }, { status: 500 })
+  return NextResponse.json({ deleted: true })
 }

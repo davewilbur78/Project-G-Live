@@ -1,61 +1,50 @@
-// PATCH  /api/case-study/[id]/sources/[sourceId] -- update triage, notes
-// DELETE /api/case-study/[id]/sources/[sourceId] -- remove source from case study
+// Case Study Sources -- update and remove individual source
+// PATCH: update triage status, name recorded, or notes for a case-study-specific source record
+// DELETE: detach source from this case study (does not delete the global source record)
+// TIMESTAMP: 2026-05-09 17:20 UTC
 
 import { createServerClient } from '@/lib/supabase'
-import { NextRequest, NextResponse } from 'next/server'
+import { NextResponse } from 'next/server'
 
-type RouteContext = { params: Promise<{ id: string; sourceId: string }> }
+interface Params { params: { id: string; sourceId: string } }
 
-export async function PATCH(
-  request: NextRequest,
-  { params }: RouteContext
-) {
-  try {
-    const { sourceId } = await params
-    const body = await request.json()
+export async function PATCH(req: Request, { params }: Params) {
+  const body = await req.json()
+  const supabase = createServerClient()
 
-    const allowed = ['triage_status', 'name_recorded', 'notes', 'display_order']
-    const updates: Record<string, unknown> = {}
-    for (const key of allowed) {
-      if (key in body) {
-        updates[key] = typeof body[key] === 'string' ? body[key].trim() || null : body[key]
-      }
-    }
-
-    if (updates.triage_status && !['GREEN', 'YELLOW', 'RED'].includes(updates.triage_status as string)) {
-      return NextResponse.json({ error: 'Invalid triage_status' }, { status: 400 })
-    }
-
-    updates.updated_at = new Date().toISOString()
-
-    const supabase = createServerClient()
-    const { data, error } = await supabase
-      .from('case_study_sources')
-      .update(updates)
-      .eq('id', sourceId)
-      .select('*, source:sources(*)')
-      .single()
-
-    if (error) throw error
-    return NextResponse.json({ source: data })
-  } catch (error) {
-    const message = error instanceof Error ? error.message : 'Unknown error'
-    return NextResponse.json({ error: message }, { status: 500 })
+  const allowed = ['triage_status', 'name_recorded', 'notes', 'display_order']
+  const update: Record<string, unknown> = { updated_at: new Date().toISOString() }
+  for (const key of allowed) {
+    if (key in body) update[key] = body[key]
   }
+
+  if (
+    update.triage_status !== undefined &&
+    !['GREEN', 'YELLOW', 'RED'].includes(update.triage_status as string)
+  ) {
+    return NextResponse.json({ error: 'Invalid triage_status' }, { status: 400 })
+  }
+
+  const { data, error } = await supabase
+    .from('case_study_sources')
+    .update(update)
+    .eq('id', params.sourceId)
+    .eq('case_study_id', params.id)
+    .select('*, source:sources(*)')
+    .single()
+
+  if (error) return NextResponse.json({ error: error.message }, { status: 500 })
+  return NextResponse.json({ source: data })
 }
 
-export async function DELETE(
-  _req: NextRequest,
-  { params }: RouteContext
-) {
-  try {
-    const { sourceId } = await params
-    const supabase = createServerClient()
-    const { error } = await supabase.from('case_study_sources').delete().eq('id', sourceId)
-    if (error) throw error
-    return NextResponse.json({ deleted: true })
-  } catch (error) {
-    const message = error instanceof Error ? error.message : 'Unknown error'
-    return NextResponse.json({ error: message }, { status: 500 })
-  }
+export async function DELETE(_req: Request, { params }: Params) {
+  const supabase = createServerClient()
+  const { error } = await supabase
+    .from('case_study_sources')
+    .delete()
+    .eq('id', params.sourceId)
+    .eq('case_study_id', params.id)
+
+  if (error) return NextResponse.json({ error: error.message }, { status: 500 })
+  return NextResponse.json({ deleted: true })
 }

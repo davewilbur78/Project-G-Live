@@ -1,110 +1,87 @@
-// GET    /api/case-study/[id] -- full case study with all related data
-// PATCH  /api/case-study/[id] -- update case study fields
-// DELETE /api/case-study/[id] -- delete case study
+// Case Study Builder -- single case study
+// GET: full detail with all related data (sources, evidence, conflicts, proof, footnotes)
+// PATCH: update case study metadata
+// DELETE: remove case study and cascade-delete all related records
+// TIMESTAMP: 2026-05-09 17:20 UTC
 
 import { createServerClient } from '@/lib/supabase'
-import { NextRequest, NextResponse } from 'next/server'
+import { NextResponse } from 'next/server'
 
-type RouteContext = { params: Promise<{ id: string }> }
+interface Params { params: { id: string } }
 
-export async function GET(
-  _req: NextRequest,
-  { params }: RouteContext
-) {
-  try {
-    const { id } = await params
-    const supabase = createServerClient()
+export async function GET(_req: Request, { params }: Params) {
+  const supabase = createServerClient()
+  const id = params.id
 
-    const [csRes, sourcesRes, evidenceRes, conflictsRes, proofRes, footnotesRes] =
-      await Promise.all([
-        supabase.from('case_studies').select('*').eq('id', id).single(),
-        supabase.from('case_study_sources').select('*, source:sources(*)').eq('case_study_id', id).order('display_order'),
-        supabase.from('evidence_chain_links').select('*').eq('case_study_id', id).order('display_order'),
-        supabase.from('conflicts').select('*').eq('case_study_id', id).order('display_order'),
-        supabase.from('proof_paragraphs').select('*').eq('case_study_id', id).order('display_order'),
-        supabase.from('footnote_definitions').select('*').eq('case_study_id', id).order('footnote_number'),
-      ])
+  const [studyRes, sourcesRes, evidenceRes, conflictsRes, proofRes, footnotesRes] =
+    await Promise.all([
+      supabase.from('case_studies').select('*').eq('id', id).single(),
+      supabase.from('case_study_sources')
+        .select('*, source:sources(*)')
+        .eq('case_study_id', id)
+        .order('display_order'),
+      supabase.from('evidence_chain_links')
+        .select('*')
+        .eq('case_study_id', id)
+        .order('display_order'),
+      supabase.from('conflicts')
+        .select('*')
+        .eq('case_study_id', id)
+        .order('display_order'),
+      supabase.from('proof_paragraphs')
+        .select('*')
+        .eq('case_study_id', id)
+        .order('display_order'),
+      supabase.from('footnote_definitions')
+        .select('*')
+        .eq('case_study_id', id)
+        .order('footnote_number'),
+    ])
 
-    if (csRes.error) throw csRes.error
+  if (studyRes.error)
+    return NextResponse.json({ error: studyRes.error.message }, { status: 404 })
 
-    return NextResponse.json({
-      case_study: csRes.data,
-      sources:    sourcesRes.data  ?? [],
-      evidence:   evidenceRes.data ?? [],
-      conflicts:  conflictsRes.data ?? [],
-      proof:      proofRes.data    ?? [],
-      footnotes:  footnotesRes.data ?? [],
-    })
-  } catch (error) {
-    const message = error instanceof Error ? error.message : 'Unknown error'
-    console.error('[case-study/[id] GET]', message)
-    return NextResponse.json({ error: message }, { status: 500 })
-  }
+  return NextResponse.json({
+    case_study: studyRes.data,
+    sources: sourcesRes.data ?? [],
+    evidence: evidenceRes.data ?? [],
+    conflicts: conflictsRes.data ?? [],
+    proof_paragraphs: proofRes.data ?? [],
+    footnotes: footnotesRes.data ?? [],
+  })
 }
 
-export async function PATCH(
-  request: NextRequest,
-  { params }: RouteContext
-) {
-  try {
-    const { id } = await params
-    const body = await request.json()
+export async function PATCH(req: Request, { params }: Params) {
+  const body = await req.json()
+  const supabase = createServerClient()
 
-    const allowed = [
-      'research_question',
-      'subject_display',
-      'subject_vitals',
-      'notes',
-      'status',
-      'gps_stage_reached',
-      'res_checklist',
-    ]
-
-    const updates: Record<string, unknown> = {}
-    for (const key of allowed) {
-      if (key in body) {
-        updates[key] = typeof body[key] === 'string'
-          ? body[key].trim() || null
-          : body[key]
-      }
-    }
-
-    if (updates.status && !['draft', 'in_progress', 'complete'].includes(updates.status as string)) {
-      return NextResponse.json({ error: 'Invalid status' }, { status: 400 })
-    }
-
-    updates.updated_at = new Date().toISOString()
-
-    const supabase = createServerClient()
-    const { data: case_study, error } = await supabase
-      .from('case_studies')
-      .update(updates)
-      .eq('id', id)
-      .select()
-      .single()
-
-    if (error) throw error
-    return NextResponse.json({ case_study })
-  } catch (error) {
-    const message = error instanceof Error ? error.message : 'Unknown error'
-    console.error('[case-study/[id] PATCH]', message)
-    return NextResponse.json({ error: message }, { status: 500 })
+  const allowed = [
+    'research_question', 'subject_display', 'subject_vitals',
+    'status', 'gps_stage_reached', 'notes', 'search_checklist',
+  ]
+  const update: Record<string, unknown> = { updated_at: new Date().toISOString() }
+  for (const key of allowed) {
+    if (key in body) update[key] = body[key]
   }
+
+  const { data, error } = await supabase
+    .from('case_studies')
+    .update(update)
+    .eq('id', params.id)
+    .select()
+    .single()
+
+  if (error) return NextResponse.json({ error: error.message }, { status: 500 })
+  return NextResponse.json({ case_study: data })
 }
 
-export async function DELETE(
-  _req: NextRequest,
-  { params }: RouteContext
-) {
-  try {
-    const { id } = await params
-    const supabase = createServerClient()
-    const { error } = await supabase.from('case_studies').delete().eq('id', id)
-    if (error) throw error
-    return NextResponse.json({ deleted: true })
-  } catch (error) {
-    const message = error instanceof Error ? error.message : 'Unknown error'
-    console.error('[case-study/[id] DELETE]', message)
-    return NextResponse.json({ error: message }, { status: 500 })
-  }
+export async function DELETE(_req: Request, { params }: Params) {
+  const supabase = createServerClient()
+  const { error } = await supabase
+    .from('case_studies')
+    .delete()
+    .eq('id', params.id)
+
+  if (error) return NextResponse.json({ error: error.message }, { status: 500 })
+  return NextResponse.json({ deleted: true })
 }

@@ -1,61 +1,43 @@
-// PATCH  /api/case-study/[id]/evidence/[linkId]
-// DELETE /api/case-study/[id]/evidence/[linkId]
+// Evidence Chain Links -- update and delete
+// PATCH: update claim, weight, narrative, or footnote references
+// DELETE: remove link from evidence chain
+// TIMESTAMP: 2026-05-09 17:20 UTC
 
 import { createServerClient } from '@/lib/supabase'
-import { NextRequest, NextResponse } from 'next/server'
+import { NextResponse } from 'next/server'
 
-type RouteContext = { params: Promise<{ id: string; linkId: string }> }
+interface Params { params: { id: string; linkId: string } }
 
-export async function PATCH(
-  request: NextRequest,
-  { params }: RouteContext
-) {
-  try {
-    const { linkId } = await params
-    const body = await request.json()
+export async function PATCH(req: Request, { params }: Params) {
+  const body = await req.json()
+  const supabase = createServerClient()
 
-    const allowed = ['claim', 'weight', 'sources_narrative', 'footnote_numbers', 'display_order']
-    const updates: Record<string, unknown> = {}
-    for (const key of allowed) {
-      if (key in body) {
-        updates[key] = typeof body[key] === 'string' ? body[key].trim() || null : body[key]
-      }
-    }
-
-    if (updates.weight && !['Very Strong', 'Strong', 'Moderate', 'Corroborating'].includes(updates.weight as string)) {
-      return NextResponse.json({ error: 'Invalid weight' }, { status: 400 })
-    }
-
-    updates.updated_at = new Date().toISOString()
-
-    const supabase = createServerClient()
-    const { data, error } = await supabase
-      .from('evidence_chain_links')
-      .update(updates)
-      .eq('id', linkId)
-      .select()
-      .single()
-
-    if (error) throw error
-    return NextResponse.json({ link: data })
-  } catch (error) {
-    const message = error instanceof Error ? error.message : 'Unknown error'
-    return NextResponse.json({ error: message }, { status: 500 })
+  const allowed = ['claim', 'weight', 'sources_narrative', 'footnote_numbers', 'display_order']
+  const update: Record<string, unknown> = { updated_at: new Date().toISOString() }
+  for (const key of allowed) {
+    if (key in body) update[key] = body[key]
   }
+
+  const { data, error } = await supabase
+    .from('evidence_chain_links')
+    .update(update)
+    .eq('id', params.linkId)
+    .eq('case_study_id', params.id)
+    .select()
+    .single()
+
+  if (error) return NextResponse.json({ error: error.message }, { status: 500 })
+  return NextResponse.json({ link: data })
 }
 
-export async function DELETE(
-  _req: NextRequest,
-  { params }: RouteContext
-) {
-  try {
-    const { linkId } = await params
-    const supabase = createServerClient()
-    const { error } = await supabase.from('evidence_chain_links').delete().eq('id', linkId)
-    if (error) throw error
-    return NextResponse.json({ deleted: true })
-  } catch (error) {
-    const message = error instanceof Error ? error.message : 'Unknown error'
-    return NextResponse.json({ error: message }, { status: 500 })
-  }
+export async function DELETE(_req: Request, { params }: Params) {
+  const supabase = createServerClient()
+  const { error } = await supabase
+    .from('evidence_chain_links')
+    .delete()
+    .eq('id', params.linkId)
+    .eq('case_study_id', params.id)
+
+  if (error) return NextResponse.json({ error: error.message }, { status: 500 })
+  return NextResponse.json({ deleted: true })
 }

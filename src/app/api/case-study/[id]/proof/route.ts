@@ -1,68 +1,53 @@
-// GET  /api/case-study/[id]/proof -- list proof paragraphs
-// POST /api/case-study/[id]/proof -- create a proof paragraph
+// Proof Argument Paragraphs -- list and create
+// GET: all paragraphs and all footnotes for this case study
+// POST: add a new paragraph
+// Content may contain [FN1] markers rendered as superscripts on the frontend.
+// TIMESTAMP: 2026-05-09 17:20 UTC
 
 import { createServerClient } from '@/lib/supabase'
-import { NextRequest, NextResponse } from 'next/server'
+import { NextResponse } from 'next/server'
 
-type RouteContext = { params: Promise<{ id: string }> }
+interface Params { params: { id: string } }
 
-export async function GET(
-  _req: NextRequest,
-  { params }: RouteContext
-) {
-  try {
-    const { id } = await params
-    const supabase = createServerClient()
-    const { data, error } = await supabase
+export async function GET(_req: Request, { params }: Params) {
+  const supabase = createServerClient()
+  const [paraRes, fnRes] = await Promise.all([
+    supabase
       .from('proof_paragraphs')
       .select('*')
-      .eq('case_study_id', id)
-      .order('display_order')
+      .eq('case_study_id', params.id)
+      .order('display_order'),
+    supabase
+      .from('footnote_definitions')
+      .select('*')
+      .eq('case_study_id', params.id)
+      .order('footnote_number'),
+  ])
 
-    if (error) throw error
-    return NextResponse.json({ proof: data })
-  } catch (error) {
-    const message = error instanceof Error ? error.message : 'Unknown error'
-    return NextResponse.json({ error: message, proof: [] }, { status: 500 })
-  }
+  return NextResponse.json({
+    paragraphs: paraRes.data ?? [],
+    footnotes: fnRes.data ?? [],
+  })
 }
 
-export async function POST(
-  request: NextRequest,
-  { params }: RouteContext
-) {
-  try {
-    const { id } = await params
-    const body = await request.json()
+export async function POST(req: Request, { params }: Params) {
+  const body = await req.json()
+  const { content, display_order } = body
 
-    if (!body.content?.trim()) {
-      return NextResponse.json({ error: 'content is required' }, { status: 400 })
-    }
+  if (!content?.trim())
+    return NextResponse.json({ error: 'content is required' }, { status: 400 })
 
-    const supabase = createServerClient()
-    const { data: existing } = await supabase
-      .from('proof_paragraphs')
-      .select('display_order')
-      .eq('case_study_id', id)
-      .order('display_order', { ascending: false })
-      .limit(1)
+  const supabase = createServerClient()
+  const { data, error } = await supabase
+    .from('proof_paragraphs')
+    .insert({
+      case_study_id: params.id,
+      content: content.trim(),
+      display_order: display_order ?? 0,
+    })
+    .select()
+    .single()
 
-    const nextOrder = existing && existing.length > 0 ? existing[0].display_order + 1 : 0
-
-    const { data, error } = await supabase
-      .from('proof_paragraphs')
-      .insert([{
-        case_study_id: id,
-        display_order: nextOrder,
-        content:       body.content.trim(),
-      }])
-      .select()
-      .single()
-
-    if (error) throw error
-    return NextResponse.json({ paragraph: data }, { status: 201 })
-  } catch (error) {
-    const message = error instanceof Error ? error.message : 'Unknown error'
-    return NextResponse.json({ error: message }, { status: 500 })
-  }
+  if (error) return NextResponse.json({ error: error.message }, { status: 500 })
+  return NextResponse.json({ paragraph: data }, { status: 201 })
 }
