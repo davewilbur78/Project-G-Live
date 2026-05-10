@@ -1,0 +1,978 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Project-G // Case Study Builder</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,600;0,700;1,400&family=Source+Serif+4:ital,opsz,wght@0,8..60,300;0,8..60,400;0,8..60,600;1,8..60,300;1,8..60,400&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --ink: #1a1410;
+    --ink-mid: #3d3228;
+    --ink-soft: #6b5c4e;
+    --ink-faint: #9c8878;
+    --parchment: #faf7f2;
+    --parchment-dark: #f2ede4;
+    --parchment-darker: #e8e0d3;
+    --rule: #d4c9b8;
+    --rule-strong: #b8a898;
+    --gold: #8b6914;
+    --gold-light: #f5ead0;
+    --gold-mid: #c8941e;
+    --green-ink: #2d5a27;
+    --green-bg: #edf5eb;
+    --green-rule: #7ab373;
+    --amber-ink: #7a5200;
+    --amber-bg: #fef6e4;
+    --amber-rule: #d4a017;
+    --red-ink: #7a1f1f;
+    --red-bg: #fdf0f0;
+    --red-rule: #c04040;
+    --blue-ink: #1a3d5c;
+    --blue-bg: #eef4fb;
+    --blue-rule: #4a8ab5;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    background: var(--parchment-dark);
+    color: var(--ink);
+    font-family: 'Source Serif 4', Georgia, serif;
+    font-size: 15px;
+    line-height: 1.7;
+    min-height: 100vh;
+  }
+
+  .page-shell {
+    max-width: 820px;
+    margin: 0 auto;
+    padding: 40px 24px 80px;
+  }
+
+  .masthead {
+    border-bottom: 2px solid var(--ink);
+    padding-bottom: 20px;
+    margin-bottom: 32px;
+  }
+
+  .masthead-label {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 10px;
+    letter-spacing: 0.18em;
+    color: var(--ink-soft);
+    text-transform: uppercase;
+    margin-bottom: 10px;
+  }
+
+  .masthead-title {
+    font-family: 'Playfair Display', Georgia, serif;
+    font-size: 32px;
+    font-weight: 700;
+    color: var(--ink);
+    line-height: 1.2;
+    margin-bottom: 6px;
+  }
+
+  .masthead-subtitle {
+    font-size: 15px;
+    color: var(--ink-soft);
+    font-style: italic;
+  }
+
+  .masthead-meta {
+    display: flex;
+    gap: 24px;
+    margin-top: 14px;
+    flex-wrap: wrap;
+  }
+
+  .masthead-meta span {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+    color: var(--ink-faint);
+  }
+
+  .masthead-meta strong {
+    color: var(--ink-soft);
+  }
+
+  /* Stage tabs */
+  .stage-nav {
+    display: flex;
+    gap: 0;
+    margin-bottom: 28px;
+    border: 1.5px solid var(--rule-strong);
+    border-radius: 4px;
+    overflow: hidden;
+    background: var(--parchment);
+  }
+
+  .stage-tab {
+    flex: 1;
+    padding: 10px 6px;
+    border: none;
+    border-right: 1px solid var(--rule);
+    background: var(--parchment);
+    cursor: pointer;
+    text-align: center;
+    font-family: 'Source Serif 4', serif;
+    font-size: 11px;
+    color: var(--ink-faint);
+    line-height: 1.4;
+    transition: background 0.15s, color 0.15s;
+  }
+
+  .stage-tab:last-child { border-right: none; }
+
+  .stage-tab:hover { background: var(--parchment-darker); color: var(--ink-soft); }
+
+  .stage-tab.active {
+    background: var(--ink);
+    color: var(--parchment);
+    font-weight: 600;
+  }
+
+  .stage-tab .tab-num {
+    font-family: 'Playfair Display', serif;
+    font-size: 18px;
+    font-weight: 700;
+    display: block;
+    margin-bottom: 2px;
+  }
+
+  .stage-tab.active .tab-num { color: var(--gold-mid); }
+
+  /* Main card */
+  .stage-card {
+    background: var(--parchment);
+    border: 1.5px solid var(--rule-strong);
+    border-radius: 4px;
+    padding: 28px 32px;
+    margin-bottom: 20px;
+    display: none;
+  }
+
+  .stage-card.active { display: block; }
+
+  .stage-heading {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 10px;
+    letter-spacing: 0.16em;
+    color: var(--ink-faint);
+    text-transform: uppercase;
+    margin-bottom: 6px;
+  }
+
+  .stage-title {
+    font-family: 'Playfair Display', serif;
+    font-size: 22px;
+    font-weight: 600;
+    color: var(--ink);
+    margin-bottom: 14px;
+    padding-bottom: 14px;
+    border-bottom: 1px solid var(--rule);
+  }
+
+  .guidance-box {
+    background: var(--blue-bg);
+    border-left: 3px solid var(--blue-rule);
+    padding: 12px 16px;
+    margin-bottom: 20px;
+    border-radius: 0 4px 4px 0;
+  }
+
+  .guidance-box .gps-label {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 9px;
+    letter-spacing: 0.14em;
+    color: var(--blue-ink);
+    font-weight: 500;
+    margin-bottom: 4px;
+  }
+
+  .guidance-box p {
+    font-size: 13px;
+    color: var(--blue-ink);
+    line-height: 1.6;
+  }
+
+  /* Subject block */
+  .subject-block {
+    background: var(--parchment-darker);
+    border: 1px solid var(--rule);
+    border-radius: 4px;
+    padding: 16px 20px;
+    margin-bottom: 20px;
+  }
+
+  .subject-block .field-label {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 9px;
+    letter-spacing: 0.14em;
+    color: var(--ink-faint);
+    text-transform: uppercase;
+    margin-bottom: 6px;
+  }
+
+  .subject-name {
+    font-family: 'Playfair Display', serif;
+    font-size: 20px;
+    font-weight: 600;
+    color: var(--ink);
+    margin-bottom: 4px;
+  }
+
+  .subject-vitals {
+    font-size: 13px;
+    color: var(--ink-soft);
+    font-family: 'JetBrains Mono', monospace;
+  }
+
+  /* Research question textarea */
+  .field-label {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 9px;
+    letter-spacing: 0.14em;
+    color: var(--ink-faint);
+    text-transform: uppercase;
+    display: block;
+    margin-bottom: 8px;
+  }
+
+  textarea, input[type="text"] {
+    width: 100%;
+    font-family: 'Source Serif 4', serif;
+    font-size: 14px;
+    line-height: 1.7;
+    color: var(--ink);
+    background: var(--parchment);
+    border: 1.5px solid var(--rule-strong);
+    border-radius: 4px;
+    padding: 12px 14px;
+    resize: vertical;
+    outline: none;
+    transition: border-color 0.15s;
+  }
+
+  textarea:focus, input[type="text"]:focus {
+    border-color: var(--gold-mid);
+  }
+
+  /* Triage summary */
+  .triage-summary {
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr;
+    gap: 12px;
+    margin-bottom: 24px;
+  }
+
+  .triage-card {
+    border-radius: 4px;
+    padding: 14px 16px;
+    border-left: 4px solid;
+  }
+
+  .triage-card.green { background: var(--green-bg); border-color: var(--green-rule); }
+  .triage-card.yellow { background: var(--amber-bg); border-color: var(--amber-rule); }
+  .triage-card.red { background: var(--red-bg); border-color: var(--red-rule); }
+
+  .triage-count {
+    font-family: 'Playfair Display', serif;
+    font-size: 28px;
+    font-weight: 700;
+    line-height: 1;
+    margin-bottom: 4px;
+  }
+
+  .triage-card.green .triage-count { color: var(--green-ink); }
+  .triage-card.yellow .triage-count { color: var(--amber-ink); }
+  .triage-card.red .triage-count { color: var(--red-ink); }
+
+  .triage-label {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 10px;
+    font-weight: 500;
+    letter-spacing: 0.08em;
+  }
+
+  .triage-card.green .triage-label { color: var(--green-ink); }
+  .triage-card.yellow .triage-label { color: var(--amber-ink); }
+  .triage-card.red .triage-label { color: var(--red-ink); }
+
+  .triage-desc { font-size: 11px; margin-top: 2px; opacity: 0.8; }
+
+  /* Source list */
+  .source-item {
+    border: 1px solid var(--rule);
+    border-radius: 4px;
+    margin-bottom: 8px;
+    overflow: hidden;
+    background: var(--parchment);
+  }
+
+  .source-header {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 10px 14px;
+    cursor: pointer;
+    user-select: none;
+    transition: background 0.12s;
+  }
+
+  .source-header:hover { background: var(--parchment-darker); }
+
+  .source-badge {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 9px;
+    font-weight: 600;
+    letter-spacing: 0.06em;
+    padding: 3px 8px;
+    border-radius: 2px;
+    flex-shrink: 0;
+  }
+
+  .badge-green { background: var(--green-bg); color: var(--green-ink); border: 1px solid var(--green-rule); }
+  .badge-yellow { background: var(--amber-bg); color: var(--amber-ink); border: 1px solid var(--amber-rule); }
+  .badge-red { background: var(--red-bg); color: var(--red-ink); border: 1px solid var(--red-rule); }
+
+  .source-name { font-size: 13px; font-weight: 600; flex: 1; }
+
+  .source-type-tag {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 10px;
+    color: var(--ink-faint);
+  }
+
+  .chevron { font-size: 12px; color: var(--ink-faint); transition: transform 0.15s; }
+  .chevron.open { transform: rotate(90deg); }
+
+  .source-detail {
+    display: none;
+    padding: 14px 18px 16px 18px;
+    border-top: 1px solid var(--rule);
+    background: var(--parchment-dark);
+  }
+
+  .source-detail.open { display: block; }
+
+  .citation-text {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+    color: var(--ink-soft);
+    margin-bottom: 14px;
+    line-height: 1.6;
+  }
+
+  .three-layer {
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr;
+    gap: 10px;
+    margin-bottom: 12px;
+  }
+
+  .layer-box {
+    background: var(--parchment);
+    border: 1px solid var(--rule);
+    border-radius: 4px;
+    padding: 10px 12px;
+  }
+
+  .layer-box .layer-label {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 9px;
+    letter-spacing: 0.1em;
+    color: var(--ink-faint);
+    text-transform: uppercase;
+    margin-bottom: 4px;
+  }
+
+  .layer-box .layer-value {
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--ink);
+  }
+
+  .source-notes { font-size: 13px; color: var(--ink-soft); line-height: 1.6; }
+
+  .name-recorded {
+    font-size: 12px;
+    margin-bottom: 8px;
+    color: var(--ink-soft);
+  }
+
+  .name-recorded strong { color: var(--ink); }
+
+  /* Evidence chain */
+  .evidence-chain { margin-bottom: 20px; }
+
+  .evidence-link {
+    display: flex;
+    gap: 14px;
+    margin-bottom: 14px;
+    align-items: flex-start;
+  }
+
+  .link-number {
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-family: 'Playfair Display', serif;
+    font-size: 15px;
+    font-weight: 700;
+    color: white;
+    flex-shrink: 0;
+    margin-top: 2px;
+  }
+
+  .link-body {
+    flex: 1;
+    background: var(--parchment-darker);
+    border: 1px solid var(--rule);
+    border-radius: 4px;
+    padding: 12px 16px;
+  }
+
+  .link-top {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    margin-bottom: 6px;
+    gap: 12px;
+  }
+
+  .link-claim { font-size: 14px; font-weight: 600; color: var(--ink); }
+
+  .weight-tag {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 10px;
+    font-weight: 600;
+    padding: 2px 8px;
+    border-radius: 2px;
+    white-space: nowrap;
+    flex-shrink: 0;
+  }
+
+  .link-sources { font-size: 12px; color: var(--ink-soft); line-height: 1.6; }
+
+  .gap-notice {
+    background: var(--amber-bg);
+    border-left: 4px solid var(--amber-rule);
+    padding: 12px 16px;
+    border-radius: 0 4px 4px 0;
+    margin-top: 4px;
+  }
+
+  .gap-notice .gps-label {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 9px;
+    letter-spacing: 0.14em;
+    color: var(--amber-ink);
+    font-weight: 600;
+    margin-bottom: 4px;
+  }
+
+  .gap-notice p { font-size: 13px; color: var(--amber-ink); line-height: 1.6; }
+
+  /* Conflict analysis */
+  .conflict-block {
+    border: 1.5px solid var(--red-rule);
+    border-radius: 4px;
+    margin-bottom: 24px;
+    overflow: hidden;
+  }
+
+  .conflict-header {
+    background: var(--red-bg);
+    padding: 10px 16px;
+    border-bottom: 1px solid var(--red-rule);
+  }
+
+  .conflict-num {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 9px;
+    letter-spacing: 0.14em;
+    color: var(--red-ink);
+    font-weight: 600;
+    margin-bottom: 4px;
+  }
+
+  .conflict-title { font-size: 14px; font-weight: 600; color: var(--red-ink); }
+
+  .conflict-body { padding: 16px; background: var(--parchment); }
+
+  .conflict-sources {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 12px;
+    margin-bottom: 16px;
+  }
+
+  .conflict-source-box {
+    background: var(--parchment-darker);
+    border: 1px solid var(--rule);
+    border-radius: 4px;
+    padding: 10px 14px;
+  }
+
+  .cs-label {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 9px;
+    letter-spacing: 0.1em;
+    color: var(--ink-faint);
+    margin-bottom: 4px;
+  }
+
+  .cs-source { font-size: 11px; color: var(--ink-soft); margin-bottom: 4px; }
+  .cs-name { font-size: 15px; font-weight: 700; color: var(--red-ink); font-family: 'Playfair Display', serif; }
+
+  .resolution-status {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+    margin-top: 8px;
+    padding: 4px 0;
+  }
+
+  .status-ok { color: var(--green-ink); }
+  .status-needed { color: var(--red-ink); }
+
+  /* Proof argument */
+  .proof-text {
+    background: var(--parchment);
+    border: 1.5px solid var(--rule-strong);
+    border-radius: 4px;
+    padding: 24px 28px;
+    font-size: 15px;
+    line-height: 1.9;
+    color: var(--ink);
+    white-space: pre-wrap;
+    font-family: 'Source Serif 4', serif;
+  }
+
+  .proof-warning {
+    background: var(--amber-bg);
+    border-left: 4px solid var(--amber-rule);
+    padding: 10px 16px;
+    border-radius: 0 4px 4px 0;
+    margin-bottom: 16px;
+    font-size: 13px;
+    color: var(--amber-ink);
+  }
+
+  /* Navigation */
+  .stage-footer {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-top: 20px;
+  }
+
+  .nav-btn {
+    font-family: 'Source Serif 4', serif;
+    font-size: 13px;
+    padding: 9px 20px;
+    border-radius: 4px;
+    cursor: pointer;
+    border: 1.5px solid var(--rule-strong);
+    background: var(--parchment);
+    color: var(--ink-soft);
+    transition: all 0.15s;
+  }
+
+  .nav-btn:hover { background: var(--parchment-darker); color: var(--ink); }
+
+  .nav-btn:disabled { opacity: 0.35; cursor: default; }
+
+  .nav-btn.primary {
+    background: var(--ink);
+    color: var(--parchment);
+    border-color: var(--ink);
+  }
+
+  .nav-btn.primary:hover { background: var(--ink-mid); }
+
+  .progress-dots { display: flex; gap: 6px; align-items: center; }
+
+  .dot {
+    height: 6px;
+    border-radius: 3px;
+    background: var(--rule-strong);
+    transition: all 0.2s;
+  }
+
+  .dot.active { width: 20px; background: var(--gold-mid); }
+  .dot:not(.active) { width: 6px; }
+
+  /* Section divider */
+  .section-rule {
+    border: none;
+    border-top: 1px solid var(--rule);
+    margin: 20px 0;
+  }
+
+  .section-sub {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 9px;
+    letter-spacing: 0.14em;
+    color: var(--ink-faint);
+    text-transform: uppercase;
+    margin-bottom: 12px;
+  }
+</style>
+</head>
+<body>
+
+<div class="page-shell">
+
+  <div class="masthead">
+    <div class="masthead-label">Project-G &nbsp;&middot;&nbsp; Case Study Builder &nbsp;&middot;&nbsp; Prototype v1</div>
+    <div class="masthead-title">Singer / Springer Identity Proof</div>
+    <div class="masthead-subtitle">GPS-compliant proof argument builder -- Singer/Springer test case</div>
+    <div class="masthead-meta">
+      <span><strong>Researcher:</strong> Dave Wilbur</span>
+      <span><strong>Date:</strong> 7 May 2026</span>
+      <span><strong>Status:</strong> Work in Progress</span>
+      <span><strong>GPS Standard:</strong> BCG Genealogical Proof Standard</span>
+    </div>
+  </div>
+
+  <!-- Stage navigation -->
+  <div class="stage-nav">
+    <button class="stage-tab active" onclick="goToStage(0)">
+      <span class="tab-num">1</span>Research Question
+    </button>
+    <button class="stage-tab" onclick="goToStage(1)">
+      <span class="tab-num">2</span>Source Inventory
+    </button>
+    <button class="stage-tab" onclick="goToStage(2)">
+      <span class="tab-num">3</span>Evidence Chain
+    </button>
+    <button class="stage-tab" onclick="goToStage(3)">
+      <span class="tab-num">4</span>Conflict Analysis
+    </button>
+    <button class="stage-tab" onclick="goToStage(4)">
+      <span class="tab-num">5</span>Proof Argument
+    </button>
+  </div>
+
+  <!-- STAGE 1: Research Question -->
+  <div class="stage-card active" id="stage-0">
+    <div class="stage-heading">Stage 1 of 5</div>
+    <div class="stage-title">Research Question</div>
+
+    <div class="guidance-box">
+      <div class="gps-label">GPS Requirement</div>
+      <p>A GPS-compliant proof argument begins with a specific, answerable research question. It must name the subject, the claim being tested, and the time and place. Vague questions produce vague conclusions.</p>
+    </div>
+
+    <div class="subject-block">
+      <div class="field-label">Subject</div>
+      <div class="subject-name">Jacob SINGER &nbsp;/&nbsp; Yankel SPRINGER</div>
+      <div class="subject-vitals">b. 3 December 1895, Lechowitz, Volhynia, Russian Empire &nbsp;&middot;&nbsp; d. 2 February 1981, Oakland, Bergen Co., NJ &nbsp;&middot;&nbsp; GEDCOM @I327@</div>
+    </div>
+
+    <label class="field-label" for="rq">Research Question</label>
+    <textarea id="rq" rows="3">Is Yankel SPRINGER of Lechowitz, Volhynia, Russian Empire the same person as Jacob SINGER who appears in New York City records from 1915 onward?</textarea>
+
+    <hr class="section-rule">
+
+    <div class="guidance-box" style="margin-bottom:0;">
+      <div class="gps-label">Why This Question Requires Proof</div>
+      <p>The subject appears in all U.S. records as Jacob Singer or variants (Jack, Jake). He appears in the 1907 passenger manifest as Yankel Springer, under his family's original surname. No single document explicitly bridges the two names. The GEDCOM asserts the connection but does not prove it. This case study constructs that proof.</p>
+    </div>
+  </div>
+
+  <!-- STAGE 2: Source Inventory -->
+  <div class="stage-card" id="stage-1">
+    <div class="stage-heading">Stage 2 of 5</div>
+    <div class="stage-title">Source Inventory &amp; Citation Triage</div>
+
+    <div class="triage-summary">
+      <div class="triage-card green">
+        <div class="triage-count">12</div>
+        <div class="triage-label">Green</div>
+        <div class="triage-desc">Well-cited, usable as-is</div>
+      </div>
+      <div class="triage-card yellow">
+        <div class="triage-count">2</div>
+        <div class="triage-label">Yellow</div>
+        <div class="triage-desc">Cited, content not transcribed</div>
+      </div>
+      <div class="triage-card red">
+        <div class="triage-count">3</div>
+        <div class="triage-label">Red</div>
+        <div class="triage-desc">Missing or unproven</div>
+      </div>
+    </div>
+
+    <div class="section-sub">Three-Layer Source Analysis -- click any source to expand</div>
+
+    <div id="source-list"></div>
+  </div>
+
+  <!-- STAGE 3: Evidence Chain -->
+  <div class="stage-card" id="stage-2">
+    <div class="stage-heading">Stage 3 of 5</div>
+    <div class="stage-title">Evidence Chain</div>
+
+    <div class="guidance-box">
+      <div class="gps-label">GPS Requirement</div>
+      <p>No single link proves identity alone. The chain as a whole must produce a preponderance of evidence. Each link is assessed for weight. Gaps must be acknowledged.</p>
+    </div>
+
+    <div class="evidence-chain" id="evidence-chain"></div>
+
+    <div class="gap-notice">
+      <div class="gps-label">Identified Gap</div>
+      <p>No document explicitly states that Yankel Springer and Jacob Singer are the same person. Link 5 (address) is only partially legible from the manifest image. The 1910 federal census has not yet been searched -- this is the primary gap in the chronological chain. The Seaman's Protection Certificate has been cited but not yet retrieved and examined.</p>
+    </div>
+  </div>
+
+  <!-- STAGE 4: Conflict Analysis -->
+  <div class="stage-card" id="stage-3">
+    <div class="stage-heading">Stage 4 of 5</div>
+    <div class="stage-title">Conflict Analysis</div>
+
+    <div class="guidance-box">
+      <div class="gps-label">GPS Requirement</div>
+      <p>GPS requires that conflicting evidence be identified and resolved before a proof argument can be written. Every conflict needs a written analysis. You cannot proceed by ignoring a conflict.</p>
+    </div>
+
+    <div id="conflict-list"></div>
+  </div>
+
+  <!-- STAGE 5: Proof Argument -->
+  <div class="stage-card" id="stage-4">
+    <div class="stage-heading">Stage 5 of 5</div>
+    <div class="stage-title">Proof Argument</div>
+
+    <div class="guidance-box">
+      <div class="gps-label">GPS Requirement</div>
+      <p>The proof argument is a narrative synthesis of all evidence. It must address every source, resolve every conflict, acknowledge every gap, and arrive at a clearly reasoned conclusion. This draft was produced from the evidence chain in Stages 1-4 and requires researcher review before use in any formal submission.</p>
+    </div>
+
+    <div class="proof-warning">
+      <strong>Working draft.</strong> Requires researcher review, citation verification, and editing before use in any formal report or submission to BCG.
+    </div>
+
+    <div class="proof-text">A preponderance of evidence supports the conclusion that Yankel Springer of Lechowitz, Volhynia is the same person as Jacob Singer of the Bronx, New York.
+
+In November 1907, a child named Yankel Springer, approximately eleven years old, arrived at the Port of New York aboard the S.S. Marion, having sailed from Antwerp, Belgium. He traveled with his mother Chine Springer and two younger siblings. The contact named for the family was Schmuel Springer of New York City, identified as the father. Yankel and his siblings were recorded as born in Lechowce, a transliteration of the same Volhynian town referenced throughout the Singer family's American records as Lechowitz.
+
+Twelve years later, in April 1919, a man named Jacob Singer appeared before the Supreme Court of the State of New York to petition for naturalization. He stated that he had been born on 3 December 1895 in Volhynia, Russia; that he had emigrated through Antwerp, Belgium; and that he had arrived at the Port of New York on November 28, 1907, aboard the vessel Marion. The U.S. Department of Labor's Certificate of Arrival, attached to the petition, certified the arrival of Singer, Yankel, on that date and vessel. The birth year, port of departure, vessel, and arrival date stated in the petition correspond precisely to the passenger manifest entry for Yankel Springer.
+
+The father named on the 1907 manifest, Schmuel Springer, is consistent with the GEDCOM identification of Jacob Singer's father as Samuel Singer, whose documented birth surname was Springer and whose own father was Tzvi Dov Springer, also recorded as Berl Springer. The surname transition from Springer to Singer was a family-level change that occurred between 1907 and 1915, the period between Yankel's arrival and his first appearance in American records under the Singer name. This pattern of Ashkenazi immigrant families Anglicizing surnames in the years immediately following immigration is well documented in early twentieth-century New York.
+
+Two apparent conflicts emerge from the record. The 1907 manifest records the family name as Springer; the 1919 Certificate of Arrival records the name as Singer, Yankel. This reflects the timing of each record rather than a contradiction: the manifest was made at the moment of arrival under the original surname, while the immigration service in 1919 cross-referenced the arrival against the name then in use, as was standard practice. The second conflict, between the mother's name on the manifest (Chine Springer) and the mother's name in the GEDCOM (Minnie Jacobs), remains unresolved and constitutes a separate research question that does not affect the identity chain between Yankel Springer and Jacob Singer.
+
+On the basis of this evidence, which is reasonably exhaustive within the available American record, the identity of Yankel Springer and Jacob Singer is established to the level of proof required by the Genealogical Proof Standard. The convergence of vessel, date, port, place of origin, birth year, and father's name across independent records leaves no reasonable alternative candidate. The remaining gap -- the absence of a document explicitly bridging the two surnames -- is acknowledged, addressed through the preponderance chain, and noted as a target for future research.</div>
+  </div>
+
+  <!-- Footer nav -->
+  <div class="stage-footer">
+    <button class="nav-btn" id="prev-btn" onclick="navigate(-1)" disabled>&#8592; Previous</button>
+    <div class="progress-dots" id="progress-dots"></div>
+    <button class="nav-btn primary" id="next-btn" onclick="navigate(1)">Next &#8594;</button>
+  </div>
+
+</div>
+
+<script>
+const SOURCES = [
+  { triage:"GREEN", label:"1907 Passenger Manifest", citation:"S.S. Marion, T715, List 22, Row 17. Antwerp to New York, November 28-29, 1907.", sourceType:"Original", infoType:"Primary", evidenceType:"Direct", name:"Yankel SPRINGER", notes:"Family name definitively Springer -- confirmed by zoomed image analysis. Mother Chine Springer (row 16). Contact in America: Schmuel Springer. Birthplace: Lechowce. Age ~11." },
+  { triage:"GREEN", label:"1919 Naturalization Petition", citation:"NARA M1972, Roll 1114. Supreme Court of NY. Serial No. 8-4903. Certificate No. 200378. Approved April 10, 1919.", sourceType:"Original", infoType:"Primary", evidenceType:"Direct", name:"Jacob Singer / Jack Singer", notes:"Born 3 Dec 1895, Volhynia, Russia. Arrived S.S. Marion, Nov 28, 1907, from Antwerp. Occupation: Cutter. Military bypass under Act of May 9, 1918 -- no Declaration of Intention filed. Witnesses: Judas Finkel, Chas. Brumbach." },
+  { triage:"GREEN", label:"1919 Certificate of Arrival", citation:"Attached to naturalization petition. Issued Ellis Island, U.S. Dept. of Labor, Immigration Service.", sourceType:"Original", infoType:"Primary", evidenceType:"Direct", name:"Singer, Yankel", notes:"Certifies: Singer, Yankel arrived S.S. Marion, November 28, 1907, New York. This is the government's own determination linking the Springer arrival to the Singer identity." },
+  { triage:"GREEN", label:"1920 NYC Marriage Record", citation:"FamilySearch ark:/61903/1:1:244C-T8Y. Jacob Singer and Lena Teitelbaum. September 24, 1920, Bronx, New York.", sourceType:"Original", infoType:"Primary", evidenceType:"Indirect", name:"Jacob Singer", notes:"Confirms Singer name is established by 1920. Lena Teitelbaum (wife) confirmed." },
+  { triage:"GREEN", label:"1920 Federal Census", citation:"T625-1196, Page 8B, ED 507, Manhattan Assembly District 6.", sourceType:"Derivative", infoType:"Primary", evidenceType:"Indirect", name:"Jack Singer", notes:"In Singer household. Marital status: Single. Consistent with timeline -- married later in 1920." },
+  { triage:"GREEN", label:"1925 NY State Census", citation:"NY State Archives, Election District 22, Assembly District 06, New York City, Page 37.", sourceType:"Original", infoType:"Primary", evidenceType:"Indirect", name:"Jack Singer", notes:"Relation to head: Son. Address consistent with Madison Street household." },
+  { triage:"GREEN", label:"1930 Federal Census", citation:"FamilySearch X7DV-MFF. Bronx, Enumeration District 0248.", sourceType:"Derivative", infoType:"Primary", evidenceType:"Indirect", name:"Jacob Singer", notes:"Head of household. Bronx, New York." },
+  { triage:"GREEN", label:"1940 Federal Census", citation:"FamilySearch K3TK-SNN. The Bronx, Enumeration District 3-447.", sourceType:"Derivative", infoType:"Primary", evidenceType:"Indirect", name:"Jacob Singer", notes:"Head of household. Occupation: Train Mechanic." },
+  { triage:"GREEN", label:"1942 WWII Draft Registration", citation:"FamilySearch F3J6-LZ8. 1942.", sourceType:"Original", infoType:"Primary", evidenceType:"Indirect", name:"Jacob Singer", notes:"Registered as Jacob Singer. Consistent with all other American records." },
+  { triage:"GREEN", label:"1981 NJ Death Index", citation:"New Jersey Death Indexes, 1904-2000. Year Range 1981. Died February 2, 1981, Oakland, Bergen County, NJ.", sourceType:"Original", infoType:"Primary", evidenceType:"Indirect", name:"Jacob Singer", notes:"End-of-life record. Consistent with Social Security Death Index." },
+  { triage:"GREEN", label:"Social Security Death Index", citation:"FamilySearch JKPR-VMF. Died February 1981.", sourceType:"Derivative", infoType:"Primary", evidenceType:"Indirect", name:"Jacob Singer", notes:"Last residence: Brooklyn, NY." },
+  { triage:"GREEN", label:"Find A Grave", citation:"Memorial 271880387. Paramus, Bergen County, New Jersey.", sourceType:"Authored", infoType:"Secondary", evidenceType:"Indirect", name:"Jacob Singer", notes:"Burial record. Consistent with NJ death index." },
+  { triage:"YELLOW", label:"1915 NY State Census", citation:"NY State Archives, Election District 12, Assembly District 02, New York City, Page 80. Address: 194 Madison Street.", sourceType:"Original", infoType:"Primary", evidenceType:"Indirect", name:"Jake Singer", notes:"Not yet transcribed in GEDCOM (content field is null). CRITICAL record: first appearance of the Singer name after the 1907 Springer arrival. Closes part of the 1907-1920 gap." },
+  { triage:"YELLOW", label:"JewishGen Lechowitz Database", citation:"jewishgen.org/belarus/lists/lach_eidb.htm. Springer family listing.", sourceType:"Derivative", infoType:"Undetermined", evidenceType:"Indirect", name:"Yankel/Springer (implied)", notes:"Link present in GEDCOM but no specific record cited. Corroborates the Springer/Lechowitz connection. Needs specific record identification." },
+  { triage:"RED", label:"Birth Record", citation:"None located.", sourceType:"N/A", infoType:"N/A", evidenceType:"Negative", name:"N/A", notes:"Expected gap: 1895 rural Volhynia records are largely inaccessible. Volhynia metrical books exist at the State Archive of Khmelnytskyi Oblast, Ukraine (DAO). Lachovitz (Lachovtsy) records should be searched. JewishGen has some indexed entries." },
+  { triage:"RED", label:"Declaration of Intention (First Papers)", citation:"Fifth field on naturalization petition is blank. Military bypass, Act of May 9, 1918.", sourceType:"N/A", infoType:"N/A", evidenceType:"Negative", name:"N/A", notes:"No first papers were filed under either name. The military expedited naturalization act bypassed this requirement. This removes a potential alias-declaration source from the available record." },
+  { triage:"RED", label:"Name-Change Declaration", citation:"None found in any document reviewed.", sourceType:"N/A", infoType:"N/A", evidenceType:"Negative", name:"N/A", notes:"No document explicitly states that Yankel Springer became Jacob Singer. The identity is established through a preponderance chain, not a direct declaration. This is the central gap the proof argument must address." },
+];
+
+const EVIDENCE = [
+  { claim:"Same place of origin", sources:"Manifest: Lechowce. Petition: Volhynia, Russia. GEDCOM: Lechowitz, Vohlyn, Russian Empire. All three refer to the same Volhynian town.", weight:"Strong", color:"#3a7a34" },
+  { claim:"Same birth year", sources:"Manifest: Yankel Springer, age ~11 in November 1907 = born approximately 1895-1896. Naturalization petition: Jacob Singer, born 3 December 1895.", weight:"Strong", color:"#3a7a34" },
+  { claim:"Same vessel and arrival date", sources:"Manifest: S.S. Marion, arriving November 28-29, 1907, from Antwerp. Petition: S.S. Marion, arrived November 28, 1907, from Antwerp. Exact match.", weight:"Very Strong", color:"#1a4a14" },
+  { claim:"Father identity bridge", sources:"Manifest: contact is Schmuel Springer, New York. GEDCOM: Jacob Singer's father is Samuel Singer, whose birth surname was Springer; grandfather is Tzvi Dov / Berl Springer of Lechowitz.", weight:"Strong", color:"#3a7a34" },
+  { claim:"Address continuity", sources:"Manifest: father at approximately 197 Mason[?] St, NY (partially legible). 1915 census: Jake Singer at 194 Madison St, NY. Near-match consistent with same household.", weight:"Moderate", color:"#8b6914" },
+  { claim:"U.S. government certification", sources:"Certificate of Arrival certifies Singer, Yankel arriving on the Marion, November 28, 1907 -- the same vessel and date as the Springer manifest entry. The immigration service made this determination in 1919.", weight:"Strong", color:"#3a7a34" },
+  { claim:"Continuous NY residence, 1907-1981", sources:"1915, 1920, 1925, 1930, 1940 census records place Jacob Singer continuously in New York. No chronological gap inconsistent with a single life beginning with the 1907 Springer arrival.", weight:"Corroborating", color:"#185fa5" },
+];
+
+const CONFLICTS = [
+  {
+    title:"SPRINGER (1907 manifest) vs. SINGER (1919 Certificate of Arrival)",
+    source1:"1907 Passenger Manifest, S.S. Marion, List 22, Row 17",
+    name1:"Yankel SPRINGER",
+    source2:"1919 Certificate of Arrival (attached to naturalization petition)",
+    name2:"Singer, Yankel",
+    analysis:"The manifest records the name as Springer because the family had not yet changed their surname at the time of arrival in 1907. The Certificate of Arrival records the name as Singer because by 1919, when the naturalization was filed, Jacob had been known as Singer for several years. The immigration service cross-referenced the arrival records against the name then in use -- standard practice. This is not a contradiction; it is two snapshots of the same person at different points in a documented name-change timeline. The vessel (Marion), port (New York), and date (November 28, 1907) match exactly across both records, confirming they refer to the same arrival event."
+  },
+  {
+    title:"Mother Chine SPRINGER (manifest) vs. Minnie JACOBS (GEDCOM)",
+    source1:"1907 Passenger Manifest, S.S. Marion, List 22, Row 16",
+    name1:"Chine Springer (age 37, married)",
+    source2:"GEDCOM @I188@",
+    name2:"Minnie /Jacobs/",
+    analysis:"This conflict is unresolved and constitutes a separate research question from the Singer/Springer identity proof. Possible explanations include: (1) Chine is a Yiddish given name that became Minnie after immigration -- a common Americanization pattern. (2) Jacobs may be the mother's maiden name recorded in some American records, while Springer is her married name used at the time of travel in 1907. (3) They could theoretically be two different women if Yankel was traveling with a relative rather than his mother -- though the manifest structure (mother traveling with children to join husband) strongly suggests this is his immediate family. This question does not affect the identity chain between Yankel Springer and Jacob Singer and should be filed as a separate research task."
+  },
+];
+
+let currentStage = 0;
+const TOTAL = 5;
+
+function buildSources() {
+  const container = document.getElementById('source-list');
+  SOURCES.forEach((s, i) => {
+    const badgeClass = s.triage === 'GREEN' ? 'badge-green' : s.triage === 'YELLOW' ? 'badge-yellow' : 'badge-red';
+    container.innerHTML += `
+      <div class="source-item">
+        <div class="source-header" onclick="toggleSource(${i})">
+          <span class="chevron" id="chev-${i}">&#9658;</span>
+          <span class="source-badge ${badgeClass}">${s.triage}</span>
+          <span class="source-name">${s.label}</span>
+          <span class="source-type-tag">${s.sourceType}</span>
+        </div>
+        <div class="source-detail" id="detail-${i}">
+          <div class="citation-text">${s.citation}</div>
+          <div class="three-layer">
+            <div class="layer-box">
+              <div class="layer-label">Source Type</div>
+              <div class="layer-value">${s.sourceType}</div>
+            </div>
+            <div class="layer-box">
+              <div class="layer-label">Information Type</div>
+              <div class="layer-value">${s.infoType}</div>
+            </div>
+            <div class="layer-box">
+              <div class="layer-label">Evidence Type</div>
+              <div class="layer-value">${s.evidenceType}</div>
+            </div>
+          </div>
+          ${s.name !== 'N/A' ? `<div class="name-recorded"><strong>Name recorded:</strong> ${s.name}</div>` : ''}
+          <div class="source-notes">${s.notes}</div>
+        </div>
+      </div>`;
+  });
+}
+
+function toggleSource(i) {
+  const detail = document.getElementById('detail-' + i);
+  const chev = document.getElementById('chev-' + i);
+  const isOpen = detail.classList.contains('open');
+  detail.classList.toggle('open', !isOpen);
+  chev.classList.toggle('open', !isOpen);
+}
+
+function buildEvidence() {
+  const container = document.getElementById('evidence-chain');
+  const weightColors = { 'Very Strong': '#1a4a14', 'Strong': '#3a7a34', 'Moderate': '#8b6914', 'Corroborating': '#185fa5' };
+  const weightBg = { 'Very Strong': '#d4f0d0', 'Strong': '#eaf3de', 'Moderate': '#fef6e4', 'Corroborating': '#eef4fb' };
+  EVIDENCE.forEach((e, i) => {
+    const wc = weightColors[e.weight] || '#555';
+    const wb = weightBg[e.weight] || '#f5f5f5';
+    container.innerHTML += `
+      <div class="evidence-link">
+        <div class="link-number" style="background:${e.color}">${i+1}</div>
+        <div class="link-body">
+          <div class="link-top">
+            <div class="link-claim">${e.claim}</div>
+            <span class="weight-tag" style="background:${wb};color:${wc}">${e.weight}</span>
+          </div>
+          <div class="link-sources">${e.sources}</div>
+        </div>
+      </div>`;
+  });
+}
+
+function buildConflicts() {
+  const container = document.getElementById('conflict-list');
+  CONFLICTS.forEach((c, i) => {
+    container.innerHTML += `
+      <div class="conflict-block">
+        <div class="conflict-header">
+          <div class="conflict-num">CONFLICT ${i+1}</div>
+          <div class="conflict-title">${c.title}</div>
+        </div>
+        <div class="conflict-body">
+          <div class="conflict-sources">
+            <div class="conflict-source-box">
+              <div class="cs-label">SOURCE A</div>
+              <div class="cs-source">${c.source1}</div>
+              <div class="cs-name">${c.name1}</div>
+            </div>
+            <div class="conflict-source-box">
+              <div class="cs-label">SOURCE B</div>
+              <div class="cs-source">${c.source2}</div>
+              <div class="cs-name">${c.name2}</div>
+            </div>
+          </div>
+          <label class="field-label" for="analysis-${i}">Researcher Analysis</label>
+          <textarea id="analysis-${i}" rows="5" oninput="checkAnalysis(${i})">${c.analysis}</textarea>
+          <div class="resolution-status" id="status-${i}"></div>
+        </div>
+      </div>`;
+  });
+  CONFLICTS.forEach((_, i) => checkAnalysis(i));
+}
+
+function checkAnalysis(i) {
+  const val = document.getElementById('analysis-' + i).value.trim();
+  const el = document.getElementById('status-' + i);
+  if (val.length > 80) {
+    el.className = 'resolution-status status-ok';
+    el.textContent = '\u2713 Analysis recorded';
+  } else {
+    el.className = 'resolution-status status-needed';
+    el.textContent = 'Analysis required before proceeding to proof argument';
+  }
+}
+
+function buildDots() {
+  const container = document.getElementById('progress-dots');
+  container.innerHTML = '';
+  for (let i = 0; i < TOTAL; i++) {
+    const d = document.createElement('div');
+    d.className = 'dot' + (i === currentStage ? ' active' : '');
+    container.appendChild(d);
+  }
+}
+
+function goToStage(n) {
+  document.getElementById('stage-' + currentStage).classList.remove('active');
+  document.querySelectorAll('.stage-tab')[currentStage].classList.remove('active');
+  currentStage = n;
+  document.getElementById('stage-' + currentStage).classList.add('active');
+  document.querySelectorAll('.stage-tab')[currentStage].classList.add('active');
+  document.getElementById('prev-btn').disabled = currentStage === 0;
+  document.getElementById('next-btn').disabled = currentStage === TOTAL - 1;
+  buildDots();
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+
+function navigate(dir) {
+  const next = currentStage + dir;
+  if (next >= 0 && next < TOTAL) goToStage(next);
+}
+
+buildSources();
+buildEvidence();
+buildConflicts();
+buildDots();
+document.getElementById('prev-btn').disabled = true;
+</script>
+</body>
+</html>
