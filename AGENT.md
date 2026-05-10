@@ -1,6 +1,6 @@
 Project-G-Live AGENT.md
-Version: 2.4.0
-Last updated: 2026-05-09 15:50 UTC
+Version: 2.5.0
+Last updated: 2026-05-09 16:15 UTC
 Last updated by: Claude
 
 # What This Is
@@ -229,7 +229,7 @@ Semantic versioning: MAJOR.MINOR.PATCH
 
 All timestamps: YYYY-MM-DD HH:MM UTC. Time to the minute required. No date-only stamps.
 
-Current version: 2.4.0
+Current version: 2.5.0
 
 ---
 
@@ -297,73 +297,50 @@ GEDCOM Bridge comes last -- it is onboarding convenience, not core workflow.
 PHASE 3 BUILD ORDER:
 
 1.  Citation Builder (Module 4) -- COMPLETE
-    Source library, 5-step structured interview (11 source categories),
-    GPS classification UI, EE citation forms, detail/edit view.
-    API routes: GET/POST/PATCH/DELETE with GPS enforcement.
-    SQL migration: sql/001-create-tables.sql (all 9 tables + RLS).
     Committed: 2026-05-10 03:25 UTC.
-    Awaiting: Supabase provisioning and smoke test by user.
 
 2.  Case Study Builder (Module 10) -- COMPLETE
-    Production build committed: 2026-05-09 17:38 UTC.
-    6-stage GPS workflow:
-      Stage 1 -- Research Question
-      Stage 2 -- Source Inventory and Triage (pulls from Citation Builder)
-      Stage 3 -- Evidence Chain
-      Stage 4 -- Reasonably Exhaustive Search Checklist (new stage, GPS requirement)
-      Stage 5 -- Conflict Analysis
-      Stage 6 -- Proof Argument (edit + preview, [FN1] superscript rendering)
-    13 API routes committed. 6 stage components committed.
-    SQL migration: sql/002-add-res-checklist.sql (res_checklist_items table,
-    gps_stage_reached constraint expanded to 1-6).
-    Awaiting: Supabase provisioning, both SQL migrations run, smoke test.
+    Committed: 2026-05-09 17:38 UTC. 6-stage GPS workflow.
 
 3.  Document Analysis Worksheet (Module 5) -- COMPLETE
     Committed: 2026-05-10 06:00 UTC.
-    Transcription editor + AI fact extraction + Three-Layer GPS classification per fact.
-    SQL migration: sql/003-add-documents.sql (documents + document_facts + RLS).
-    5 API routes. 3 pages.
-    Awaiting: user runs sql/003 and smoke tests.
 
 4.  Research Log (Module 3) -- COMPLETE
     Committed: 2026-05-09 15:42 UTC.
-    Session-by-session auditable research trail. GPS negative evidence documented.
-    SQL migration: sql/004-add-research-log.sql (research_sessions + session_sources + RLS).
-    6 API routes (list, CRUD, session-sources CRUD, AI abstractor).
-    3 pages (list, new, detail with inline editing + source tracking).
-    Shared /api/persons route created (used by Research Log and future modules).
-    Awaiting: user runs sql/004 and smoke tests.
 
-5.  Research Plan Builder (Module 2) -- NOT STARTED
+5.  Research To-Do Tracker (Module 15) -- COMPLETE
+    Committed: 2026-05-09 16:10 UTC.
+    Priority/status tracking, person linking, source type hint,
+    inline status cycling on list, full edit on detail page.
+    SQL migration: sql/005-add-todos.sql.
+    origin_module field supports future automated aggregation from other modules.
+    Awaiting: user runs sql/005 and smoke tests.
+
+6.  Research Plan Builder (Module 2) -- NOT STARTED
     Requires: Citation Builder.
+    Note: research_plan_id FK in research_sessions will be added by this module's migration.
 
-6.  Source Conflict Resolver (Module 6) -- NOT STARTED
+7.  Source Conflict Resolver (Module 6) -- NOT STARTED
     Requires: Citation Builder, sources in Supabase.
-    Schema for conflicts table defined in architecture.md.
 
-7.  Timeline Builder (Module 7) -- NOT STARTED
+8.  Timeline Builder (Module 7) -- NOT STARTED
     Requires: Citation Builder, facts in Supabase.
 
-8.  Research Report Writer (Module 9) -- NOT STARTED
+9.  Research Report Writer (Module 9) -- NOT STARTED
     Requires: most modules above.
 
-9.  GEDCOM Bridge (Module 1) -- NOT STARTED
+10. GEDCOM Bridge (Module 1) -- NOT STARTED
     Onboarding layer. Build after core app is working.
 
-10. Family Group Sheet Builder (Module 11) -- NOT STARTED
-    Requires: Citation Builder, persons in Supabase.
+11. Family Group Sheet Builder (Module 11) -- NOT STARTED
 
-11. FAN Club Mapper (Module 8) -- NOT STARTED
-    Requires: Citation Builder, persons in Supabase.
+12. FAN Club Mapper (Module 8) -- NOT STARTED
 
-12. DNA Evidence Tracker (Module 14) -- NOT STARTED
-    Requires: Citation Builder, persons in Supabase.
+13. DNA Evidence Tracker (Module 14) -- NOT STARTED
 
-13. Correspondence Log (Module 12) -- NOT STARTED. Largely standalone.
+14. Correspondence Log (Module 12) -- NOT STARTED.
 
-14. File Naming System (Module 13) -- NOT STARTED. Standalone.
-
-15. Research To-Do Tracker (Module 15) -- NOT STARTED. Standalone.
+15. File Naming System (Module 13) -- NOT STARTED.
 
 ---
 
@@ -399,16 +376,11 @@ License: CC BY-NC-SA 4.0. Personal non-commercial research only.
 
 Phase 1: Documentation and architecture -- COMPLETE
 Phase 2: Prototype artifacts to test interview logic -- COMPLETE
-  Case Study Builder v1: /prototypes/case_study_builder_v1.html (39,979 bytes)
-  Case Study Builder v2: /prototypes/case_study_builder_v2.html (48,917 bytes)
-  Test case: Jacob Singer / Yankel Springer identity proof (2026-05-07)
 Phase 3: Full web app built module by module -- ACTIVE
-  Scaffold committed: 2026-05-10 02:45 UTC
-  Citation Builder (Module 4): COMPLETE -- committed 2026-05-10 03:25 UTC
-  Case Study Builder (Module 10): COMPLETE -- committed 2026-05-09 17:38 UTC
-  Document Analysis Worksheet (Module 5): COMPLETE -- committed 2026-05-10 06:00 UTC
-  Research Log (Module 3): COMPLETE -- committed 2026-05-09 15:42 UTC
-  Next: user provisions Supabase, runs sql/001 through sql/004, smoke tests all 4 modules.
+  5 of 15 modules complete:
+  Module 4 (Citation Builder), Module 10 (Case Study Builder),
+  Module 5 (Document Analysis Worksheet), Module 3 (Research Log),
+  Module 15 (Research To-Do Tracker)
 Phase 4: GEDCOM Bridge built as onboarding layer
 Phase 5: Case Study Builder with PowerPoint export as flagship
 
@@ -467,26 +439,29 @@ INTERNAL PLATFORM IDs are plumbing. Never surface in researcher-facing output.
 /prototypes/        -- HTML prototype files
 /docs/research/     -- Research output files
 /docs/modules/      -- Module design documents (15 files, one per module)
-/docs/architecture.md -- Supabase schema reference (column-level as of 2026-05-10)
+/docs/architecture.md -- Supabase schema reference
 /sql/               -- SQL migration files. Run in Supabase SQL editor in order.
   001-create-tables.sql     -- Full schema: all 9 tables + RLS policies
-  002-add-res-checklist.sql -- RES checklist table, gps_stage_reached expanded to 6
-  003-add-documents.sql     -- documents + document_facts tables + RLS
-  004-add-research-log.sql  -- research_sessions + session_sources tables + RLS
+  002-add-res-checklist.sql -- RES checklist table
+  003-add-documents.sql     -- documents + document_facts
+  004-add-research-log.sql  -- research_sessions + session_sources
+  005-add-todos.sql         -- todos table
 /src/               -- Application source code
   /src/app/         -- Next.js App Router pages
-    /citation-builder/         -- Module 4: source library + new/edit flow
-    /case-study/               -- Module 10: list, new, and 6-stage detail builder
-    /document-analysis/        -- Module 5: list, new, detail with AI fact extraction
-    /research-log/             -- Module 3: list, new, detail with AI abstraction
-    /api/citation-builder/     -- API routes for Module 4
-    /api/case-study/           -- API routes for Module 10 (13 routes)
-    /api/document-analysis/    -- API routes for Module 5 (5 routes)
-    /api/research-log/         -- API routes for Module 3 (6 routes)
-    /api/persons/              -- Shared persons list + create (used across modules)
-  /src/components/case-study/  -- Stage components (StageNav + Stages 1-6)
-  /src/lib/         -- Supabase client, AI wrapper
-  /src/types/       -- Entity interfaces and GPS type re-exports
+    /citation-builder/
+    /case-study/
+    /document-analysis/
+    /research-log/
+    /todos/
+    /api/citation-builder/
+    /api/case-study/
+    /api/document-analysis/
+    /api/research-log/
+    /api/todos/
+    /api/persons/              -- Shared persons list + create
+  /src/components/case-study/
+  /src/lib/
+  /src/types/
 wip/ branch         -- Partially built work, committed even if broken
 
 Claude Code local path: /Users/dave/Project-G-Live/
@@ -519,110 +494,57 @@ instruction from the user.
 
 ## Project State
 
-TIMESTAMP last updated: 2026-05-09 15:50 UTC by Claude
+TIMESTAMP last updated: 2026-05-09 16:15 UTC by Claude
 
-Build phase: Phase 3 ACTIVE
+Build phase: Phase 3 ACTIVE -- 5 of 15 modules complete
 
 Committed and clean:
-- sql/001-create-tables.sql -- all 9 tables, RLS policies
-- sql/002-add-res-checklist.sql -- res_checklist_items, gps_stage_reached 1-6
-- sql/003-add-documents.sql -- documents + document_facts + RLS
-- sql/004-add-research-log.sql -- research_sessions + session_sources + RLS
-- src/types/index.ts -- entity interfaces (Source, Person, CaseStudy, ResearchSession, SessionSource, etc.)
-- src/app/citation-builder/page.tsx -- source library
-- src/app/citation-builder/new/page.tsx -- 5-step structured interview
-- src/app/citation-builder/[id]/page.tsx -- source detail with copy and edit
-- src/app/api/citation-builder/route.ts -- GET list + POST create
-- src/app/api/citation-builder/[id]/route.ts -- GET + PATCH + DELETE
-- src/app/case-study/page.tsx -- case study list (live, not stub)
-- src/app/case-study/new/page.tsx -- new case study form
-- src/app/case-study/[id]/page.tsx -- full 6-stage builder (live, not stub)
-- src/app/api/case-study/route.ts -- GET list + POST create
-- src/app/api/case-study/[id]/route.ts -- GET + PATCH + DELETE
-- src/app/api/case-study/[id]/sources/route.ts -- GET + POST
-- src/app/api/case-study/[id]/sources/[sourceId]/route.ts -- PATCH + DELETE
-- src/app/api/case-study/[id]/evidence/route.ts -- GET + POST
-- src/app/api/case-study/[id]/evidence/[linkId]/route.ts -- PATCH + DELETE
-- src/app/api/case-study/[id]/res-checklist/route.ts -- GET + POST
-- src/app/api/case-study/[id]/res-checklist/[itemId]/route.ts -- PATCH + DELETE
-- src/app/api/case-study/[id]/conflicts/route.ts -- GET + POST
-- src/app/api/case-study/[id]/conflicts/[conflictId]/route.ts -- PATCH + DELETE
-- src/app/api/case-study/[id]/proof/route.ts -- GET paragraphs + footnotes, POST both
-- src/app/api/case-study/[id]/proof/[paragraphId]/route.ts -- PATCH + DELETE
-- src/app/document-analysis/page.tsx -- document list
-- src/app/document-analysis/new/page.tsx -- new worksheet form
-- src/app/document-analysis/[id]/page.tsx -- worksheet detail with AI fact extraction
-- src/app/api/document-analysis/route.ts -- GET list + POST create
-- src/app/api/document-analysis/[id]/route.ts -- GET + PATCH + DELETE
-- src/app/api/document-analysis/[id]/extract-facts/route.ts -- POST AI extraction
-- src/app/api/document-analysis/[id]/facts/route.ts -- GET list + POST create
-- src/app/api/document-analysis/[id]/facts/[factId]/route.ts -- PATCH + DELETE
-- src/app/research-log/page.tsx -- session list
-- src/app/research-log/new/page.tsx -- new session form
-- src/app/research-log/[id]/page.tsx -- session detail with inline edit + source tracking + AI abstractor
-- src/app/api/research-log/route.ts -- GET list + POST create
-- src/app/api/research-log/[id]/route.ts -- GET + PATCH + DELETE
-- src/app/api/research-log/[id]/session-sources/route.ts -- GET list + POST
-- src/app/api/research-log/[id]/session-sources/[sourceId]/route.ts -- PATCH + DELETE
-- src/app/api/research-log/[id]/abstract/route.ts -- POST AI abstraction of session notes
-- src/app/api/persons/route.ts -- GET list + POST create (shared across modules)
-- src/components/case-study/StageNav.tsx
-- src/components/case-study/Stage1ResearchQuestion.tsx
-- src/components/case-study/Stage2SourceInventory.tsx
-- src/components/case-study/Stage3EvidenceChain.tsx
-- src/components/case-study/Stage4SearchChecklist.tsx
-- src/components/case-study/Stage5ConflictAnalysis.tsx
-- src/components/case-study/Stage6ProofArgument.tsx
-- prototypes/case_study_builder_v1.html (39,979 bytes) -- historical archive
-- prototypes/case_study_builder_v2.html (48,917 bytes) -- canonical prototype
-- docs/architecture.md -- column-level schema for all tables
-- src/app/layout.tsx, src/app/page.tsx (dashboard), src/app/globals.css
-- src/lib/supabase.ts -- browser + server Supabase client with type aliases
-- src/lib/ai.ts -- Claude API wrapper with GPS enforcement system prompt
+- sql/001 through sql/005 -- all migrations
+- src/types/index.ts -- all entity interfaces
+- All Module 4, 10, 5, 3, 15 source files (see CHANGELOG for full list)
+- src/app/api/persons/route.ts -- shared persons endpoint
+- prototypes/case_study_builder_v1.html and v2.html
+- docs/architecture.md
+- src/app/layout.tsx, page.tsx (dashboard updated), globals.css
+- src/lib/supabase.ts, src/lib/ai.ts
 - package.json, next.config.ts, tsconfig.json, tailwind.config.ts, postcss.config.js
-- .env.local.example, .gitignore
-- CHANGELOG.md
+- .env.local.example, .gitignore, CHANGELOG.md
 
 What does not exist yet:
-- Supabase project not yet provisioned (or provisioned but migrations 003 and 004 not run).
-  User must:
-    1. Run sql/003-add-documents.sql in SQL editor (if not done)
-    2. Run sql/004-add-research-log.sql in SQL editor
-    3. Pull latest from main
-    4. npm run dev
-    5. Smoke test Module 5 (Document Analysis): create a worksheet, paste transcription, extract facts
-    6. Smoke test Module 3 (Research Log): create a session, add sources, run AI abstractor
-    7. Smoke test Citation Builder and Case Study Builder if not yet done
-- Steve Little prompt engines not integrated into src/lib/ai.ts
-- Supabase seed data (Singer/Springer sources from prototype)
+- Supabase migrations 003, 004, 005 may not yet be run by user.
+  User must run sql/003, sql/004, sql/005 in Supabase SQL editor.
+- Steve Little prompt engines not integrated
+- Supabase seed data (Singer/Springer sources)
 - PowerPoint export endpoint
-- File upload to Supabase storage (deferred -- needs storage bucket setup)
+- File upload to Supabase storage (deferred)
+- Modules 2, 6, 7, 9, 1, 11, 8, 14, 12, 13 (10 modules remaining)
 
 Next immediate action:
-  TIMESTAMP: 2026-05-09 15:50 UTC
-  User: pull main, run sql/003 and sql/004, smoke test Module 5 and Module 3.
-  Then declare FIX or BUILD for next session based on smoke test results.
-  Next BUILD target: Research Plan Builder (Module 2) or Research To-Do Tracker (Module 15).
+  TIMESTAMP: 2026-05-09 16:15 UTC
+  User: pull main, run sql/005-add-todos.sql, smoke test /todos.
+  Also smoke test /research-log and /document-analysis if not yet done.
+  Next BUILD target: Research Plan Builder (Module 2) -- requires Citation Builder (done).
 
 ---
 
 ## Backlog
 
 SUPABASE SEED DATA
-After provisioning, seed with the 17 Singer/Springer sources from the prototype
-as the first real test case. Can be done via Citation Builder UI or a seed script.
+After smoke tests pass, seed with the 17 Singer/Springer sources from the prototype.
+
+TODO AGGREGATION FEEDS
+Module 15 has an origin_module field to support automated aggregation from Research Log,
+Source Conflict Resolver, Timeline, and Correspondence Log. Wire these feeds as each
+upstream module comes online.
 
 DOCUMENT VIEWER
-Source images render inline in the source record panel.
-Stored in Supabase, displayed alongside the citation and analysis.
+Source images render inline in the source record panel. Needs Supabase storage bucket.
 
 POWERPOINT EXPORT ENDPOINT
 Design the python-pptx endpoint when beginning the PowerPoint export feature.
 
 STEVE LITTLE PROMPT INTEGRATION
 Load engine prompts from /prompts/ directory into src/lib/ai.ts callWithEngine().
-Currently routed with a stub. Integrate actual prompt text before using in production.
 
 FILE UPLOAD + OCR-HTR TRANSCRIPTION
-Module 5 v1 uses manual transcription entry. File upload to Supabase Storage and
-AI image transcription (OCR-HTR Tool v08) deferred until user sets up storage bucket.
+Module 5 v1 uses manual transcription entry. Deferred until Supabase storage bucket is set up.

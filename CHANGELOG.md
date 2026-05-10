@@ -5,6 +5,21 @@ Format: TIMESTAMP | Session | Change
 
 ---
 
+## 2026-05-09 16:15 UTC -- Session: Phase 3 BUILD (Research To-Do Tracker)
+
+- sql/005-add-todos.sql -- todos table + RLS
+- src/types/index.ts -- added Todo, TodoStatus, TodoPriority interfaces
+- src/app/api/todos/route.ts -- GET list (with status/person/priority filters, priority-weighted sort) + POST create
+- src/app/api/todos/[id]/route.ts -- GET + PATCH (auto-stamps completed_at) + DELETE
+- src/app/todos/page.tsx -- list with status filter tabs, inline status cycling, priority badges, stats bar
+- src/app/todos/new/page.tsx -- new item form (priority picker, person, source type hint, due date)
+- src/app/todos/[id]/page.tsx -- detail with inline edit and delete
+- src/app/page.tsx -- Research To-Do Tracker updated to COMPLETE
+- Module 15 (Research To-Do Tracker): COMPLETE
+- AGENT.md bumped to v2.5.0
+
+---
+
 ## 2026-05-09 15:50 UTC -- Session: Phase 3 BUILD (Research Log)
 
 - sql/004-add-research-log.sql -- research_sessions + session_sources tables + RLS
@@ -60,27 +75,7 @@ Format: TIMESTAMP | Session | Change
 ## 2026-05-09 17:38 UTC -- Session: Phase 3 BUILD (Case Study Builder)
 
 - sql/002-add-res-checklist.sql -- RES checklist table, gps_stage_reached constraint expanded to 6
-- src/app/api/case-study/route.ts -- GET list + POST create
-- src/app/api/case-study/[id]/route.ts -- GET + PATCH + DELETE
-- src/app/api/case-study/[id]/sources/route.ts -- GET + POST (with joined source data)
-- src/app/api/case-study/[id]/sources/[sourceId]/route.ts -- PATCH + DELETE
-- src/app/api/case-study/[id]/evidence/route.ts -- GET + POST
-- src/app/api/case-study/[id]/evidence/[linkId]/route.ts -- PATCH + DELETE
-- src/app/api/case-study/[id]/res-checklist/route.ts -- GET + POST
-- src/app/api/case-study/[id]/res-checklist/[itemId]/route.ts -- PATCH + DELETE
-- src/app/api/case-study/[id]/conflicts/route.ts -- GET + POST
-- src/app/api/case-study/[id]/conflicts/[conflictId]/route.ts -- PATCH + DELETE
-- src/app/api/case-study/[id]/proof/route.ts -- GET paragraphs + footnotes, POST both
-- src/app/api/case-study/[id]/proof/[paragraphId]/route.ts -- PATCH + DELETE
-- src/components/case-study/StageNav.tsx -- 6-stage navigator
-- src/components/case-study/Stage1ResearchQuestion.tsx
-- src/components/case-study/Stage2SourceInventory.tsx
-- src/components/case-study/Stage3EvidenceChain.tsx
-- src/components/case-study/Stage4SearchChecklist.tsx -- Reasonably Exhaustive Search Checklist
-- src/components/case-study/Stage5ConflictAnalysis.tsx
-- src/components/case-study/Stage6ProofArgument.tsx -- Edit + Preview modes, [FN1] rendering
-- src/app/case-study/page.tsx -- Live list page (replaces stub)
-- src/app/case-study/new/page.tsx -- New case study form
-- src/app/case-study/[id]/page.tsx -- Full 6-stage builder (replaces stub)
-- Module 10 (Case Study Builder): COMPLETE (pending Supabase provisioning and smoke test)
-- Note: 6 stages, not 5 -- RES Checklist inserted between Evidence Chain and Conflict Analysis
+- 13 API routes for case study (list, CRUD, sources, evidence, RES checklist, conflicts, proof)
+- 6 stage components (StageNav + Stages 1-6)
+- src/app/case-study/page.tsx, new/page.tsx, [id]/page.tsx
+- Module 10 (Case Study Builder): COMPLETE
