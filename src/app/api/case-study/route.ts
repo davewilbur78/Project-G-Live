@@ -1,45 +1,56 @@
-import { NextRequest, NextResponse } from 'next/server'
+// GET  /api/case-study -- list all case studies
+// POST /api/case-study -- create a case study
+
 import { createServerClient } from '@/lib/supabase'
+import { NextRequest, NextResponse } from 'next/server'
 
-// GET /api/case-study -- list all case studies, newest first
 export async function GET() {
-  const supabase = createServerClient()
+  try {
+    const supabase = createServerClient()
+    const { data: case_studies, error } = await supabase
+      .from('case_studies')
+      .select('*')
+      .order('updated_at', { ascending: false })
 
-  const { data, error } = await supabase
-    .from('case_studies')
-    .select('*')
-    .order('created_at', { ascending: false })
-
-  if (error) return NextResponse.json({ error: error.message }, { status: 500 })
-  return NextResponse.json({ case_studies: data })
+    if (error) throw error
+    return NextResponse.json({ case_studies })
+  } catch (error) {
+    const message = error instanceof Error ? error.message : 'Unknown error'
+    console.error('[case-study GET]', message)
+    return NextResponse.json({ error: message, case_studies: [] }, { status: 500 })
+  }
 }
 
-// POST /api/case-study -- create new case study
-export async function POST(req: NextRequest) {
-  const supabase = createServerClient()
-  const body = await req.json()
+export async function POST(request: NextRequest) {
+  try {
+    const body = await request.json()
 
-  const { research_question, subject_display, subject_vitals, person_id, notes } = body
+    if (!body.research_question?.trim()) {
+      return NextResponse.json({ error: 'research_question is required' }, { status: 400 })
+    }
+    if (!body.subject_display?.trim()) {
+      return NextResponse.json({ error: 'subject_display is required' }, { status: 400 })
+    }
 
-  if (!research_question?.trim()) {
-    return NextResponse.json({ error: 'research_question is required' }, { status: 400 })
+    const supabase = createServerClient()
+    const { data: case_study, error } = await supabase
+      .from('case_studies')
+      .insert([{
+        research_question: body.research_question.trim(),
+        subject_display:   body.subject_display.trim(),
+        subject_vitals:    body.subject_vitals?.trim() || null,
+        notes:             body.notes?.trim() || null,
+        status:            'draft',
+        gps_stage_reached: 1,
+      }])
+      .select()
+      .single()
+
+    if (error) throw error
+    return NextResponse.json({ case_study }, { status: 201 })
+  } catch (error) {
+    const message = error instanceof Error ? error.message : 'Unknown error'
+    console.error('[case-study POST]', message)
+    return NextResponse.json({ error: message }, { status: 500 })
   }
-  if (!subject_display?.trim()) {
-    return NextResponse.json({ error: 'subject_display is required' }, { status: 400 })
-  }
-
-  const { data, error } = await supabase
-    .from('case_studies')
-    .insert({
-      research_question: research_question.trim(),
-      subject_display:   subject_display.trim(),
-      subject_vitals:    subject_vitals?.trim() || null,
-      person_id:         person_id || null,
-      notes:             notes?.trim() || null,
-    })
-    .select()
-    .single()
-
-  if (error) return NextResponse.json({ error: error.message }, { status: 500 })
-  return NextResponse.json({ case_study: data }, { status: 201 })
 }

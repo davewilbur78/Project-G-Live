@@ -1,5 +1,5 @@
-// GET  /api/case-study/[id]/proof -- list proof paragraphs
-// POST /api/case-study/[id]/proof -- create a proof paragraph
+// GET  /api/case-study/[id]/footnotes
+// POST /api/case-study/[id]/footnotes
 
 import { createServerClient } from '@/lib/supabase'
 import { NextRequest, NextResponse } from 'next/server'
@@ -14,16 +14,16 @@ export async function GET(
     const { id } = await params
     const supabase = createServerClient()
     const { data, error } = await supabase
-      .from('proof_paragraphs')
+      .from('footnote_definitions')
       .select('*')
       .eq('case_study_id', id)
-      .order('display_order')
+      .order('footnote_number')
 
     if (error) throw error
-    return NextResponse.json({ proof: data })
+    return NextResponse.json({ footnotes: data })
   } catch (error) {
     const message = error instanceof Error ? error.message : 'Unknown error'
-    return NextResponse.json({ error: message, proof: [] }, { status: 500 })
+    return NextResponse.json({ error: message, footnotes: [] }, { status: 500 })
   }
 }
 
@@ -35,32 +35,27 @@ export async function POST(
     const { id } = await params
     const body = await request.json()
 
-    if (!body.content?.trim()) {
-      return NextResponse.json({ error: 'content is required' }, { status: 400 })
+    if (!body.citation_text?.trim()) {
+      return NextResponse.json({ error: 'citation_text is required' }, { status: 400 })
+    }
+    if (!body.footnote_number || typeof body.footnote_number !== 'number') {
+      return NextResponse.json({ error: 'footnote_number (integer) is required' }, { status: 400 })
     }
 
     const supabase = createServerClient()
-    const { data: existing } = await supabase
-      .from('proof_paragraphs')
-      .select('display_order')
-      .eq('case_study_id', id)
-      .order('display_order', { ascending: false })
-      .limit(1)
-
-    const nextOrder = existing && existing.length > 0 ? existing[0].display_order + 1 : 0
-
     const { data, error } = await supabase
-      .from('proof_paragraphs')
+      .from('footnote_definitions')
       .insert([{
-        case_study_id: id,
-        display_order: nextOrder,
-        content:       body.content.trim(),
+        case_study_id:        id,
+        footnote_number:      body.footnote_number,
+        citation_text:        body.citation_text.trim(),
+        case_study_source_id: body.case_study_source_id || null,
       }])
       .select()
       .single()
 
     if (error) throw error
-    return NextResponse.json({ paragraph: data }, { status: 201 })
+    return NextResponse.json({ footnote: data }, { status: 201 })
   } catch (error) {
     const message = error instanceof Error ? error.message : 'Unknown error'
     return NextResponse.json({ error: message }, { status: 500 })

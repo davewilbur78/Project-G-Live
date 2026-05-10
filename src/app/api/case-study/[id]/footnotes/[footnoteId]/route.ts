@@ -1,20 +1,20 @@
-// PATCH  /api/case-study/[id]/conflicts/[conflictId]
-// DELETE /api/case-study/[id]/conflicts/[conflictId]
+// PATCH  /api/case-study/[id]/footnotes/[footnoteId]
+// DELETE /api/case-study/[id]/footnotes/[footnoteId]
 
 import { createServerClient } from '@/lib/supabase'
 import { NextRequest, NextResponse } from 'next/server'
 
-type RouteContext = { params: Promise<{ id: string; conflictId: string }> }
+type RouteContext = { params: Promise<{ id: string; footnoteId: string }> }
 
 export async function PATCH(
   request: NextRequest,
   { params }: RouteContext
 ) {
   try {
-    const { conflictId } = await params
+    const { footnoteId } = await params
     const body = await request.json()
 
-    const allowed = ['title', 'source_a_id', 'source_b_id', 'name_in_a', 'name_in_b', 'analysis_text', 'is_resolved', 'display_order']
+    const allowed = ['footnote_number', 'citation_text', 'case_study_source_id']
     const updates: Record<string, unknown> = {}
     for (const key of allowed) {
       if (key in body) {
@@ -26,14 +26,14 @@ export async function PATCH(
 
     const supabase = createServerClient()
     const { data, error } = await supabase
-      .from('conflicts')
+      .from('footnote_definitions')
       .update(updates)
-      .eq('id', conflictId)
+      .eq('id', footnoteId)
       .select()
       .single()
 
     if (error) throw error
-    return NextResponse.json({ conflict: data })
+    return NextResponse.json({ footnote: data })
   } catch (error) {
     const message = error instanceof Error ? error.message : 'Unknown error'
     return NextResponse.json({ error: message }, { status: 500 })
@@ -45,9 +45,9 @@ export async function DELETE(
   { params }: RouteContext
 ) {
   try {
-    const { conflictId } = await params
+    const { footnoteId } = await params
     const supabase = createServerClient()
-    const { error } = await supabase.from('conflicts').delete().eq('id', conflictId)
+    const { error } = await supabase.from('footnote_definitions').delete().eq('id', footnoteId)
     if (error) throw error
     return NextResponse.json({ deleted: true })
   } catch (error) {
