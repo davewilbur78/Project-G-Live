@@ -1,6 +1,6 @@
 Project-G-Live AGENT.md
-Version: 2.6.2
-Last updated: 2026-05-10 20:22 UTC
+Version: 2.7.0
+Last updated: 2026-05-10 20:35 UTC
 Last updated by: Claude
 
 # What This Is
@@ -229,7 +229,7 @@ Semantic versioning: MAJOR.MINOR.PATCH
 
 All timestamps: YYYY-MM-DD HH:MM UTC. Time to the minute required. No date-only stamps.
 
-Current version: 2.6.2
+Current version: 2.7.0
 
 ---
 
@@ -320,9 +320,14 @@ PHASE 3 BUILD ORDER:
     SQL migration: sql/006-add-research-plans.sql.
     Awaiting: user runs sql/006 and smoke tests.
 
-7.  Source Conflict Resolver (Module 6) -- IN PROGRESS
-    Build started: 2026-05-10 20:22 UTC.
-    Requires: Citation Builder, sources in Supabase.
+7.  Source Conflict Resolver (Module 6) -- COMPLETE
+    Committed: 2026-05-10 20:30 UTC.
+    source_conflicts table (standalone -- NOT the case-study-scoped conflicts table).
+    References global sources directly. GPS-aware AI analysis via /analyze route.
+    Fact types: birth_date, birth_place, name, age, death_date, death_place,
+    residence, immigration, marriage, occupation, other.
+    SQL migration: sql/007-add-source-conflicts.sql.
+    Pages: list, new, detail (with side-by-side source comparison + AI Analyze).
 
 8.  Timeline Builder (Module 7) -- NOT STARTED
     Requires: Citation Builder, facts in Supabase.
@@ -393,10 +398,11 @@ License: CC BY-NC-SA 4.0. Personal non-commercial research only.
 Phase 1: Documentation and architecture -- COMPLETE
 Phase 2: Prototype artifacts to test interview logic -- COMPLETE
 Phase 3: Full web app built module by module -- ACTIVE
-  6 of 16 modules complete:
+  7 of 16 modules complete:
   Module 4 (Citation Builder), Module 10 (Case Study Builder),
   Module 5 (Document Analysis Worksheet), Module 3 (Research Log),
-  Module 15 (Research To-Do Tracker), Module 2 (Research Plan Builder)
+  Module 15 (Research To-Do Tracker), Module 2 (Research Plan Builder),
+  Module 6 (Source Conflict Resolver)
 Phase 4: GEDCOM Bridge built as onboarding layer
 Phase 5: Case Study Builder with PowerPoint export as flagship
 
@@ -457,7 +463,7 @@ INTERNAL PLATFORM IDs are plumbing. Never surface in researcher-facing output.
 /docs/research/     -- Research output files
 /docs/modules/      -- Module design documents (16 files, one per module)
 /docs/architecture.md -- Supabase schema reference
-/sql/               -- SQL migration files. Run in Supabase SQL editor in order.
+/sql/               -- SQL migration files. Run in Supabase SQL Editor in order.
   001-create-tables.sql     -- Full schema: all 9 tables + RLS policies
   002-add-res-checklist.sql -- RES checklist table
   003-add-documents.sql     -- documents + document_facts
@@ -465,6 +471,7 @@ INTERNAL PLATFORM IDs are plumbing. Never surface in researcher-facing output.
   005-add-todos.sql         -- todos table
   006-add-research-plans.sql -- research_plans + research_plan_items +
                                ALTER research_sessions ADD research_plan_id
+  007-add-source-conflicts.sql -- source_conflicts table (Module 6)
 /src/               -- Application source code
   /src/app/         -- Next.js App Router pages
     /citation-builder/
@@ -473,12 +480,14 @@ INTERNAL PLATFORM IDs are plumbing. Never surface in researcher-facing output.
     /research-log/
     /todos/
     /research-plans/
+    /conflict-resolver/
     /api/citation-builder/
     /api/case-study/
     /api/document-analysis/
     /api/research-log/
     /api/todos/
     /api/research-plans/
+    /api/conflict-resolver/
     /api/persons/              -- Shared persons list + create
   /src/components/case-study/
   /src/lib/
@@ -515,16 +524,16 @@ instruction from the user.
 
 ## Project State
 
-TIMESTAMP last updated: 2026-05-10 20:22 UTC by Claude
+TIMESTAMP last updated: 2026-05-10 20:35 UTC by Claude
 
-Build phase: Phase 3 ACTIVE -- 6 of 16 modules complete, Module 6 in progress
+Build phase: Phase 3 ACTIVE -- 7 of 16 modules complete
 
 Committed and clean:
-- sql/001 through sql/006 -- all migrations
-- src/types/index.ts -- all entity interfaces
-- All Module 4, 10, 5, 3, 15, 2 source files (see CHANGELOG for full list)
+- sql/001 through sql/007 -- all migrations
+- src/types/index.ts -- all entity interfaces including SourceConflict
+- All Module 4, 10, 5, 3, 15, 2, 6 source files (see CHANGELOG for full list)
 - src/app/api/persons/route.ts -- shared persons endpoint
-- src/lib/supabase.ts -- createServerSupabaseClient alias added (FIX: 2026-05-10 20:20 UTC)
+- src/lib/supabase.ts -- createServerSupabaseClient alias added
 - prototypes/case_study_builder_v1.html and v2.html
 - docs/architecture.md
 - docs/modules/16-research-investigation.md -- design doc, IN DESIGN
@@ -534,21 +543,23 @@ Committed and clean:
 - .env.local.example, .gitignore, CHANGELOG.md
 
 What does not exist yet:
-- Supabase migrations 003 through 006 may not yet be run by user.
-  User must run sql/003, sql/004, sql/005, sql/006 in Supabase SQL editor (in order).
+- Supabase migrations 003 through 007 may not yet be run by user.
+  User must run sql/003 through sql/007 in Supabase SQL editor (in order).
 - Steve Little prompt engines not integrated
 - Supabase seed data (Singer/Springer sources)
 - PowerPoint export endpoint
 - File upload to Supabase storage (deferred)
 - Module 16 Supabase tables (5 new tables -- see design doc)
-- Modules 6 (in progress), 7, 9, 1, 11, 8, 14, 12, 13, 16 (10 modules remaining)
+- Modules 7, 9, 1, 11, 8, 14, 12, 13, 16 (9 modules remaining)
 - Dashboard breadcrumb not yet added to pre-Module-2 pages (Citation Builder,
   Case Study Builder, Document Analysis, Research Log, Todos) -- backlog item
+- docs/architecture.md not yet updated with source_conflicts table spec
 
 Next immediate action:
-  TIMESTAMP: 2026-05-10 20:22 UTC
-  BUILD: Module 6 (Source Conflict Resolver). SQL migration, API routes,
-  and pages underway this session.
+  TIMESTAMP: 2026-05-10 20:35 UTC
+  User should run sql/007-add-source-conflicts.sql in Supabase and smoke test
+  the Conflict Resolver at /conflict-resolver before beginning Module 7 build.
+  Next BUILD: Module 7 (Timeline Builder) -- address/residence as first-class fact.
 
 ---
 
@@ -556,7 +567,7 @@ Next immediate action:
 
 SETTINGS / ADMIN MODULE
 - Dashboard back-navigation on all module screens (breadcrumb pattern; added to Module 2
-  pages; not yet added to pre-existing modules -- Citation Builder, Case Study,
+  and 6 pages; not yet added to pre-existing modules -- Citation Builder, Case Study,
   Document Analysis, Research Log, Todos)
 - API configuration panel: surface active model + health check; confirm Sonnet vs Opus
 - Model selection: make MODEL string a config value, not a hardcoded literal in ai.ts
@@ -583,6 +594,11 @@ Research Agent Assignment v2.1 is approximated inline in the generate route for 
 
 FILE UPLOAD + OCR-HTR TRANSCRIPTION
 Module 5 v1 uses manual transcription entry. Deferred until Supabase storage bucket is set up.
+
+ARCHITECTURE.MD DEBT
+Docs/architecture.md has not been updated since Module 3 (Research Log).
+Source_conflicts table spec (Module 6) is not documented there yet.
+Update architecture.md before building Module 7 to keep the schema reference current.
 
 STANDALONE / SHAREABLE PRODUCT VISION
 TIMESTAMP noted: 2026-05-10 19:45 UTC. Long-range idea only. Not a build concern now.

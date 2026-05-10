@@ -5,15 +5,39 @@ Format: TIMESTAMP | Session | Change
 
 ---
 
-## 2026-05-10 20:20 UTC -- Session: FIX (Supabase client name mismatch)
+## 2026-05-10 20:30 UTC -- Session: FIX->BUILD (Supabase alias fix + Module 6 Source Conflict Resolver)
 
+FIX (2026-05-10 20:20 UTC):
 - src/lib/supabase.ts -- added `createServerSupabaseClient` alias for `createServerClient`
   Root cause: all API routes import `createServerSupabaseClient` but the function was
-  exported as `createServerClient`. Affected: /api/todos, /api/todos/[id],
-  /api/research-plans, /api/research-plans/[id], /api/research-plans/[id]/generate,
-  /api/research-plans/[id]/items, /api/research-plans/[id]/items/[itemId], /api/persons.
-  One alias export in supabase.ts fixes all routes without touching each file.
-- Bugs resolved: Research To-Do Tracker load failure + Research Plan Builder 500 on submit
+  exported as `createServerClient`. One alias export fixes all routes.
+  Bugs resolved: Research To-Do Tracker load failure + Research Plan Builder 500 on submit
+
+BUILD -- Module 6 (Source Conflict Resolver) (2026-05-10 20:30 UTC):
+- sql/007-add-source-conflicts.sql -- source_conflicts table + RLS + indexes
+  Standalone table referencing global sources directly (NOT case-study-scoped conflicts).
+  Fact types: birth_date, birth_place, name, age, death_date, death_place,
+  residence, immigration, marriage, occupation, other.
+  Resolution basis: source_quality, preponderance, corroboration, inconclusive.
+- src/types/index.ts -- added SourceConflict, SourceConflictStatus, FactInDispute,
+  ResolutionBasis interfaces
+- src/app/api/conflict-resolver/route.ts -- GET list (open first, with person+sources joined)
+  + POST create
+- src/app/api/conflict-resolver/[id]/route.ts -- GET (with full source GPS data joined)
+  + PATCH (partial update) + DELETE
+- src/app/api/conflict-resolver/[id]/analyze/route.ts -- POST: GPS-aware AI analysis.
+  Builds prompt with both sources' GPS classifications. Returns analysis_text, resolution,
+  resolution_basis. Writes directly to record and advances status from open to in_progress.
+- src/app/conflict-resolver/page.tsx -- list with Active/Resolved/All filter tabs,
+  status badges, fact type badges, Source A vs Source B display, person link
+- src/app/conflict-resolver/new/page.tsx -- form with source picker for A and B,
+  live GPS chip preview for each selected source, auto-title generation,
+  fact type selector, description, person picker
+- src/app/conflict-resolver/[id]/page.tsx -- detail with side-by-side source comparison
+  (GPS classification chips, short citation, what each source says), analysis textarea,
+  AI Analyze button, resolution section (text + basis selector), status control, notes
+- src/app/page.tsx -- Module 6 updated to COMPLETE
+- AGENT.md bumped to v2.7.0
 
 ---
 
