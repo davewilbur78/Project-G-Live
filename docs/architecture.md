@@ -9,8 +9,8 @@
 > Before building any data-touching module, review and expand the
 > relevant table definitions here to column-level specification.
 
-Last updated: 2026-05-10 02:40 UTC by Claude
-Schema expanded to column-level from Case Study Builder v2 prototype data model.
+Last updated: 2026-05-09 15:50 UTC by Claude
+Schema expanded: research_sessions and session_sources added (Module 3 Research Log).
 
 ---
 
@@ -36,14 +36,18 @@ src/
 ├── app/                    -- Next.js App Router pages and layouts
 │   ├── layout.tsx
 │   ├── page.tsx            -- Dashboard / home
-│   └── case-study/
-│       ├── page.tsx        -- Case study list
-│       └── [id]/
-│           └── page.tsx    -- Case study detail (the 5-stage builder)
-├── components/             -- Shared React components
-├── api/                    -- API route handlers (Next.js route handlers)
-│   └── case-study/
-│       └── route.ts
+│   ├── citation-builder/   -- Module 4
+│   ├── case-study/         -- Module 10
+│   ├── document-analysis/  -- Module 5
+│   ├── research-log/       -- Module 3
+│   └── api/
+│       ├── citation-builder/
+│       ├── case-study/
+│       ├── document-analysis/
+│       ├── research-log/
+│       └── persons/        -- Shared persons endpoint
+├── components/
+│   └── case-study/         -- Stage components
 └── lib/
     ├── supabase.ts         -- Supabase client (browser + server)
     └── ai.ts               -- Claude API wrapper, prompt routing
@@ -145,8 +149,8 @@ case_studies (
   researcher          text default 'Dave Wilbur',
   status              text default 'draft'
                       check (status in ('draft','in_progress','complete')),
-  gps_stage_reached   int default 1       -- 1-5, tracks furthest stage completed
-                      check (gps_stage_reached between 1 and 5),
+  gps_stage_reached   int default 1       -- 1-6, tracks furthest stage completed
+                      check (gps_stage_reached between 1 and 6),
   notes               text,
   created_at          timestamptz default now(),
   updated_at          timestamptz default now()
@@ -204,7 +208,7 @@ evidence_chain_links (
 
 ### conflicts
 
-Source conflict records and resolutions (Stage 4).
+Source conflict records and resolutions (Stage 4/5 in Case Study Builder).
 Used by both Case Study Builder (Module 10) and Source Conflict
 Resolver (Module 6). Source references are to case_study_sources.
 
@@ -229,7 +233,7 @@ conflicts (
 
 ### proof_paragraphs
 
-The proof argument narrative (Stage 5). One row per paragraph.
+The proof argument narrative (Stage 6). One row per paragraph.
 Content uses [FN1] markers that are replaced with superscript
 footnotes on render. Order is explicit via display_order.
 
@@ -249,7 +253,7 @@ proof_paragraphs (
 ### footnote_definitions
 
 Footnote entries for a case study, keyed by number.
-These are the rendered footnotes in Stage 5.
+These are the rendered footnotes in Stage 6.
 Linked to case_study_sources for traceability.
 
 ```sql
@@ -288,15 +292,128 @@ citations (
 
 ---
 
-### Supporting Module Tables (names defined, columns TBD)
+### documents
 
-These tables exist conceptually. Column-level spec should be added
-before building the module that writes to them.
+Document Analysis Worksheet records (Module 5).
+Links to a source in the Citation Builder. Holds the transcription.
+Facts extracted from the document live in document_facts.
+
+```sql
+documents (
+  id                   uuid primary key default gen_random_uuid(),
+  source_id            uuid references sources(id) on delete set null,
+  label                text not null,         -- short descriptor: "1907 S.S. Marion manifest, Singer entry"
+  transcription        text,                  -- full document transcription text
+  transcription_status text not null default 'pending'
+                       check (transcription_status in ('pending','complete','error')),
+  notes                text,
+  created_at           timestamptz not null default now(),
+  updated_at           timestamptz not null default now()
+)
+```
+
+---
+
+### document_facts
+
+Discrete factual claims extracted from a document (Module 5).
+Each fact is GPS-classified: source type, information type, evidence type.
+ai_generated flag distinguishes AI-extracted from manually entered facts.
+
+```sql
+document_facts (
+  id            uuid primary key default gen_random_uuid(),
+  document_id   uuid not null references documents(id) on delete cascade,
+  claim_text    text not null,            -- precise standalone factual claim
+  source_type   text not null check (source_type in ('Original','Derivative','Authored')),
+  info_type     text not null check (info_type in ('Primary','Secondary','Undetermined','N/A')),
+  evidence_type text not null check (evidence_type in ('Direct','Indirect','Negative')),
+  display_order int not null default 0,
+  ai_generated  boolean not null default false,
+  notes         text,                     -- brief classification explanation
+  created_at    timestamptz not null default now(),
+  updated_at    timestamptz not null default now()
+)
+```
+
+---
+
+### research_sessions
+
+Research Log entries (Module 3). One record per research session.
+Captures the goal, sources consulted, finds, negative results, and
+follow-up actions. GPS requires that negative searches be documented --
+a source that yields nothing is still evidence.
+
+```sql
+research_sessions (
+  id               uuid primary key default gen_random_uuid(),
+  session_date     date not null,
+  title            text not null,              -- "1920 Census search for Jacob Singer in New York"
+  goal             text not null,              -- the specific research question for this session
+  person_id        uuid references persons(id) on delete set null,
+  -- research_plan_id will be added by Module 2 migration when Research Plan Builder is built
+  finds            text,                        -- what positive information was discovered
+  negatives        text,                        -- what was searched but not found (GPS evidence)
+  follow_up        text,                        -- follow-up actions generated by this session
+  notes            text,                        -- freeform notes; input for AI abstraction
+  status           text not null default 'draft'
+                   check (status in ('draft','complete')),
+  created_at       timestamptz not null default now(),
+  updated_at       timestamptz not null default now()
+)
+```
+
+---
+
+### session_sources
+
+Junction table: sources consulted during a research session (Module 3).
+Tracks both sources that yielded results and those that yielded nothing.
+The yielded_results flag is the GPS negative-evidence flag.
+source_label is denormalized to preserve the record if the source is later deleted.
+
+```sql
+session_sources (
+  id                  uuid primary key default gen_random_uuid(),
+  session_id          uuid not null references research_sessions(id) on delete cascade,
+  source_id           uuid references sources(id) on delete set null,
+  source_label        text not null,           -- denormalized source label
+  yielded_results     boolean not null default false,  -- false = GPS negative evidence
+  result_summary      text,                    -- what was found or why the source yielded nothing
+  display_order       int not null default 0,
+  created_at          timestamptz not null default now(),
+  updated_at          timestamptz not null default now()
+)
+```
+
+---
+
+### res_checklist_items
+
+Reasonably Exhaustive Search Checklist items (Stage 4 of Case Study Builder).
+Each row is one source category checked (or to be checked) for a case study.
+Created by sql/002-add-res-checklist.sql.
+
+```sql
+res_checklist_items (
+  id              uuid primary key default gen_random_uuid(),
+  case_study_id   uuid references case_studies(id) on delete cascade,
+  category        text not null,          -- source category checked: "Vital records", "Census", etc.
+  searched        boolean default false,  -- has this category been searched?
+  result_summary  text,                   -- what was found or why nothing was found
+  display_order   int default 0,
+  created_at      timestamptz default now(),
+  updated_at      timestamptz default now()
+)
+```
+
+---
+
+### Supporting Module Tables (TBD -- column spec before building)
 
 ```
-research_sessions   -- Research Log (Module 3)
 research_plans      -- Research Plan Builder (Module 2)
-documents           -- Document Analysis Worksheet (Module 5)
 timeline_events     -- Timeline Builder (Module 7)
 fan_club            -- FAN Club Mapper (Module 8)
 dna_matches         -- DNA Evidence Tracker (Module 14)
@@ -324,9 +441,13 @@ Update this string when a newer model is released.
 
 Each module is self-contained:
 - Its own page(s) in `src/app/`
-- Its own API route(s) in `src/api/`
+- Its own API route(s) in `src/app/api/`
 - Reads/writes to shared Supabase tables
 - No module depends on another module's internal state
+
+Shared endpoints:
+- `/api/persons` -- persons list and create, used across modules
+- `/api/citation-builder` -- sources list, used by Research Log, Document Analysis, Case Study
 
 ---
 
