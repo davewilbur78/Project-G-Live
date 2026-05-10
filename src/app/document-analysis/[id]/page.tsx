@@ -1,10 +1,10 @@
 'use client'
 
-import { useState, useEffect, useCallback } from 'react'
+import { useState, useEffect, useCallback, use } from 'react'
 import Link from 'next/link'
 import type { Document, DocumentFact, SourceType, InfoType, EvidenceType } from '@/types'
 
-interface Props { params: { id: string } }
+interface Props { params: Promise<{ id: string }> }
 
 const SOURCE_TYPE_OPTS: SourceType[]  = ['Original', 'Derivative', 'Authored']
 const INFO_TYPE_OPTS:   InfoType[]    = ['Primary', 'Secondary', 'Undetermined', 'N/A']
@@ -33,6 +33,7 @@ const EMPTY_FACT = {
 }
 
 export default function DocumentWorksheetPage({ params }: Props) {
+  const { id } = use(params)
   const [doc,          setDoc]          = useState<Document | null>(null)
   const [facts,        setFacts]        = useState<DocumentFact[]>([])
   const [loading,      setLoading]      = useState(true)
@@ -60,8 +61,8 @@ export default function DocumentWorksheetPage({ params }: Props) {
   // ---- load document + facts
   const load = useCallback(async () => {
     const [docRes, factsRes] = await Promise.all([
-      fetch(`/api/document-analysis/${params.id}`),
-      fetch(`/api/document-analysis/${params.id}/facts`),
+      fetch(`/api/document-analysis/${id}`),
+      fetch(`/api/document-analysis/${id}/facts`),
     ])
     const docData   = await docRes.json()
     const factsData = await factsRes.json()
@@ -70,14 +71,14 @@ export default function DocumentWorksheetPage({ params }: Props) {
     setTranscription(docData.document.transcription ?? '')
     setFacts(factsData.facts ?? [])
     setLoading(false)
-  }, [params.id])
+  }, [id])
 
   useEffect(() => { load() }, [load])
 
   // ---- save transcription
   async function saveTranscription() {
     setSavingText(true)
-    const res  = await fetch(`/api/document-analysis/${params.id}`, {
+    const res  = await fetch(`/api/document-analysis/${id}`, {
       method: 'PATCH',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ transcription }),
@@ -90,7 +91,7 @@ export default function DocumentWorksheetPage({ params }: Props) {
   // ---- extract facts with AI
   async function extractFacts() {
     setExtracting(true); setExtractError(null)
-    const res  = await fetch(`/api/document-analysis/${params.id}/extract-facts`, { method: 'POST' })
+    const res  = await fetch(`/api/document-analysis/${id}/extract-facts`, { method: 'POST' })
     const data = await res.json()
     if (!res.ok) {
       setExtractError(data.error ?? 'Extraction failed.')
@@ -107,7 +108,7 @@ export default function DocumentWorksheetPage({ params }: Props) {
   async function addFact() {
     if (!factForm.claim_text.trim()) { setFactError('Claim text is required.'); return }
     setSavingFact(true); setFactError(null)
-    const res  = await fetch(`/api/document-analysis/${params.id}/facts`, {
+    const res  = await fetch(`/api/document-analysis/${id}/facts`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(factForm),
@@ -122,7 +123,7 @@ export default function DocumentWorksheetPage({ params }: Props) {
 
   // ---- save inline fact edit
   async function saveFactEdit(factId: string) {
-    const res  = await fetch(`/api/document-analysis/${params.id}/facts/${factId}`, {
+    const res  = await fetch(`/api/document-analysis/${id}/facts/${factId}`, {
       method: 'PATCH',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(editFactForm),
@@ -137,7 +138,7 @@ export default function DocumentWorksheetPage({ params }: Props) {
   // ---- delete fact
   async function deleteFact(factId: string) {
     if (!confirm('Delete this fact?')) return
-    await fetch(`/api/document-analysis/${params.id}/facts/${factId}`, { method: 'DELETE' })
+    await fetch(`/api/document-analysis/${id}/facts/${factId}`, { method: 'DELETE' })
     setFacts(prev => prev.filter(f => f.id !== factId))
   }
 
@@ -304,7 +305,6 @@ export default function DocumentWorksheetPage({ params }: Props) {
                   />
                 </div>
                 <div className="grid grid-cols-3 gap-3">
-                  {/* Source type */}
                   <div>
                     <label className="block text-xs font-mono text-[var(--color-text-muted)] uppercase tracking-wider mb-1">Source Type</label>
                     <select
@@ -315,7 +315,6 @@ export default function DocumentWorksheetPage({ params }: Props) {
                       {SOURCE_TYPE_OPTS.map(o => <option key={o} value={o}>{o}</option>)}
                     </select>
                   </div>
-                  {/* Info type */}
                   <div>
                     <label className="block text-xs font-mono text-[var(--color-text-muted)] uppercase tracking-wider mb-1">Information</label>
                     <select
@@ -326,7 +325,6 @@ export default function DocumentWorksheetPage({ params }: Props) {
                       {INFO_TYPE_OPTS.map(o => <option key={o} value={o}>{o}</option>)}
                     </select>
                   </div>
-                  {/* Evidence type */}
                   <div>
                     <label className="block text-xs font-mono text-[var(--color-text-muted)] uppercase tracking-wider mb-1">Evidence</label>
                     <select
@@ -386,7 +384,6 @@ export default function DocumentWorksheetPage({ params }: Props) {
                 className="p-4 bg-[var(--color-surface)] border border-[var(--color-border)] rounded"
               >
                 {editingFactId === fact.id ? (
-                  /* Inline edit mode */
                   <div className="space-y-3">
                     <textarea
                       rows={2}
@@ -440,7 +437,6 @@ export default function DocumentWorksheetPage({ params }: Props) {
                     </div>
                   </div>
                 ) : (
-                  /* Read mode */
                   <div>
                     <div className="flex items-start justify-between gap-3 mb-2">
                       <div className="flex items-start gap-3 flex-1 min-w-0">

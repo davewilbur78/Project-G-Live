@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useEffect, useCallback } from 'react'
+import { useState, useEffect, useCallback, use } from 'react'
 import Link from 'next/link'
 import { StageNav } from '@/components/case-study/StageNav'
 import { Stage1ResearchQuestion } from '@/components/case-study/Stage1ResearchQuestion'
@@ -11,22 +11,23 @@ import { Stage5ConflictAnalysis } from '@/components/case-study/Stage5ConflictAn
 import { Stage6ProofArgument } from '@/components/case-study/Stage6ProofArgument'
 import type { CaseStudy } from '@/types'
 
-interface Props { params: { id: string } }
+interface Props { params: Promise<{ id: string }> }
 
 export default function CaseStudyDetailPage({ params }: Props) {
+  const { id } = use(params)
   const [caseStudy,    setCaseStudy]    = useState<CaseStudy | null>(null)
   const [loading,      setLoading]      = useState(true)
   const [error,        setError]        = useState<string | null>(null)
   const [activeStage,  setActiveStage]  = useState(1)
 
   const load = useCallback(async () => {
-    const res = await fetch(`/api/case-study/${params.id}`)
+    const res = await fetch(`/api/case-study/${id}`)
     const d   = await res.json()
     if (!res.ok || d.error) { setError(d.error ?? 'Not found'); setLoading(false); return }
     setCaseStudy(d.case_study)
     setActiveStage(d.case_study.gps_stage_reached)
     setLoading(false)
-  }, [params.id])
+  }, [id])
 
   useEffect(() => { load() }, [load])
 
@@ -55,7 +56,7 @@ export default function CaseStudyDetailPage({ params }: Props) {
   if (error || !caseStudy) return (
     <div className="min-h-screen bg-[var(--color-bg)]">
       <div className="max-w-4xl mx-auto px-6 py-10">
-        <Link href="/case-study" className="text-xs text-[var(--color-text-muted)] hover:text-[var(--color-gold)] block mb-6">← Case Studies</Link>
+        <Link href="/case-study" className="text-xs text-[var(--color-text-muted)] hover:text-[var(--color-gold)] block mb-6">\u2190 Case Studies</Link>
         <div className="p-4 bg-red-900/20 border border-red-500/30 rounded text-sm text-red-400">{error ?? 'Case study not found.'}</div>
       </div>
     </div>
@@ -67,7 +68,7 @@ export default function CaseStudyDetailPage({ params }: Props) {
 
         {/* Header */}
         <div className="mb-8">
-          <Link href="/case-study" className="text-xs text-[var(--color-text-muted)] hover:text-[var(--color-gold)] block mb-3">← Case Studies</Link>
+          <Link href="/case-study" className="text-xs text-[var(--color-text-muted)] hover:text-[var(--color-gold)] block mb-3">\u2190 Case Studies</Link>
           <h1 className="font-display text-3xl text-[var(--color-gold)] mb-1">{caseStudy.subject_display}</h1>
           {caseStudy.subject_vitals && <p className="text-sm text-[var(--color-text-muted)]">{caseStudy.subject_vitals}</p>}
         </div>

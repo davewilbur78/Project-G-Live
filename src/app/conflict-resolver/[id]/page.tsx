@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useEffect, useCallback } from 'react'
+import { useState, useEffect, useCallback, use } from 'react'
 import { useRouter } from 'next/navigation'
 import Link from 'next/link'
 import type { SourceConflict, FactInDispute, Source } from '@/types'
@@ -54,7 +54,8 @@ const TEXTAREA = 'w-full bg-[var(--color-surface)] border border-[var(--color-bo
 const LABEL   = 'block text-xs font-mono text-[var(--color-text-muted)] mb-1'
 const INPUT   = 'w-full bg-[var(--color-surface)] border border-[var(--color-border)] rounded px-3 py-2 text-sm text-[var(--color-text)] placeholder:text-[var(--color-text-muted)] focus:outline-none focus:border-[var(--color-gold)]'
 
-export default function ConflictDetailPage({ params }: { params: { id: string } }) {
+export default function ConflictDetailPage({ params }: { params: Promise<{ id: string }> }) {
+  const { id } = use(params)
   const router = useRouter()
   const [conflict,  setConflict]  = useState<SourceConflict | null>(null)
   const [loading,   setLoading]   = useState(true)
@@ -72,7 +73,7 @@ export default function ConflictDetailPage({ params }: { params: { id: string } 
 
   const load = useCallback(async () => {
     try {
-      const res  = await fetch(`/api/conflict-resolver/${params.id}`)
+      const res  = await fetch(`/api/conflict-resolver/${id}`)
       const data = await res.json()
       if (!res.ok) throw new Error(data.error)
       const c = data.conflict as SourceConflict
@@ -87,7 +88,7 @@ export default function ConflictDetailPage({ params }: { params: { id: string } 
     } finally {
       setLoading(false)
     }
-  }, [params.id])
+  }, [id])
 
   useEffect(() => { load() }, [load])
 
@@ -95,7 +96,7 @@ export default function ConflictDetailPage({ params }: { params: { id: string } 
     setAnalyzing(true)
     setError(null)
     try {
-      const res  = await fetch(`/api/conflict-resolver/${params.id}/analyze`, { method: 'POST' })
+      const res  = await fetch(`/api/conflict-resolver/${id}/analyze`, { method: 'POST' })
       const data = await res.json()
       if (!res.ok) throw new Error(data.error)
       // Reload the full record to get joined sources back
@@ -111,7 +112,7 @@ export default function ConflictDetailPage({ params }: { params: { id: string } 
     setSaving(true)
     setError(null)
     try {
-      const res  = await fetch(`/api/conflict-resolver/${params.id}`, {
+      const res  = await fetch(`/api/conflict-resolver/${id}`, {
         method:  'PATCH',
         headers: { 'Content-Type': 'application/json' },
         body:    JSON.stringify({
@@ -136,7 +137,7 @@ export default function ConflictDetailPage({ params }: { params: { id: string } 
     if (!confirm('Delete this conflict? This cannot be undone.')) return
     setDeleting(true)
     try {
-      const res = await fetch(`/api/conflict-resolver/${params.id}`, { method: 'DELETE' })
+      const res = await fetch(`/api/conflict-resolver/${id}`, { method: 'DELETE' })
       if (!res.ok) throw new Error('Delete failed.')
       router.push('/conflict-resolver')
     } catch (err) {
