@@ -374,7 +374,7 @@ export default function NewSourcePage() {
                   onClick={() => { setTop('category', cat.id); setStep('fields') }}
                   className={`p-4 text-left border rounded transition-colors hover:border-[var(--color-gold)] ${
                     form.category === cat.id
-                      ? 'border-[var(--color-gold)] bg-[var(--color-gold)]/5'
+                      ? 'border-[var(--color-gold)] bg-[var(--color-gold-subtle)]'
                       : 'border-[var(--color-border)] bg-[var(--color-surface)]'
                   }`}
                 >
@@ -457,7 +457,7 @@ export default function NewSourcePage() {
                     onClick={() => setTop('source_type', type)}
                     className={`w-full p-3.5 text-left border rounded transition-colors ${
                       form.source_type === type
-                        ? 'border-[var(--color-gold)] bg-[var(--color-gold)]/5'
+                        ? 'border-[var(--color-gold)] bg-[var(--color-gold-subtle)]'
                         : 'border-[var(--color-border)] bg-[var(--color-surface)] hover:border-[var(--color-gold)]/50'
                     }`}
                   >
@@ -494,7 +494,7 @@ export default function NewSourcePage() {
                     onClick={() => setTop('info_type', type)}
                     className={`w-full p-3.5 text-left border rounded transition-colors ${
                       form.info_type === type
-                        ? 'border-[var(--color-gold)] bg-[var(--color-gold)]/5'
+                        ? 'border-[var(--color-gold)] bg-[var(--color-gold-subtle)]'
                         : 'border-[var(--color-border)] bg-[var(--color-surface)] hover:border-[var(--color-gold)]/50'
                     }`}
                   >
@@ -531,7 +531,7 @@ export default function NewSourcePage() {
                     onClick={() => setTop('evidence_type', type)}
                     className={`w-full p-3.5 text-left border rounded transition-colors ${
                       form.evidence_type === type
-                        ? 'border-[var(--color-gold)] bg-[var(--color-gold)]/5'
+                        ? 'border-[var(--color-gold)] bg-[var(--color-gold-subtle)]'
                         : 'border-[var(--color-border)] bg-[var(--color-surface)] hover:border-[var(--color-gold)]/50'
                     }`}
                   >
