@@ -35,6 +35,10 @@ export function createServerClient() {
   })
 }
 
+// Alias -- all API routes import this name.
+// Both names refer to the same factory function.
+export const createServerSupabaseClient = createServerClient
+
 // Database type aliases -- expand as tables are built
 // Full types will be generated from Supabase once tables exist in the project.
 export type TriageStatus = 'GREEN' | 'YELLOW' | 'RED'
