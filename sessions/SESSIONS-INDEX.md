@@ -1,7 +1,7 @@
 # Sessions Index
 
 TIMESTAMP created: 2026-05-08 23:35 UTC
-TIMESTAMP last updated: 2026-05-09 18:35 UTC
+TIMESTAMP last updated: 2026-05-10 00:57 UTC
 
 This index contains one entry per session snapshot committed
 to /sessions/. Most recent first.
@@ -9,6 +9,8 @@ to /sessions/. Most recent first.
 Format: TIMESTAMP | Posture | AI | Summary
 
 ---
+
+2026-05-10 00:57 UTC | FIX | Claude | Cleanup session. AGENT.md rewritten (v2.0.0, lean Claude-native, 43% smaller). Prototype restored to full 48KB version. CDN workarounds, two-tool complexity, verbatim handshake all removed. One-tool model confirmed. See SESSION-2026-05-10-0057-UTC.md.
 
 2026-05-09 18:35 UTC | EXPLORE | Perplexity | Repo audit session. Flagged and fixed prompt injection in AGENT.md (v1.3.0 -> v1.4.0). Full project history reconstructed. Multi-AI architecture discussed. Several open threads remain. See SESSION-2026-05-09-1835-UTC.md.
 
