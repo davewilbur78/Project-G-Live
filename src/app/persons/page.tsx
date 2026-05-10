@@ -1,10 +1,12 @@
 'use client'
 
 import { useState, useEffect } from 'react'
+import { useRouter } from 'next/navigation'
 import Link from 'next/link'
 import type { Person } from '@/types'
 
 export default function PersonsPage() {
+  const router  = useRouter()
   const [persons, setPersons] = useState<Person[]>([])
   const [loading, setLoading] = useState(true)
   const [error,   setError]   = useState<string | null>(null)
@@ -61,10 +63,11 @@ export default function PersonsPage() {
 
         <div className="space-y-2">
           {persons.map(p => (
-            <Link
+            // div + onClick avoids nested <a> tags (hydration error)
+            <div
               key={p.id}
-              href={`/persons/${p.id}`}
-              className="flex items-center gap-4 p-4 bg-[var(--color-surface)] border border-[var(--color-border)] rounded hover:border-[var(--color-gold)] transition-colors"
+              onClick={() => router.push(`/persons/${p.id}`)}
+              className="flex items-center gap-4 p-4 bg-[var(--color-surface)] border border-[var(--color-border)] rounded hover:border-[var(--color-gold)] transition-colors cursor-pointer"
             >
               <div className="flex-1 min-w-0">
                 <p className="text-sm font-semibold text-[var(--color-text)]">{p.display_name}</p>
@@ -83,7 +86,7 @@ export default function PersonsPage() {
                   Timeline
                 </Link>
               </div>
-            </Link>
+            </div>
           ))}
         </div>
 
