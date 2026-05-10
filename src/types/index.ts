@@ -205,6 +205,29 @@ export interface SessionSource {
   source?: Source | null
 }
 
+// Research To-Do Tracker (Module 15)
+
+export type TodoStatus   = 'open' | 'in_progress' | 'complete' | 'dropped'
+export type TodoPriority = 'high' | 'medium' | 'low'
+
+export interface Todo {
+  id: string
+  person_id?: string | null
+  title: string
+  notes?: string | null
+  priority: TodoPriority
+  source_type_hint?: string | null
+  origin_module?: string | null   // 'manual' | module name
+  origin_id?: string | null       // polymorphic FK to originating record
+  status: TodoStatus
+  due_date?: string | null        // YYYY-MM-DD
+  completed_at?: string | null
+  created_at: string
+  updated_at: string
+  // Joined
+  person?: Person | null
+}
+
 // Source category for the structured interview UI.
 // Drives which field set appears in Step 2 of the new-source form.
 export type SourceCategory =

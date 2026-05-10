@@ -21,7 +21,7 @@ const MODULES: { id: number; name: string; status: ModuleStatus; href: string }[
   { id: 14, name: 'DNA Evidence Tracker',        status: 'NOT STARTED', href: '/dna-tracker'        },
   { id: 12, name: 'Correspondence Log',          status: 'NOT STARTED', href: '/correspondence'     },
   { id: 13, name: 'File Naming System',          status: 'NOT STARTED', href: '/file-naming'        },
-  { id: 15, name: 'Research To-Do Tracker',      status: 'NOT STARTED', href: '/todos'              },
+  { id: 15, name: 'Research To-Do Tracker',      status: 'COMPLETE',    href: '/todos'              },
 ]
 
 const STATUS_STYLE: Record<ModuleStatus, { bg: string; color: string }> = {
