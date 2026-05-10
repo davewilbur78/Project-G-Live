@@ -179,6 +179,7 @@ export interface ResearchSession {
   title: string
   goal: string
   person_id?: string | null
+  research_plan_id?: string | null   // added by Module 2 migration
   finds?: string | null
   negatives?: string | null
   follow_up?: string | null
@@ -226,6 +227,43 @@ export interface Todo {
   updated_at: string
   // Joined
   person?: Person | null
+}
+
+// Research Plan Builder (Module 2)
+
+export type ResearchPlanStatus     = 'draft' | 'active' | 'complete'
+export type ResearchPlanItemStatus = 'pending' | 'in_progress' | 'complete' | 'negative'
+export type ResearchPlanItemPriority = 'High' | 'Medium' | 'Low'
+
+export interface ResearchPlan {
+  id: string
+  person_id?: string | null
+  title: string
+  research_question: string
+  time_period?: string | null
+  geography?: string | null
+  community?: string | null
+  status: ResearchPlanStatus
+  strategy_summary?: string | null
+  notes?: string | null
+  created_at: string
+  updated_at: string
+  // Joined
+  person?: Person | null
+  items?: ResearchPlanItem[]
+}
+
+export interface ResearchPlanItem {
+  id: string
+  plan_id: string
+  source_category: string
+  repository?: string | null
+  strategy_note?: string | null
+  priority: ResearchPlanItemPriority
+  status: ResearchPlanItemStatus
+  display_order: number
+  created_at: string
+  updated_at: string
 }
 
 // Source category for the structured interview UI.
