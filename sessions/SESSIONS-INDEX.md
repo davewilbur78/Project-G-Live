@@ -25,3 +25,4 @@ Format: TIMESTAMP | Posture | AI | Summary
 2026-05-10 23:00 UTC | EXPLORE | Claude | Module 7 (Timeline Builder) designed: Address-as-Evidence principle named, addresses as first-class table, sql/008 written, design doc committed, AGENT.md v2.7.2
 2026-05-11 00:25 UTC | BUILD | Claude | Module 7 (Timeline Builder) complete: types, 4 API routes, 3 pages, AI address normalization, dashboard updated to 8/16
 2026-05-11 01:00 UTC | BUILD | Claude | Smoke test fixes: normalize-address import fix, persons pages built, date fields fixed, GPS evidence optional, sql/009 residence columns to text. First real data entered: Jacob Singer 570 Union Ave Bronx 1930-1944
+2026-05-11 06:30 UTC | EXPLORE | Claude | TNG deep dive: full schema analysis, 10-part reference thesis committed to docs/tng-reference-architecture.md. 30 tables documented. Own-research vs client work thread open.
