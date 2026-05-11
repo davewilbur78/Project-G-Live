@@ -1,12 +1,11 @@
 import { NextResponse } from 'next/server'
 import { createServerSupabaseClient } from '@/lib/supabase'
-import { use } from 'react'
 
 export async function GET(
   _req: Request,
   { params }: { params: Promise<{ id: string }> }
 ) {
-  const { id } = use(params)
+  const { id } = await params
   const supabase = createServerSupabaseClient()
 
   const { data, error } = await supabase
@@ -26,7 +25,7 @@ export async function PATCH(
   req: Request,
   { params }: { params: Promise<{ id: string }> }
 ) {
-  const { id } = use(params)
+  const { id } = await params
   const supabase = createServerSupabaseClient()
   const body = await req.json()
 
