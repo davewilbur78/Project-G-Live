@@ -1,0 +1,63 @@
+-- Migration 014: Dual-Date Retrofit Audit
+-- Confirms the dual-date pattern has been applied across the full schema.
+-- TIMESTAMP: 2026-05-11 09:30 UTC
+--
+-- Run after sql/013-event-types.sql
+--
+-- This migration contains NO DDL changes.
+-- It is a documented audit of the dual-date pattern applied in migrations
+-- 008 through 013. It exists so the audit trail is in the migration history.
+--
+-- THE DUAL-DATE PATTERN
+-- Every genealogical date field in the schema uses two columns:
+--   _display  TEXT     -- the date exactly as the researcher wants to show it.
+--                        Allows approximate language: "about 1885", "before 1900",
+--                        "between 1880 and 1890", "3 June 1914", "Abt 1907".
+--                        Set by the researcher. Never computed automatically.
+--   _sort     DATE     -- a PostgreSQL DATE for range queries and timeline ordering.
+--                        Nullable. Set by the researcher (or AI assist) when a
+--                        machine-readable date can be derived from the display string.
+--                        NULL does not mean no date -- it means no sortable date.
+--
+-- AUDIT RESULTS AS OF MIGRATION 014
+--
+-- persons (altered by 009):
+--   birth_date TEXT (display) + birth_date_sort DATE        COMPLETE
+--   death_date TEXT (display) + death_date_sort DATE        COMPLETE
+--
+-- timeline_events (built in 008 with dual-date from the start):
+--   event_date DATE (sort) + date_display TEXT              COMPLETE
+--   Note: 008 used _sort field as the primary name and _display as the suffix.
+--   This is the inverse of the pattern used in 009+. Both approaches satisfy
+--   the dual-date requirement. A future cleanup migration may normalize naming.
+--
+-- addresses (built in 008 with dual-date from the start):
+--   address_date DATE (sort) + date_display TEXT            COMPLETE
+--   Same naming note as timeline_events above.
+--
+-- families (built in 010 with dual-date from the start):
+--   marriage_date_display TEXT + marriage_date_sort DATE    COMPLETE
+--   div_date_display TEXT + div_date_sort DATE              COMPLETE
+--
+-- associations (built in 012 with dual-date from the start):
+--   date_display TEXT + date_sort DATE                      COMPLETE
+--
+-- Tables with no genealogical date fields (no action needed):
+--   sources, case_studies, case_study_sources, evidence_chain_links,
+--   conflicts, proof_paragraphs, footnote_definitions, citations,
+--   documents, document_facts, research_plans, research_plan_items,
+--   source_conflicts, res_checklist_items, repositories, event_types
+--
+-- Tables with task/session dates (not genealogical evidence dates, no retrofit needed):
+--   research_sessions (session_date DATE -- the date of the research session itself)
+--   todos (due_date DATE, completed_at TIMESTAMPTZ -- task management dates)
+--
+-- STATUS: Dual-date retrofit is COMPLETE across all tables as of migration 014.
+--
+-- FUTURE NOTE: The naming convention between 008 (which uses _date as the sort
+-- field and _display as suffix) and 009+ (which uses _display as the suffix and
+-- _sort as the secondary field) is inconsistent. Acceptable for now -- all fields
+-- exist and serve their purpose. A future cosmetic normalization migration should
+-- note this and unify the naming if the inconsistency becomes confusing.
+
+select 'dual-date retrofit audit complete -- no DDL changes in this migration' as status;
