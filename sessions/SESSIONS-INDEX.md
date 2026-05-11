@@ -4,6 +4,7 @@ Format: TIMESTAMP | Posture | AI | One-sentence summary
 
 ---
 
+2026-05-11 20:00 UTC | EXPLORE->BUILD | Claude (claude-sonnet-4-6) | Full 30,000-ft project review + Steve Little deep-dive + integration architecture decided + /prompts/ directory committed + assertions table spec written.
 2026-05-11 17:00 UTC | BUILD | Claude (claude-sonnet-4-6) | Updated src/types/index.ts for migrations 009-014; smoke test confirmed no breakage from migration 011.
 2026-05-11 10:30 UTC | FIX | Claude (claude-sonnet-4-6) | Ran migrations 009-014 in Supabase via Claude in Chrome; genealogical data foundation now live.
 2026-05-11 09:40 UTC | FIX | Claude (claude-sonnet-4-6) | Genealogical data foundation: migrations 009-014 (persons updated, families, family_members, repositories, associations, event_types created; dual-date audit complete).
