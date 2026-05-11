@@ -5,6 +5,33 @@ Format: TIMESTAMP | Session | Change
 
 ---
 
+## 2026-05-11 17:00 UTC -- Session: BUILD (Types update + smoke test)
+
+BUILD session. Short and clean. No new modules. No schema changes.
+
+- src/types/index.ts -- updated to match migrations 009-014:
+  * Person: added lnprefix, suffix, title, name_prefix, nickname, sex (M/F/U),
+    living, private, birth_date_sort, death_date_sort, changedby
+  * Source: added repository_id FK field and joined repository_record
+  * TimelineEvent: added event_type_id FK and joined event_type_record
+  * NEW: Repository interface (RepositoryType union)
+  * NEW: Family interface (MarriageType union)
+  * NEW: FamilyMember interface (FamilyMemberRole, RelationshipType unions)
+  * NEW: Association interface (AssociationType union)
+  * NEW: EventType interface (EventTypeScope union)
+
+- Smoke test (code analysis): /api/timeline and /api/citation-builder routes
+  confirmed clean after migration 011 added repository_id to sources.
+  timeline route uses named column selects only -- unaffected.
+  citation-builder GET uses select(*) -- null repository_id on existing rows causes
+  no downstream failure. No FIX session required.
+
+- sessions/SESSION-2026-05-11-1700-UTC.md -- session snapshot
+- sessions/SESSIONS-INDEX.md -- updated
+- AGENT.md v2.7.6
+
+---
+
 ## 2026-05-11 10:30 UTC -- Session: FIX (Run Migrations 009-014 in Supabase)
 
 FIX session. No new code. No schema changes. Execution only.
