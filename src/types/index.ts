@@ -29,12 +29,15 @@ export interface Source {
   ee_full_citation: string
   ee_short_citation: string
   repository?: string | null
+  repository_id?: string | null   // FK to repositories table (added migration 011)
   collection?: string | null
   ark_identifier?: string | null
   nara_series?: string | null
   ancestry_url?: string | null
   created_at: string
   updated_at: string
+  // Joined
+  repository_record?: Repository | null
 }
 
 export interface Person {
@@ -43,10 +46,26 @@ export interface Person {
   given_name?: string | null
   surname?: string | null
   alt_names?: string[] | null
+  // Name components (added migration 009)
+  lnprefix?: string | null      // last name prefix: van, de, von
+  suffix?: string | null        // Jr., Sr., III
+  title?: string | null         // Dr., Rev., Capt.
+  name_prefix?: string | null   // Mr., Mrs. as part of recorded name (GEDCOM NPFX)
+  nickname?: string | null
+  // Demographic (added migration 009)
+  sex?: 'M' | 'F' | 'U' | null
+  living?: boolean
+  private?: boolean
+  // Date display strings (original columns -- keep as-is)
   birth_date?: string | null
   birth_place?: string | null
   death_date?: string | null
   death_place?: string | null
+  // Date sort fields (added migration 009)
+  birth_date_sort?: string | null   // ISO date for range queries
+  death_date_sort?: string | null
+  // Audit
+  changedby?: string | null
   notes?: string | null
   ancestry_id?: string | null
   created_at: string
@@ -317,8 +336,148 @@ export type SourceCategory =
   | 'other'
 
 // -----------------------------------------------------------------------
+// Repositories (Module -- lookup table, migration 011)
+// TIMESTAMP added: 2026-05-11 17:00 UTC
+// -----------------------------------------------------------------------
+
+export type RepositoryType =
+  | 'archive'
+  | 'library'
+  | 'online'
+  | 'courthouse'
+  | 'church'
+  | 'other'
+
+export interface Repository {
+  id: string
+  name: string
+  type: RepositoryType
+  url?: string | null
+  address_line?: string | null
+  city?: string | null
+  state?: string | null
+  country?: string | null
+  notes?: string | null
+  created_at: string
+  updated_at: string
+}
+
+// -----------------------------------------------------------------------
+// Families and Family Members (migration 010)
+// TIMESTAMP added: 2026-05-11 17:00 UTC
+// -----------------------------------------------------------------------
+
+export type MarriageType =
+  | 'MARR'   // Marriage (formal)
+  | 'MARB'   // Marriage Banns
+  | 'MARL'   // Marriage License
+  | 'MARS'   // Marriage Settlement
+  | 'COHA'   // Cohabitation / common law
+  | 'other'
+
+export interface Family {
+  id: string
+  partner1_id?: string | null
+  partner2_id?: string | null
+  marriage_date_display?: string | null
+  marriage_date_sort?: string | null   // ISO date
+  marriage_place?: string | null
+  marriage_type?: MarriageType | null
+  div_date_display?: string | null
+  div_date_sort?: string | null        // ISO date
+  div_place?: string | null
+  living?: boolean
+  private?: boolean
+  notes?: string | null
+  created_at: string
+  updated_at: string
+  // Joined
+  partner1?: Person | null
+  partner2?: Person | null
+  members?: FamilyMember[]
+}
+
+export type FamilyMemberRole = 'child' | 'partner'
+
+export type RelationshipType =
+  | 'natural'
+  | 'adopted'
+  | 'step'
+  | 'foster'
+  | 'unknown'
+
+export interface FamilyMember {
+  id: string
+  person_id: string
+  family_id: string
+  role: FamilyMemberRole
+  relationship_to_partner1?: RelationshipType | null
+  relationship_to_partner2?: RelationshipType | null
+  birth_order?: number | null
+  has_descendants: boolean
+  created_at: string
+  updated_at: string
+  // Joined
+  person?: Person | null
+  family?: Family | null
+}
+
+// -----------------------------------------------------------------------
+// Associations / FAN Club (migration 012)
+// TIMESTAMP added: 2026-05-11 17:00 UTC
+// -----------------------------------------------------------------------
+
+export type AssociationType =
+  | 'witness'
+  | 'godparent'
+  | 'employer'
+  | 'employee'
+  | 'neighbor'
+  | 'colleague'
+  | 'boarder'
+  | 'landlord'
+  | 'attorney'
+  | 'physician'
+  | 'other'
+
+export interface Association {
+  id: string
+  person_id: string
+  associated_person_id: string
+  association_type: AssociationType
+  description?: string | null
+  source_id?: string | null
+  date_display?: string | null
+  date_sort?: string | null   // ISO date
+  created_at: string
+  updated_at: string
+  // Joined
+  person?: Person | null
+  associated_person?: Person | null
+  source?: Source | null
+}
+
+// -----------------------------------------------------------------------
+// Event Types lookup (migration 013)
+// TIMESTAMP added: 2026-05-11 17:00 UTC
+// -----------------------------------------------------------------------
+
+export type EventTypeScope = 'individual' | 'family'
+
+export interface EventType {
+  id: string
+  tag: string           // GEDCOM-style tag: BIRT, DEAT, MARR, etc.
+  display_name: string
+  scope: EventTypeScope
+  is_built_in: boolean
+  sort_order: number
+  created_at: string
+}
+
+// -----------------------------------------------------------------------
 // Timeline Builder (Module 7)
 // TIMESTAMP added: 2026-05-11 00:25 UTC
+// Updated: 2026-05-11 17:00 UTC -- added event_type_id from migration 013
 // -----------------------------------------------------------------------
 
 export type AddressRole =
@@ -378,6 +537,7 @@ export interface TimelineEvent {
   id: string
   person_id?: string | null
   event_type: TimelineEventType
+  event_type_id?: string | null   // FK to event_types lookup (added migration 013)
   event_date?: string | null
   event_date_end?: string | null
   date_qualifier: string
@@ -403,4 +563,5 @@ export interface TimelineEvent {
   person?: Person | null
   source?: Source | null
   address?: Address | null
+  event_type_record?: EventType | null
 }
