@@ -5,6 +5,40 @@ Format: TIMESTAMP | Session | Change
 
 ---
 
+## 2026-05-11 10:30 UTC -- Session: FIX (Run Migrations 009-014 in Supabase)
+
+FIX session. No new code. No schema changes. Execution only.
+Task: run the six foundation migrations committed last session against the live Supabase database.
+
+All six migrations run successfully in order via the Supabase SQL editor using Claude in Chrome.
+
+- sql/009-persons-foundation.sql -- RAN. persons table now has name components, sex, living,
+  private, birth_date_sort, death_date_sort, changedby, and indexes.
+
+- sql/010-families.sql -- RAN. families and family_members tables now exist in Supabase.
+
+- sql/011-repositories.sql -- RAN. repositories table now exists. sources.repository_id FK live.
+
+- sql/012-associations.sql -- RAN. associations table now exists (FAN Club data model).
+
+- sql/013-event-types.sql -- RAN. event_types table created and seeded with 18 standard types.
+  timeline_events.event_type_id FK live.
+
+- sql/014-dual-date-audit.sql -- RAN. Audit query confirmed: dual-date pattern complete.
+
+OPERATIONAL NOTE -- Claude in Chrome / Monaco Editor:
+  Do not type long SQL strings into the Supabase SQL editor via browser automation.
+  The Monaco editor's auto-closing brackets and autocomplete corrupt the SQL.
+  Use window.monaco.editor.getModels()[n].setValue(sql) via JavaScript instead.
+  This sets editor content directly, bypassing all interference. Reliable and fast.
+  Added to AGENT.md as a standing operating note.
+
+- sessions/SESSION-2026-05-11-1030-UTC.md -- session snapshot
+- sessions/SESSIONS-INDEX.md -- updated
+- AGENT.md v2.7.5
+
+---
+
 ## 2026-05-11 09:40 UTC -- Session: FIX (Genealogical Data Foundation)
 
 FIX session. No new modules. No new UI. Foundation only.
