@@ -1,6 +1,6 @@
 Project-G-Live AGENT.md
-Version: 2.7.6
-Last updated: 2026-05-11 17:00 UTC
+Version: 2.7.7
+Last updated: 2026-05-11 20:00 UTC
 Last updated by: Claude
 
 # What This Is
@@ -229,7 +229,7 @@ Semantic versioning: MAJOR.MINOR.PATCH
 
 All timestamps: YYYY-MM-DD HH:MM UTC. Time to the minute required. No date-only stamps.
 
-Current version: 2.7.6
+Current version: 2.7.7
 
 ---
 
@@ -323,7 +323,8 @@ The platform is the engine room of a larger connected vision:
   Stories told in the researcher's voice, structured by AI, turned into
   case studies, research reports, and family narratives. The AI learns
   the researcher's voice over time. Output of Layer 1 becomes raw material
-  for Layer 2.
+  for Layer 2. Powered by the Narrative Assistant v3 + Linguistic Profiler v3
+  + voice profile system (discussion scheduled, not yet implemented).
 
   Layer 3 -- Family-facing layer
   A website or presentation layer built from Layer 2 output. Rich with
@@ -454,11 +455,14 @@ PHASE 3 BUILD ORDER:
     Persistent AI-collaborative workspace for open-ended research problems.
     Sits upstream of Case Study Builder. Build order TBD -- strong candidate
     for early build given utility across the full workflow.
-    Requires: Citation Builder (04), persons API, 5 new Supabase tables.
-    See /docs/modules/16-research-investigation.md.
+    Requires: Citation Builder (04), persons API, assertions table (migration 015),
+    5 new Supabase tables. See /docs/modules/16-research-investigation.md.
+    NOTE: Do not start Module 16 before migration 015 exists. Assertions table is
+    Module 16's primary query surface.
 
 10. Research Report Writer (Module 9) -- NOT STARTED
-    Requires: most modules above.
+    Requires: most modules above. Will use Narrative Assistant v3 + Linguistic
+    Profiler v3 + voice profile system. Voice profile discussion scheduled.
 
 11. GEDCOM Bridge (Module 1) -- NOT STARTED
     Onboarding layer. Build after core app is working.
@@ -478,20 +482,110 @@ PHASE 3 BUILD ORDER:
 
 ---
 
-## Prompt Engines (Third-Party)
+## Prompt Engine Library
 
-Steve Little's Open-Genealogy project (github.com/DigitalArchivst/Open-Genealogy)
-License: CC BY-NC-SA 4.0. Personal non-commercial research only.
+TIMESTAMP established: 2026-05-11 19:15 UTC
 
-- OCR-HTR Transcription Tool v08 -- document transcription on upload
-- Fact Extractor v4 -- extracts discrete factual claims from documents
-- Fact Narrator v4 -- turns extracted facts into narrative prose
-- GEDCOM Analysis assistant -- powers the GEDCOM Bridge parsing layer
-- Image Citation Builder v2 -- citation generation for uploaded images
-- Chat Conversation Abstractor v2 -- Research Log session summaries;
-  also powers conversational fact extraction in Module 16
-- Research Agent Assignment v2.1 -- Research Plan Builder logic
-- GRA v8.5c -- GPS enforcement layer across all modules
+Steve Little's Open-Genealogy (github.com/DigitalArchivst/Open-Genealogy) prompts
+are committed to /prompts/ under CC BY-NC-SA 4.0. Project-G-Live is personal and
+non-commercial. All Steve Little prompts are used in strict accordance with license terms.
+
+Steve Little is the AI Program Director at the National Genealogical Society, co-host
+of The Family History AI Show, and author of the Vibe Genealogy Substack (2000+
+subscribers). Background: computational linguistics, NLP, information systems, pastor.
+
+His repo contains 120+ files / 16,500+ lines of prompt engineering. His January 2026
+PRD (genealogy-record-analysis-prd.md) specifies GPS-grade AI record analysis and
+names assertion atomization as the core architectural move -- the same insight that
+drives the assertions table design in Project-G-Live.
+
+Steve's prompts are the AI engine layer. Project-G-Live is the application and
+persistence layer. The assertions table is where they meet.
+
+Engine Registry Pattern:
+  All AI calls use callWithEngine(engineName, content, context) in src/lib/ai.ts.
+  No engine prompt is hardcoded inline in any API route.
+  The GRA is the base GPS enforcement layer -- composed into all research-facing routes.
+
+Current engine inventory (/prompts/):
+  research/gra-v8.5.2c.md                    GPS enforcement base layer
+  research/research-agent-assignment-v2.1.md  Research Plan Builder
+  transcription/ocr-htr-v08.md               General diplomatic transcription
+  transcription/jewish-transcription-v2.md    Jewish document transcription (critical for Ashkenazi research)
+  image-analysis/deep-look-v2.md              9-layer forensic image analysis
+  image-analysis/hebrew-headstone-helper-v9.md 10-phase headstone analysis with gematria dating
+  writing/fact-extractor-v4.md               LABEL: Value extraction from documents
+  writing/fact-narrator-v4.md                Assertions to narrative prose
+  writing/narrative-assistant-v3.md          GPS-informed narrative (3 modes: new/revision/edit)
+  writing/linguistic-profiler-v3.md          Writer voice fingerprinting (powers Layer 2 flywheel)
+  writing/conversation-abstractor-v2.md      Session/interview summarization
+  writing/document-distiller-v2.md           Document summarization and action extraction
+  writing/image-citation-builder-v2.md       Image provenance citation (layered model)
+
+Still to fetch from upstream:
+  research/research-assistant-v8.md          700-line full research assistant
+  writing/lingua-maven-v9.md                 AHD-style language advisor
+
+Module-Engine Mapping:
+  Module 2 Research Plan Builder      research-agent-assignment-v2.1, gra
+  Module 3 Research Log               conversation-abstractor-v2, gra
+  Module 4 Citation Builder           image-citation-builder-v2, gra
+  Module 5 Document Analysis          ocr-htr-v08, jewish-transcription-v2, deep-look-v2,
+                                      hebrew-headstone-v9, fact-extractor-v4, gra
+  Module 6 Source Conflict Resolver   gra
+  Module 7 Timeline Builder           gra
+  Module 9 Research Report Writer     narrative-assistant-v3, linguistic-profiler-v3,
+                                      fact-narrator-v4, document-distiller-v2, gra
+  Module 10 Case Study Builder        gra
+  Module 16 Research Investigation    gra, conversation-abstractor-v2
+
+Photo Restoration (future, last priority):
+  Claude's own vision and image capabilities for photo restoration should be
+  evaluated FIRST before committing to any third-party API. Strong restoration
+  results have been achieved using Claude directly with good prompts. Do not
+  undersell Claude here. To be discussed at appropriate time.
+
+Steve Little collaboration:
+  Held, not closed. Dave has interfaced with Steve online and is interested
+  in eventual collaboration. Not ready to approach formally. Revisit when
+  the platform is further along and there is more to show.
+
+---
+
+## Assertions Table
+
+TIMESTAMP established: 2026-05-11 18:50 UTC
+Design spec: docs/architecture/assertions-table.md
+SQL migration: sql/015-assertions.sql (not yet written)
+
+The assertions table is the connective tissue missing from the current schema.
+It sits between sources and conclusions. Every GPS-classified, source-located
+atomic fact extracted from any document produces an assertion record.
+
+Three tables:
+- assertions (core: person_id, source_id, predicate, value_as_stated,
+  value_normalized, where_within, information_type, evidence_type,
+  confidence_score, extraction_method, engine_version)
+- assertion_case_study_links (evidence_type override per case study)
+- assertion_conflict_links (assertion-level conflict precision)
+
+Design decisions:
+- Forward-only: no retrofitting existing data
+- Evidence type stored as default on assertion; overridable per case study
+- extraction_method + engine_version track AI vs. human provenance
+- Predicate controlled vocabulary (born_in, died_in, resided_at, married, etc.)
+
+Must exist before Module 16 is built. Module 16's investigation engine queries
+assertions across persons and modules. This is migration 015.
+
+Revised build sequence (TIMESTAMP: 2026-05-11 19:00 UTC):
+  1. DONE: /prompts/ directory + docs/architecture/assertions-table.md
+  2. NEXT: callWithEngine() engine registry in src/lib/ai.ts
+  3. Replace inline approximations in Research Plan Builder (real research-agent-assignment-v2.1)
+  4. sql/015-assertions.sql + run in Supabase via Claude in Chrome (Monaco setValue method)
+  5. Module 16 (builds on assertions foundation)
+  6. Module 5 upgrade (full input pipeline: Fact Extractor -> assertions table)
+  7. Module 9 Research Report Writer (Narrative Assistant + voice profile system)
 
 ---
 
@@ -541,6 +635,7 @@ Phase 5: Case Study Builder with PowerPoint export as flagship
 - Next.js 15 / React 19: params in [id] pages are a Promise. Always unwrap with use(params).
   Pattern: import { use } from 'react'; const { id } = use(params)
   Never access params.id directly -- it generates warnings and will break in future Next.js versions.
+- No engine prompt is hardcoded inline in any API route. Use callWithEngine().
 
 ---
 
@@ -621,7 +716,15 @@ RULES FOR CLAUDE CODE SESSIONS:
 /prototypes/        -- HTML prototype files
 /docs/research/     -- Research output files
 /docs/modules/      -- Module design documents (16 files, one per module)
-/docs/architecture.md -- Supabase schema reference
+/docs/architecture/ -- Architecture decision records
+  architecture.md              -- Supabase schema reference (through migration 014)
+  assertions-table.md          -- Assertions table design spec (migration 015)
+/prompts/           -- AI engine library (Steve Little CC BY-NC-SA 4.0 + future originals)
+  README.md                    -- Engine registry overview, module-engine mapping
+  /research/                   -- GPS research prompts
+  /transcription/              -- Document transcription prompts
+  /image-analysis/             -- Image and headstone analysis prompts
+  /writing/                    -- Writing and fact extraction prompts
 /sql/               -- SQL migration files. Run in Supabase SQL Editor in order.
   001-create-tables.sql       -- Full schema: all 9 tables + RLS policies
   002-add-res-checklist.sql   -- RES checklist table
@@ -638,6 +741,7 @@ RULES FOR CLAUDE CODE SESSIONS:
   012-associations.sql        -- associations table (FAN Club data model)
   013-event-types.sql         -- event_types lookup table seeded + event_type_id FK on timeline_events
   014-dual-date-audit.sql     -- dual-date audit (no DDL; confirms pattern complete across all tables)
+  015-assertions.sql          -- assertions + assertion_case_study_links + assertion_conflict_links (TODO)
 /src/               -- Application source code
   /src/app/         -- Next.js App Router pages
     /citation-builder/
@@ -659,6 +763,7 @@ RULES FOR CLAUDE CODE SESSIONS:
     /api/persons/              -- Shared persons list + create
   /src/components/case-study/
   /src/lib/
+    ai.ts                    -- callWithEngine() engine registry (TODO: build this)
   /src/types/
 wip/ branch         -- Partially built work, committed even if broken
 
@@ -692,7 +797,7 @@ instruction from the user.
 
 ## Project State
 
-TIMESTAMP last updated: 2026-05-11 17:00 UTC by Claude
+TIMESTAMP last updated: 2026-05-11 20:00 UTC by Claude
 
 Build phase: Phase 3 ACTIVE -- 8 of 16 modules complete, Module 16 (Research Investigation) IN DESIGN
 
@@ -712,10 +817,17 @@ src/types/index.ts: FULLY CURRENT as of 2026-05-11 17:00 UTC.
   New interfaces: Repository, Family, FamilyMember, Association, EventType.
   No further types work needed before building Module 16.
 
+Prompt engine library: COMMITTED as of 2026-05-11 19:15 UTC.
+  13 Steve Little engine files in /prompts/.
+  docs/architecture/assertions-table.md -- full assertions schema spec committed.
+  callWithEngine() in src/lib/ai.ts -- NOT YET BUILT (next code task).
+  Two prompts still to fetch: research-assistant-v8.md, lingua-maven-v9.md.
+
 Committed and clean:
 - sql/001 through sql/014 -- all migrations
 - docs/modules/07-timeline-builder.md -- Module 7 design doc
 - docs/modules/16-research-investigation.md -- Module 16 design doc
+- docs/architecture/assertions-table.md -- assertions table design spec
 - src/types/index.ts -- all entity interfaces, fully current through migration 014
 - All Module 4, 10, 5, 3, 15, 2, 6, 7 source files (see CHANGELOG for full list)
 - src/app/api/persons/route.ts -- shared persons endpoint
@@ -728,23 +840,27 @@ Committed and clean:
 - package.json, next.config.ts, tsconfig.json, tailwind.config.ts, postcss.config.js
 - .env.local.example, .gitignore, CHANGELOG.md
 - All [id] pages updated to Next.js 15 params Promise pattern (use(params))
+- prompts/ directory (13 engine files + README)
 
 What does not exist yet:
+- callWithEngine() engine registry in src/lib/ai.ts (immediate next task)
+- sql/015-assertions.sql (design spec committed, SQL not written)
 - /api/persons endpoint may need updating for new person fields (defer until a module uses them)
-- Steve Little prompt engines not integrated
 - Supabase seed data (Singer/Springer sources)
 - PowerPoint export endpoint
 - File upload to Supabase storage (deferred)
 - Module 16 Supabase tables (5 new tables -- see design doc)
 - Address editing from detail page (deferred to v2 for Module 7)
 - Modules 9, 1, 11, 8, 14, 12, 13, 16 (8 modules remaining)
+- Voice profile (discussion scheduled, not yet had)
+- research-assistant-v8.md and lingua-maven-v9.md (still to fetch from upstream)
 
 Next immediate action:
-  TIMESTAMP: 2026-05-11 17:00 UTC
-  Declare BUILD. Read docs/modules/16-research-investigation.md.
-  Write sql/015-research-investigation.sql (5 new tables).
-  Run migration in Supabase SQL editor via Claude in Chrome (Monaco setValue method).
-  Build API routes, then pages.
+  TIMESTAMP: 2026-05-11 20:00 UTC
+  Declare BUILD. Build callWithEngine() in src/lib/ai.ts.
+  Then write sql/015-assertions.sql from docs/architecture/assertions-table.md.
+  Then run migration 015 in Supabase via Claude in Chrome (Monaco setValue method).
+  Then begin Module 16.
 
 ---
 
@@ -756,6 +872,9 @@ SETTINGS / ADMIN MODULE
 - Multi-provider support: design ai.ts to be provider-agnostic (Gemini, OpenAI, etc.)
 - User preferences panel
 - Autocomplete on forms for persons and places already in system
+- Voice profile: capture researcher's writing style via Linguistic Profiler v3.
+  Store as application-level setting. Feed into all narrative-generating API calls.
+  Discussion scheduled -- provide corpus of writing to generate the profile.
 
 SUPABASE SEED DATA
 After smoke tests pass, seed with the 17 Singer/Springer sources from the prototype.
@@ -770,12 +889,15 @@ Source images render inline in the source record panel. Needs Supabase storage b
 POWERPOINT EXPORT ENDPOINT
 Design the python-pptx endpoint when beginning the PowerPoint export feature.
 
-STEVE LITTLE PROMPT INTEGRATION
-Load engine prompts from /prompts/ directory into src/lib/ai.ts callWithEngine().
-Research Agent Assignment v2.1 is approximated inline in the generate route for now.
+PROMPT ENGINE REGISTRY
+callWithEngine() not yet built in src/lib/ai.ts. This is the immediate next code task.
+All engines are committed in /prompts/. Build the registry, then replace inline
+approximations module by module.
 
 FILE UPLOAD + OCR-HTR TRANSCRIPTION
 Module 5 v1 uses manual transcription entry. Deferred until Supabase storage bucket is set up.
+When storage is ready: document upload -> OCR-HTR v08 (or jewish-transcription-v2 for Jewish
+documents, hebrew-headstone-v9 for headstones) -> Fact Extractor v4 -> assertions table.
 
 CONFLICT FORM VALIDATION
 The new conflict form does not currently warn when Source B has incomplete GPS data
@@ -791,6 +913,8 @@ step into address entry when the map view is built.
 ADDRESS-AS-SEARCH-KEY QUERY
 Cross-person address proximity query: "who else in this database lived near this
 address in this time range?" Surface automatically in Module 16 and Research Plan Builder.
+Enabled by the assertions table (assertions where predicate IN ('resided_at', 'born_in',
+'died_in') and value_normalized matches geographically).
 
 ADDRESS EDITING FROM DETAIL PAGE
 Module 7 v1 shows address read-only on the event detail page. If a normalized address
@@ -799,6 +923,19 @@ field needs correction, user cannot edit in-app. Small FIX session when needed.
 FAN CLUB MAPPER REDESIGN NOTE
 Module 8 should eventually be a spatial FAN map using the addresses table as its
 primary data source, not a relationship diagram.
+
+PHOTO RESTORATION
+Steve Little's restoration prompts describe quality standards that apply regardless of
+which model performs the work. Claude's own vision capabilities for restoration should
+be evaluated first -- strong results have been achieved using Claude directly with good
+prompts. Do not default to a third-party API without testing Claude first.
+To be discussed at the appropriate time. Last priority.
+
+ORAL HISTORY PIPELINE
+Steve Little's Python audio transcription scripts (Whisper API) enable a pipeline:
+audio recorded interview -> transcript -> Conversation Abstractor v2 -> structured abstract
+-> Fact Extractor v4 -> assertions table. This sits naturally in Module 3 (Research Log)
+or Module 16 (Research Investigation). Plan the Python endpoint alongside PowerPoint export.
 
 KNOWN SCHEMA ISSUES (minor, non-urgent)
 - gps_stage_reached on case_studies: check constraint says between 1 and 5.
@@ -820,6 +957,8 @@ Steve Little's Open-Genealogy project is one example of a potential collaborator
 or distribution partner. The GPS and EE machinery would remain underneath; branding,
 data model, and configuration would be flexible enough for another researcher or
 organization to run their own instance.
+
+Steve collaboration is held, not closed. Revisit when platform is further along.
 
 This is not a pivot. The platform remains personal and private as built.
 The architecture decisions being made now -- modular design, clean API boundaries,
