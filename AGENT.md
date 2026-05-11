@@ -1,6 +1,6 @@
 Project-G-Live AGENT.md
-Version: 2.7.5
-Last updated: 2026-05-11 10:30 UTC
+Version: 2.7.6
+Last updated: 2026-05-11 17:00 UTC
 Last updated by: Claude
 
 # What This Is
@@ -229,7 +229,7 @@ Semantic versioning: MAJOR.MINOR.PATCH
 
 All timestamps: YYYY-MM-DD HH:MM UTC. Time to the minute required. No date-only stamps.
 
-Current version: 2.7.5
+Current version: 2.7.6
 
 ---
 
@@ -692,7 +692,7 @@ instruction from the user.
 
 ## Project State
 
-TIMESTAMP last updated: 2026-05-11 10:30 UTC by Claude
+TIMESTAMP last updated: 2026-05-11 17:00 UTC by Claude
 
 Build phase: Phase 3 ACTIVE -- 8 of 16 modules complete, Module 16 (Research Investigation) IN DESIGN
 
@@ -705,11 +705,18 @@ Genealogical data foundation: COMPLETE and LIVE as of 2026-05-11 10:30 UTC.
   event_types lookup table created and seeded, event_type_id FK added to timeline_events.
   Dual-date pattern confirmed complete across all tables (migration 014 audit).
 
+src/types/index.ts: FULLY CURRENT as of 2026-05-11 17:00 UTC.
+  Person interface updated with all fields from migration 009.
+  Source interface updated with repository_id from migration 011.
+  TimelineEvent interface updated with event_type_id from migration 013.
+  New interfaces: Repository, Family, FamilyMember, Association, EventType.
+  No further types work needed before building Module 16.
+
 Committed and clean:
 - sql/001 through sql/014 -- all migrations
 - docs/modules/07-timeline-builder.md -- Module 7 design doc
 - docs/modules/16-research-investigation.md -- Module 16 design doc
-- src/types/index.ts -- all entity interfaces including Address, TimelineEvent
+- src/types/index.ts -- all entity interfaces, fully current through migration 014
 - All Module 4, 10, 5, 3, 15, 2, 6, 7 source files (see CHANGELOG for full list)
 - src/app/api/persons/route.ts -- shared persons endpoint
 - src/lib/supabase.ts -- createServerSupabaseClient alias added
@@ -723,8 +730,7 @@ Committed and clean:
 - All [id] pages updated to Next.js 15 params Promise pattern (use(params))
 
 What does not exist yet:
-- src/types/index.ts: Person interface missing new columns from 009; Family, FamilyMember,
-  Repository, Association, EventType interfaces not yet created
+- /api/persons endpoint may need updating for new person fields (defer until a module uses them)
 - Steve Little prompt engines not integrated
 - Supabase seed data (Singer/Springer sources)
 - PowerPoint export endpoint
@@ -734,11 +740,11 @@ What does not exist yet:
 - Modules 9, 1, 11, 8, 14, 12, 13, 16 (8 modules remaining)
 
 Next immediate action:
-  TIMESTAMP: 2026-05-11 10:30 UTC
-  Smoke test: verify /timeline and /citation-builder still load without errors.
-  Verify the new sources.repository_id column did not break anything.
-  Then: declare next session posture. Module 16 remains the strongest next candidate.
-  Update src/types/index.ts with new interfaces at start of that BUILD session.
+  TIMESTAMP: 2026-05-11 17:00 UTC
+  Declare BUILD. Read docs/modules/16-research-investigation.md.
+  Write sql/015-research-investigation.sql (5 new tables).
+  Run migration in Supabase SQL editor via Claude in Chrome (Monaco setValue method).
+  Build API routes, then pages.
 
 ---
 
@@ -799,8 +805,6 @@ KNOWN SCHEMA ISSUES (minor, non-urgent)
   Production app has 6 stages. Fix in a future migration.
 - Dual-date naming inconsistency: migration 008 uses event_date (sort) + date_display
   (display). Migrations 009+ use _display + _sort. Both work. Future cosmetic cleanup.
-- src/types/index.ts Person interface needs update for new fields from migration 009.
-  Update at start of first BUILD session that touches persons data.
 
 STANDALONE / SHAREABLE PRODUCT VISION
 TIMESTAMP noted: 2026-05-10 19:45 UTC. Long-range idea only. Not a build concern now.
