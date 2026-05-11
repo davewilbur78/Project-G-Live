@@ -1,6 +1,6 @@
 Project-G-Live AGENT.md
-Version: 2.7.3
-Last updated: 2026-05-11 00:25 UTC
+Version: 2.7.4
+Last updated: 2026-05-11 09:40 UTC
 Last updated by: Claude
 
 # What This Is
@@ -229,7 +229,7 @@ Semantic versioning: MAJOR.MINOR.PATCH
 
 All timestamps: YYYY-MM-DD HH:MM UTC. Time to the minute required. No date-only stamps.
 
-Current version: 2.7.3
+Current version: 2.7.4
 
 ---
 
@@ -607,15 +607,21 @@ RULES FOR CLAUDE CODE SESSIONS:
 /docs/modules/      -- Module design documents (16 files, one per module)
 /docs/architecture.md -- Supabase schema reference
 /sql/               -- SQL migration files. Run in Supabase SQL Editor in order.
-  001-create-tables.sql     -- Full schema: all 9 tables + RLS policies
-  002-add-res-checklist.sql -- RES checklist table
-  003-add-documents.sql     -- documents + document_facts
-  004-add-research-log.sql  -- research_sessions + session_sources
-  005-add-todos.sql         -- todos table
-  006-add-research-plans.sql -- research_plans + research_plan_items +
-                               ALTER research_sessions ADD research_plan_id
-  007-add-source-conflicts.sql -- source_conflicts table (Module 6)
+  001-create-tables.sql       -- Full schema: all 9 tables + RLS policies
+  002-add-res-checklist.sql   -- RES checklist table
+  003-add-documents.sql       -- documents + document_facts
+  004-add-research-log.sql    -- research_sessions + session_sources
+  005-add-todos.sql           -- todos table
+  006-add-research-plans.sql  -- research_plans + research_plan_items +
+                                 ALTER research_sessions ADD research_plan_id
+  007-add-source-conflicts.sql  -- source_conflicts table (Module 6)
   008-add-timeline-addresses.sql -- addresses + timeline_events (Module 7)
+  009-persons-foundation.sql  -- ALTER persons: name components, sex, flags, dual-date sort
+  010-families.sql            -- families table + family_members bridge table
+  011-repositories.sql        -- repositories table + repository_id FK on sources
+  012-associations.sql        -- associations table (FAN Club data model)
+  013-event-types.sql         -- event_types lookup table seeded + event_type_id FK on timeline_events
+  014-dual-date-audit.sql     -- dual-date audit (no DDL; confirms pattern complete across all tables)
 /src/               -- Application source code
   /src/app/         -- Next.js App Router pages
     /citation-builder/
@@ -670,12 +676,24 @@ instruction from the user.
 
 ## Project State
 
-TIMESTAMP last updated: 2026-05-11 00:25 UTC by Claude
+TIMESTAMP last updated: 2026-05-11 09:40 UTC by Claude
 
 Build phase: Phase 3 ACTIVE -- 8 of 16 modules complete, Module 16 (Research Investigation) IN DESIGN
 
+Genealogical data foundation: COMPLETE as of migrations 009-014.
+  persons table updated (name components, sex, living, private, birth/death sort fields, changedby).
+  families and family_members tables created.
+  repositories table created, repository_id FK added to sources.
+  associations table created (FAN Club data model -- Module 8 will build on this).
+  event_types lookup table created and seeded, event_type_id FK added to timeline_events.
+  Dual-date pattern confirmed complete across all tables (migration 014 audit).
+
+IMPORTANT: Migrations 009-014 are committed to the repo but have NOT been run in Supabase.
+Run them in order in the Supabase SQL editor before starting any new module that
+depends on the new columns or tables.
+
 Committed and clean:
-- sql/001 through sql/008 -- all migrations
+- sql/001 through sql/014 -- all migrations
 - docs/modules/07-timeline-builder.md -- Module 7 design doc
 - docs/modules/16-research-investigation.md -- Module 16 design doc
 - src/types/index.ts -- all entity interfaces including Address, TimelineEvent
@@ -684,8 +702,7 @@ Committed and clean:
 - src/lib/supabase.ts -- createServerSupabaseClient alias added
 - src/lib/ai.ts -- model string updated to claude-sonnet-4-6
 - prototypes/case_study_builder_v1.html and v2.html
-- docs/architecture.md -- updated with todos, research_plans, source_conflicts,
-  addresses, timeline_events specs
+- docs/architecture.md -- full schema documented through migration 014
 - src/app/layout.tsx, page.tsx (dashboard updated), globals.css
 - src/lib/ai.ts
 - package.json, next.config.ts, tsconfig.json, tailwind.config.ts, postcss.config.js
@@ -693,6 +710,9 @@ Committed and clean:
 - All [id] pages updated to Next.js 15 params Promise pattern (use(params))
 
 What does not exist yet:
+- Migrations 009-014 not yet run in Supabase (run before next BUILD session)
+- src/types/index.ts: Person interface missing new columns; Family, FamilyMember,
+  Repository, Association, EventType interfaces not yet created
 - Steve Little prompt engines not integrated
 - Supabase seed data (Singer/Springer sources)
 - PowerPoint export endpoint
@@ -702,12 +722,12 @@ What does not exist yet:
 - Modules 9, 1, 11, 8, 14, 12, 13, 16 (8 modules remaining)
 
 Next immediate action:
-  TIMESTAMP: 2026-05-11 00:25 UTC
-  Module 7 committed. Pull locally and smoke-test:
-  cd /Users/dave/Project-G-Live && git pull && npm run dev
-  Verify /timeline loads, person selector works, new event form works,
-  AI Normalize button calls the endpoint.
-  Then: declare next session posture. Module 16 is the strongest next candidate.
+  TIMESTAMP: 2026-05-11 09:40 UTC
+  Run migrations 009-014 in Supabase SQL editor in order.
+  Smoke test: verify /timeline and /citation-builder still load without errors.
+  Verify the new sources.repository_id column did not break anything.
+  Then: declare next session posture. Module 16 remains the strongest next candidate.
+  Update src/types/index.ts with new interfaces at start of that BUILD session.
 
 ---
 
@@ -762,6 +782,14 @@ field needs correction, user cannot edit in-app. Small FIX session when needed.
 FAN CLUB MAPPER REDESIGN NOTE
 Module 8 should eventually be a spatial FAN map using the addresses table as its
 primary data source, not a relationship diagram.
+
+KNOWN SCHEMA ISSUES (minor, non-urgent)
+- gps_stage_reached on case_studies: check constraint says between 1 and 5.
+  Production app has 6 stages. Fix in a future migration.
+- Dual-date naming inconsistency: migration 008 uses event_date (sort) + date_display
+  (display). Migrations 009+ use _display + _sort. Both work. Future cosmetic cleanup.
+- src/types/index.ts Person interface needs update for new fields from migration 009.
+  Update at start of first BUILD session that touches persons data.
 
 STANDALONE / SHAREABLE PRODUCT VISION
 TIMESTAMP noted: 2026-05-10 19:45 UTC. Long-range idea only. Not a build concern now.
