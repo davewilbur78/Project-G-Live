@@ -1,32 +1,82 @@
 // Claude API wrapper for Project-G-Live
-// All AI calls go through this module.
-// The GRA v8.5c GPS enforcement prompt is injected on every call.
-// Anti-fabrication rules are enforced: never invent genealogical data.
+// callWithEngine() is the primary entry point for all module AI calls.
+// No engine prompt is hardcoded inline in any API route.
+// The GRA v8.5.2c GPS enforcement prompt is the base layer for all research-facing calls.
+// All engines load from /prompts/ directory via filesystem read.
+
+import fs from 'fs'
+import path from 'path'
 
 const ANTHROPIC_API_URL = 'https://api.anthropic.com/v1/messages'
-const MODEL = 'claude-sonnet-4-6'
+export const MODEL = 'claude-sonnet-4-6'
 
-// GPS enforcement system prompt (GRA v8.5c layer)
-// Applied to all AI calls across all modules.
-const GPS_SYSTEM_PROMPT = `You are a GPS-compliant genealogical research assistant operating within Project-G, a personal research platform for serious genealogical work and BCG certification preparation.
+// Engine file registry.
+// Maps engine key to path relative to project root.
+// All prompt files committed to /prompts/ directory.
+// To add a new engine: commit the file to /prompts/ and add an entry here.
+const ENGINE_FILES: Record<string, string> = {
+  gra:                     'prompts/research/gra-v8.5.2c.md',
+  research_agent:          'prompts/research/research-agent-assignment-v2.1.md',
+  ocr_htr:                 'prompts/transcription/ocr-htr-v08.md',
+  jewish_transcription:    'prompts/transcription/jewish-transcription-v2.md',
+  deep_look:               'prompts/image-analysis/deep-look-v2.md',
+  hebrew_headstone:        'prompts/image-analysis/hebrew-headstone-helper-v9.md',
+  fact_extractor:          'prompts/writing/fact-extractor-v4.md',
+  fact_narrator:           'prompts/writing/fact-narrator-v4.md',
+  narrative_assistant:     'prompts/writing/narrative-assistant-v3.md',
+  linguistic_profiler:     'prompts/writing/linguistic-profiler-v3.md',
+  conversation_abstractor: 'prompts/writing/conversation-abstractor-v2.md',
+  document_distiller:      'prompts/writing/document-distiller-v2.md',
+  image_citation_builder:  'prompts/writing/image-citation-builder-v2.md',
+  // Pending fetch from upstream Steve Little repo:
+  // research_assistant:   'prompts/research/research-assistant-v8.md',
+  // lingua_maven:         'prompts/writing/lingua-maven-v9.md',
+}
 
-CRITICAL RULES -- NEVER VIOLATE:
-- Never fabricate genealogical data: names, dates, places, sources, citations, relationships, or any factual claim.
-- If you do not know something, say so explicitly. Do not fill gaps with plausible-sounding information.
-- Every factual claim in output must have a source citation attached or must be explicitly marked as unverified.
-- GPS terminology is strictly enforced:
-  - Source types: Original, Derivative, or Authored (never "primary source")
-  - Evidence types: Direct, Indirect, or Negative (never "primary evidence")
-  - Information types: Primary or Secondary (applies to informant's knowledge only)
-  - GEDCOM IDs are internal plumbing -- never surface them in output
-  - Ancestry tree links are not sources -- flag and replace with original source
-  - FamilySearch ark: identifiers are valuable -- preserve in all citations
+export type EngineKey = keyof typeof ENGINE_FILES
 
-CITATION STANDARD: Evidence Explained (EE) format required for all citations.
-Every source carries both a full citation and a short footnote form.
+// Research-facing engines that always compose GRA as the base GPS enforcement layer.
+// The gra key itself is excluded -- it IS the base, not composed on top of itself.
+const RESEARCH_ENGINES: Set<string> = new Set([
+  'research_agent',
+  'ocr_htr',
+  'jewish_transcription',
+  'deep_look',
+  'hebrew_headstone',
+  'fact_extractor',
+  'fact_narrator',
+  'narrative_assistant',
+  'conversation_abstractor',
+  'document_distiller',
+  'image_citation_builder',
+])
 
-ANTI-FABRICATION: If asked to generate a citation, proof argument, narrative, or analysis,
-you may only work with facts explicitly provided to you. Do not invent corroborating details.`
+// In-process prompt cache.
+// Avoids repeated disk reads within a single function invocation.
+// Serverless functions are short-lived; this is a per-invocation optimization only.
+const promptCache: Record<string, string> = {}
+
+function loadPrompt(engine: string): string {
+  if (promptCache[engine]) return promptCache[engine]
+
+  const filePath = ENGINE_FILES[engine]
+  if (!filePath) {
+    throw new Error(
+      `Unknown engine: "${engine}". Add it to ENGINE_FILES in src/lib/ai.ts and commit the prompt to /prompts/.`
+    )
+  }
+
+  const fullPath = path.join(process.cwd(), filePath)
+  try {
+    const content = fs.readFileSync(fullPath, 'utf-8')
+    promptCache[engine] = content
+    return content
+  } catch {
+    throw new Error(
+      `Failed to load engine prompt for "${engine}" at ${fullPath}. Is the file committed to /prompts/?`
+    )
+  }
+}
 
 export interface AIMessage {
   role: 'user' | 'assistant'
@@ -34,24 +84,19 @@ export interface AIMessage {
 }
 
 export interface AIOptions {
-  systemPrompt?: string       // Additional system context (appended after GPS prompt)
+  systemPrompt?: string
   maxTokens?: number
   temperature?: number
 }
 
 // Core call -- all other functions build on this.
+// Calls the Anthropic API directly with provided messages and system prompt.
 export async function callClaude(
   messages: AIMessage[],
   options: AIOptions = {}
 ): Promise<string> {
   const apiKey = process.env.ANTHROPIC_API_KEY
-  if (!apiKey) {
-    throw new Error('Missing ANTHROPIC_API_KEY environment variable.')
-  }
-
-  const systemPrompt = options.systemPrompt
-    ? `${GPS_SYSTEM_PROMPT}\n\n${options.systemPrompt}`
-    : GPS_SYSTEM_PROMPT
+  if (!apiKey) throw new Error('Missing ANTHROPIC_API_KEY environment variable.')
 
   const response = await fetch(ANTHROPIC_API_URL, {
     method: 'POST',
@@ -63,7 +108,7 @@ export async function callClaude(
     body: JSON.stringify({
       model: MODEL,
       max_tokens: options.maxTokens ?? 2000,
-      system: systemPrompt,
+      system: options.systemPrompt ?? '',
       messages,
     }),
   })
@@ -75,34 +120,83 @@ export async function callClaude(
 
   const data = await response.json()
   const textBlock = data.content?.find((b: { type: string }) => b.type === 'text')
-  if (!textBlock) {
-    throw new Error('No text content in Anthropic API response')
-  }
+  if (!textBlock) throw new Error('No text content in Anthropic API response')
   return textBlock.text
 }
 
-// Prompt engine router -- routes to the appropriate Steve Little engine
-// based on the calling module. Add engines as modules are built.
-export type PromptEngine =
-  | 'fact_narrator_v4'
-  | 'fact_extractor_v4'
-  | 'ocr_htr_v08'
-  | 'image_citation_builder_v2'
-  | 'chat_abstractor_v2'
-  | 'research_agent_v2_1'
-  | 'gra_v8_5c'
-
-// Placeholder -- load engine-specific prompts from /prompts/ as they are integrated.
+// callWithEngine -- primary entry point for all single-turn module AI calls.
+//
+// Loads the named engine's prompt from /prompts/ via the filesystem.
+// For research-facing engines, composes GRA v8.5.2c as the base GPS enforcement layer.
+// Context is injected between the system prompt and the user message as structured XML.
+//
+// engine:      one of the EngineKey values registered in ENGINE_FILES
+// userMessage: the researcher's input (record text, query, document content, etc.)
+// context:     optional structured data injected as <context> block before user message
+//              (person records, source lists, research state, etc.)
+// options:     forwarded to callClaude (maxTokens, temperature)
+//
 export async function callWithEngine(
-  engine: PromptEngine,
+  engine: EngineKey,
   userMessage: string,
-  context?: Record<string, unknown>
+  context?: Record<string, unknown>,
+  options?: Omit<AIOptions, 'systemPrompt'>
 ): Promise<string> {
-  // TODO: load engine prompts from /prompts/ directory
-  // For now, route with a descriptive note so we know what engine was requested
-  const engineNote = `Active engine: ${engine}. Context: ${JSON.stringify(context ?? {})}`
-  return callClaude(
-    [{ role: 'user', content: userMessage }],
-    { systemPrompt: engineNote }
-  )
+  const enginePrompt = loadPrompt(engine)
+
+  let systemPrompt: string
+  if (engine === 'gra') {
+    systemPrompt = enginePrompt
+  } else if (RESEARCH_ENGINES.has(engine)) {
+    const graPrompt = loadPrompt('gra')
+    systemPrompt = `${graPrompt}\n\n---\n\n${enginePrompt}`
+  } else {
+    systemPrompt = enginePrompt
+  }
+
+  const content =
+    context && Object.keys(context).length > 0
+      ? `<context>\n${JSON.stringify(context, null, 2)}\n</context>\n\n${userMessage}`
+      : userMessage
+
+  return callClaude([{ role: 'user', content }], { ...options, systemPrompt })
+}
+
+// callWithEngineAndHistory -- for modules that maintain a persistent conversation thread.
+// Used by Research Investigation (Module 16).
+//
+// Engine prompt + GRA (for research engines) are composed into the system prompt.
+// Context is injected into the system prompt as <investigation_context> so it is
+// available throughout the conversation, not just on the first turn.
+//
+// engine:  one of the EngineKey values
+// history: the complete message history as role + content pairs
+//          Must include the current user message as the final entry.
+// context: optional structured investigation state (problem statement, evidence,
+//          candidates, orientation) -- injected into the system prompt
+// options: forwarded to callClaude (maxTokens, temperature)
+//
+export async function callWithEngineAndHistory(
+  engine: EngineKey,
+  history: AIMessage[],
+  context?: Record<string, unknown>,
+  options?: Omit<AIOptions, 'systemPrompt'>
+): Promise<string> {
+  const enginePrompt = loadPrompt(engine)
+
+  let systemPrompt: string
+  if (engine === 'gra') {
+    systemPrompt = enginePrompt
+  } else if (RESEARCH_ENGINES.has(engine)) {
+    const graPrompt = loadPrompt('gra')
+    systemPrompt = `${graPrompt}\n\n---\n\n${enginePrompt}`
+  } else {
+    systemPrompt = enginePrompt
+  }
+
+  if (context && Object.keys(context).length > 0) {
+    systemPrompt = `${systemPrompt}\n\n<investigation_context>\n${JSON.stringify(context, null, 2)}\n</investigation_context>`
+  }
+
+  return callClaude(history, { ...options, systemPrompt })
 }
