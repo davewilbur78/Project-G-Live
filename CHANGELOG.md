@@ -5,6 +5,57 @@ Format: TIMESTAMP | Session | Change
 
 ---
 
+## 2026-05-11 09:40 UTC -- Session: FIX (Genealogical Data Foundation)
+
+FIX session. No new modules. No new UI. Foundation only.
+Plan derived from TNG deep-dive (SESSION-2026-05-11-0830-UTC.md).
+All work read from repo before any SQL was written.
+
+- docs/architecture.md -- full schema refresh: all tables documented through migration 014,
+  including addresses and timeline_events (previously missing), all new tables from this session.
+  dual-date pattern section added. known schema issues noted.
+
+- sql/009-persons-foundation.sql -- ALTER persons:
+  Name components: lnprefix, suffix, title, name_prefix, nickname.
+  Demographic: sex (M/F/U), living (boolean), private (boolean).
+  Dual-date sort fields: birth_date_sort (date), death_date_sort (date).
+  Audit: changedby (text).
+  Indexes: sex, living, birth_date_sort, death_date_sort, surname.
+  (birth_date and death_date text fields unchanged -- they become display strings)
+
+- sql/010-families.sql -- CREATE families + family_members:
+  families: partner1_id / partner2_id (not husband/wife), marriage dual-date fields,
+  marriage_type (MARR/MARB/MARL/MARS/COHA/other), div dual-date fields,
+  living + private flags, different-partners constraint.
+  family_members bridge: person_id + family_id + role (child/partner),
+  relationship_to_partner1/2 (natural/adopted/step/foster/unknown),
+  birth_order, has_descendants (denormalized). unique (person_id, family_id).
+
+- sql/011-repositories.sql -- CREATE repositories + ALTER sources:
+  repositories: name, type (archive/library/online/courthouse/church/other),
+  url, physical address fields, notes.
+  sources: repository_id UUID FK added alongside existing repository text field.
+
+- sql/012-associations.sql -- CREATE associations (FAN Club data model):
+  person_id, associated_person_id, association_type (11 types),
+  description, source_id, date_display + date_sort (dual-date),
+  no-self-link constraint. Directional by design.
+
+- sql/013-event-types.sql -- CREATE event_types + ALTER timeline_events:
+  event_types: tag (unique GEDCOM code), display_name, scope (individual/family),
+  is_built_in, sort_order. Seeded with 18 standard types at migration time.
+  timeline_events: event_type_id UUID FK added alongside existing text check constraint.
+
+- sql/014-dual-date-audit.sql -- No DDL changes. Audit confirms dual-date pattern
+  complete across all tables. Named inconsistency between migration 008 naming
+  convention and 009+ convention documented.
+
+- sessions/SESSION-2026-05-11-0940-UTC.md -- session snapshot
+- sessions/SESSIONS-INDEX.md -- updated
+- AGENT.md v2.7.4
+
+---
+
 ## 2026-05-11 00:25 UTC -- Session: BUILD (Module 7 Timeline Builder)
 
 BUILD session. Module 7 built in full from a cold start following the EXPLORE session
