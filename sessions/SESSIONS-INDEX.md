@@ -4,6 +4,7 @@ Format: TIMESTAMP | Posture | AI | One-sentence summary
 
 ---
 
+2026-05-11 10:30 UTC | FIX | Claude (claude-sonnet-4-6) | Ran migrations 009-014 in Supabase via Claude in Chrome; genealogical data foundation now live.
 2026-05-11 09:40 UTC | FIX | Claude (claude-sonnet-4-6) | Genealogical data foundation: migrations 009-014 (persons updated, families, family_members, repositories, associations, event_types created; dual-date audit complete).
 2026-05-11 08:30 UTC | EXPLORE | Claude (claude-sonnet-4-6) | TNG deep-dive (web research + direct DB inspection of 37 tables); decision made to rebuild genealogical data foundation before continuing module builds.
 2026-05-11 06:30 UTC | EXPLORE | Claude (claude-sonnet-4-6) | TNG reference architecture research (v1.0 web-sourced thesis produced and committed).
