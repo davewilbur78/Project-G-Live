@@ -1,6 +1,6 @@
 Project-G-Live AGENT.md
-Version: 2.7.4
-Last updated: 2026-05-11 09:40 UTC
+Version: 2.7.5
+Last updated: 2026-05-11 10:30 UTC
 Last updated by: Claude
 
 # What This Is
@@ -83,7 +83,7 @@ WIP SIGNALS
   1. TIMESTAMP the event
   2. Review what is currently in wip/
   3. Propose a merge plan. Wait for confirmation before merging anything.
-  4. After confirmed merge: note in CHANGELOG, reset wip/
+  4. After confirmed merge: note in CHANGELOG, reset wip/. The branch is always a working scratch space, never permanent.
 
 ---
 
@@ -229,7 +229,7 @@ Semantic versioning: MAJOR.MINOR.PATCH
 
 All timestamps: YYYY-MM-DD HH:MM UTC. Time to the minute required. No date-only stamps.
 
-Current version: 2.7.4
+Current version: 2.7.5
 
 ---
 
@@ -544,6 +544,22 @@ Phase 5: Case Study Builder with PowerPoint export as flagship
 
 ---
 
+## Claude in Chrome -- SQL Editor Notes
+
+TIMESTAMP established: 2026-05-11 10:30 UTC
+
+When running SQL migrations via Claude in Chrome against the Supabase SQL editor:
+- DO NOT type long SQL strings into the Monaco editor. The editor's auto-closing
+  brackets and autocomplete will corrupt the SQL (doubled parentheses, dropped characters).
+- USE the Monaco editor API instead:
+    window.monaco.editor.getModels()[n].setValue(sql)
+  This sets the editor content directly, bypassing all autocomplete interference.
+- After setValue(), click in the editor area and use cmd+Return to run.
+- The Supabase project reference ID for Project G: slqjooudyfvmnaoetdvi
+  SQL editor direct URL: https://supabase.com/dashboard/project/slqjooudyfvmnaoetdvi/sql/new
+
+---
+
 ## Platform Output Types
 
 RESEARCHER / PROFESSIONAL OUTPUT
@@ -676,21 +692,18 @@ instruction from the user.
 
 ## Project State
 
-TIMESTAMP last updated: 2026-05-11 09:40 UTC by Claude
+TIMESTAMP last updated: 2026-05-11 10:30 UTC by Claude
 
 Build phase: Phase 3 ACTIVE -- 8 of 16 modules complete, Module 16 (Research Investigation) IN DESIGN
 
-Genealogical data foundation: COMPLETE as of migrations 009-014.
+Genealogical data foundation: COMPLETE and LIVE as of 2026-05-11 10:30 UTC.
+  Migrations 009-014 have been run in Supabase SQL editor.
   persons table updated (name components, sex, living, private, birth/death sort fields, changedby).
   families and family_members tables created.
   repositories table created, repository_id FK added to sources.
   associations table created (FAN Club data model -- Module 8 will build on this).
   event_types lookup table created and seeded, event_type_id FK added to timeline_events.
   Dual-date pattern confirmed complete across all tables (migration 014 audit).
-
-IMPORTANT: Migrations 009-014 are committed to the repo but have NOT been run in Supabase.
-Run them in order in the Supabase SQL editor before starting any new module that
-depends on the new columns or tables.
 
 Committed and clean:
 - sql/001 through sql/014 -- all migrations
@@ -710,8 +723,7 @@ Committed and clean:
 - All [id] pages updated to Next.js 15 params Promise pattern (use(params))
 
 What does not exist yet:
-- Migrations 009-014 not yet run in Supabase (run before next BUILD session)
-- src/types/index.ts: Person interface missing new columns; Family, FamilyMember,
+- src/types/index.ts: Person interface missing new columns from 009; Family, FamilyMember,
   Repository, Association, EventType interfaces not yet created
 - Steve Little prompt engines not integrated
 - Supabase seed data (Singer/Springer sources)
@@ -722,8 +734,7 @@ What does not exist yet:
 - Modules 9, 1, 11, 8, 14, 12, 13, 16 (8 modules remaining)
 
 Next immediate action:
-  TIMESTAMP: 2026-05-11 09:40 UTC
-  Run migrations 009-014 in Supabase SQL editor in order.
+  TIMESTAMP: 2026-05-11 10:30 UTC
   Smoke test: verify /timeline and /citation-builder still load without errors.
   Verify the new sources.repository_id column did not break anything.
   Then: declare next session posture. Module 16 remains the strongest next candidate.
