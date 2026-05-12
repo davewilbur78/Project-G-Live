@@ -1,6 +1,6 @@
 # Prompt Engine Upstream Sync
 
-TIMESTAMP last updated: 2026-05-11 22:00 UTC
+TIMESTAMP last updated: 2026-05-12 00:35 UTC
 Source repository: https://github.com/DigitalArchivst/Open-Genealogy
 License: CC BY-NC-SA 4.0
 Project-G-Live is personal and non-commercial -- use fully within license terms.
@@ -75,43 +75,15 @@ added, updated, or excluded.
 
 ---
 
-## Fetching Still-Missing Files
-
-Two files are referenced in AGENT.md and ENGINE_FILES (as comments) but not yet
-in /prompts/. Fetch these now:
-
-```bash
-cd /tmp/open-genealogy && git pull
-
-# research-assistant-v8.md (700-line full GPS research assistant)
-cp research/research-assistant-v8.md \
-   /Users/dave/Project-G-Live/prompts/research/research-assistant-v8.md
-
-# lingua-maven-v9.md (AHD-style language advisor)
-cp writing-tools/lingua-maven-v9.md \
-   /Users/dave/Project-G-Live/prompts/writing/lingua-maven-v9.md
-
-cd /Users/dave/Project-G-Live
-git add prompts/research/research-assistant-v8.md
-git add prompts/writing/lingua-maven-v9.md
-git commit -m "prompts: add research-assistant-v8 + lingua-maven-v9 from upstream"
-git push
-```
-
-After committing, tell Claude: "I committed research-assistant-v8 and lingua-maven-v9."
-Claude will uncomment the two lines in ENGINE_FILES in src/lib/ai.ts.
-
----
-
 ## What We Have
 
-All 13 files below were downloaded from Steve's repo on 2026-05-11 and committed
-to /prompts/. Last full sync check: 2026-05-11.
+All 15 files below are committed to /prompts/. Last full sync check: 2026-05-12.
 
 | Engine Key | Our File | Version | Downloaded | Steve's Upstream Path |
 |------------|----------|---------|------------|-----------------------|
 | gra | gra-v8.5.2c.md | v8.5.2c | 2026-05-11 | research/gra-v8.5.2c.md |
 | research_agent | research-agent-assignment-v2.1.md | v2.1 | 2026-05-11 | research/research-agent-assignment-v2.1.md |
+| research_assistant | research-assistant-v8.md | v8 | 2026-05-12 | research/research-assistant-v8.md |
 | ocr_htr | ocr-htr-v08.md | v08 | 2026-05-11 | transcription/ocr-htr-v08.md |
 | jewish_transcription | jewish-transcription-v2.md | v2 | 2026-05-11 | transcription/jewish-transcription-v2.md |
 | deep_look | deep-look-v2.md | v2 | 2026-05-11 | image-analysis/deep-look-v2.md |
@@ -120,6 +92,7 @@ to /prompts/. Last full sync check: 2026-05-11.
 | fact_narrator | fact-narrator-v4.md | v4 | 2026-05-11 | writing-tools/fact-narrator-v4.md |
 | narrative_assistant | narrative-assistant-v3.md | v3 | 2026-05-11 | writing-tools/narrative-assistant-v3.md |
 | linguistic_profiler | linguistic-profiler-v3.md | v3 | 2026-05-11 | writing-tools/linguistic-profiler-v3.md |
+| lingua_maven | lingua-maven-v9.md | v9 | 2026-05-12 | writing-tools/lingua-maven-v9.md |
 | conversation_abstractor | conversation-abstractor-v2.md | v2 | 2026-05-11 | writing-tools/conversation-abstractor-v2.md |
 | document_distiller | document-distiller-v2.md | v2 | 2026-05-11 | writing-tools/document-distiller-v2.md |
 | image_citation_builder | image-citation-builder-v2.md | v2 | 2026-05-11 | writing-tools/image-citation-builder-v2.md |
@@ -128,10 +101,7 @@ to /prompts/. Last full sync check: 2026-05-11.
 
 ## Still to Fetch
 
-| Engine Key | Target File | Steve's Upstream Path | Priority | Notes |
-|------------|-------------|----------------------|----------|-------|
-| research_assistant | research-assistant-v8.md | research/research-assistant-v8.md | HIGH | 700-line comprehensive GPS research assistant. Heavier than gra but more complete for full research sessions. Needed for Module 16 and Module 9. |
-| lingua_maven | lingua-maven-v9.md | writing-tools/lingua-maven-v9.md | MEDIUM | AHD-style language advisor for writing quality. Needed for Module 9 (Research Report Writer). |
+None. All engines in the integration plan are now committed and live.
 
 ---
 
@@ -177,4 +147,5 @@ store them in prompts/image-analysis/ alongside other visual analysis engines.
 |------|--------|-----|
 | 2026-05-11 | Initial download: 13 engine files committed to /prompts/ | Claude (session) |
 | 2026-05-11 | UPSTREAM-SYNC.md created | Claude (session) |
-| (next) | Fetch research-assistant-v8.md + lingua-maven-v9.md | Dave (local) |
+| 2026-05-12 | Fetched research-assistant-v8.md + lingua-maven-v9.md via GitHub connector | Claude (session) |
+| 2026-05-12 | ENGINE_FILES in ai.ts: uncommented research_assistant + lingua_maven | Claude (session) |

@@ -1,3 +1,55 @@
+## 2026-05-12 00:10 UTC -- Session: BUILD (Supabase migrations + prompt library complete)
+
+Posture: BUILD. Completed all outstanding open threads from SESSION-2026-05-11-2200-UTC.
+
+### What was done
+
+SQL migrations run in Supabase via Claude in Chrome + Monaco setValue() method:
+- sql/015-assertions.sql: assertions + assertion_case_study_links + assertion_conflict_links
+  tables, indexes, RLS policies. SUCCESS.
+- sql/016-investigations.sql: investigations + investigation_messages + investigation_evidence
+  + investigation_candidates + investigation_matrix_cells tables, indexes, RLS policies.
+  SUCCESS.
+
+Prompt library completed:
+- prompts/research/research-assistant-v8.md -- fetched from Steve Little's repo
+  via GitHub connector. 700-line comprehensive GPS research assistant. v8.0.
+- prompts/writing/lingua-maven-v9.md -- fetched from Steve Little's repo via
+  GitHub connector. AHD-style language advisor. v9.
+
+ai.ts ENGINE_FILES updated:
+- research_assistant: 'prompts/research/research-assistant-v8.md' -- UNCOMMENTED
+- lingua_maven: 'prompts/writing/lingua-maven-v9.md' -- UNCOMMENTED
+- research_assistant added to RESEARCH_ENGINES set (GRA composes as base layer)
+- Total engines now live: 15
+
+UPSTREAM-SYNC.md updated:
+- research-assistant-v8 and lingua-maven-v9 moved from Still to Fetch to What We Have
+- Still to Fetch section now reads: None.
+- Update Log entry added for 2026-05-12 actions
+
+AGENT.md updated to v2.8.1.
+
+### Closed threads (from SESSION-2026-05-11-2200 open thread list)
+
+- Thread 1 CLOSED: sql/015 and sql/016 run successfully in Supabase. Module 16 is
+  now usable pending smoke test (local git pull + dev server).
+- Thread 2 CLOSED: research-assistant-v8.md and lingua-maven-v9.md committed.
+  ENGINE_FILES uncommented. Prompt library complete -- no files left to fetch.
+- Thread 3 (smoke test): OPEN. Requires local git pull + dev server start.
+  Not done this session -- no local access.
+
+### Still open
+
+- Smoke test Module 16 locally (git pull, start dev server, open /investigation)
+- src/types/index.ts investigation types (deferred until type error surfaces)
+- Voice profile discussion
+- Platform name
+- Steve collaboration (held)
+- gps_stage_reached constraint bug (low priority)
+
+---
+
 ## 2026-05-11 20:00 UTC -- Session: EXPLORE->BUILD (Steve Little Integration + Prompt Engine Library + Assertions Architecture)
 
 EXPLORE session that transitioned to BUILD at 2026-05-11 18:45 UTC.
