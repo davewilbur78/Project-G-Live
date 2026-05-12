@@ -4,28 +4,30 @@
 
 import Link from 'next/link'
 
-type ModuleStatus = 'COMPLETE' | 'BUILD READY' | 'NOT STARTED'
+type ModuleStatus = 'COMPLETE' | 'BUILD READY' | 'IN DESIGN' | 'NOT STARTED'
 
 const MODULES: { id: number; name: string; status: ModuleStatus; href: string }[] = [
-  { id: 4,  name: 'Citation Builder',           status: 'COMPLETE',    href: '/citation-builder'   },
-  { id: 10, name: 'Case Study Builder',          status: 'COMPLETE',    href: '/case-study'         },
-  { id: 5,  name: 'Document Analysis Worksheet', status: 'COMPLETE',    href: '/document-analysis'  },
-  { id: 3,  name: 'Research Log',                status: 'COMPLETE',    href: '/research-log'       },
-  { id: 2,  name: 'Research Plan Builder',       status: 'COMPLETE',    href: '/research-plans'     },
-  { id: 15, name: 'Research To-Do Tracker',      status: 'COMPLETE',    href: '/todos'              },
-  { id: 6,  name: 'Source Conflict Resolver',    status: 'COMPLETE',    href: '/conflict-resolver'  },
-  { id: 7,  name: 'Timeline Builder',            status: 'COMPLETE',    href: '/timeline'           },
-  { id: 9,  name: 'Research Report Writer',      status: 'NOT STARTED', href: '/report-writer'      },
-  { id: 1,  name: 'GEDCOM Bridge',               status: 'NOT STARTED', href: '/gedcom-bridge'      },
-  { id: 11, name: 'Family Group Sheet Builder',  status: 'NOT STARTED', href: '/family-group-sheet' },
-  { id: 8,  name: 'FAN Club Mapper',             status: 'NOT STARTED', href: '/fan-club'           },
-  { id: 14, name: 'DNA Evidence Tracker',        status: 'NOT STARTED', href: '/dna-tracker'        },
-  { id: 12, name: 'Correspondence Log',          status: 'NOT STARTED', href: '/correspondence'     },
-  { id: 13, name: 'File Naming System',          status: 'NOT STARTED', href: '/file-naming'        },
+  { id: 4,  name: 'Citation Builder',             status: 'COMPLETE',    href: '/citation-builder'   },
+  { id: 10, name: 'Case Study Builder',            status: 'COMPLETE',    href: '/case-study'         },
+  { id: 5,  name: 'Document Analysis Worksheet',   status: 'COMPLETE',    href: '/document-analysis'  },
+  { id: 3,  name: 'Research Log',                  status: 'COMPLETE',    href: '/research-log'       },
+  { id: 2,  name: 'Research Plan Builder',         status: 'COMPLETE',    href: '/research-plans'     },
+  { id: 15, name: 'Research To-Do Tracker',        status: 'COMPLETE',    href: '/todos'              },
+  { id: 6,  name: 'Source Conflict Resolver',      status: 'COMPLETE',    href: '/conflict-resolver'  },
+  { id: 7,  name: 'Timeline Builder',              status: 'COMPLETE',    href: '/timeline'           },
+  { id: 16, name: 'Research Investigation',        status: 'COMPLETE',    href: '/investigation'      },
+  { id: 9,  name: 'Research Report Writer',        status: 'NOT STARTED', href: '/report-writer'      },
+  { id: 1,  name: 'GEDCOM Bridge',                 status: 'NOT STARTED', href: '/gedcom-bridge'      },
+  { id: 11, name: 'Family Group Sheet Builder',    status: 'NOT STARTED', href: '/family-group-sheet' },
+  { id: 8,  name: 'FAN Club Mapper',               status: 'NOT STARTED', href: '/fan-club'           },
+  { id: 14, name: 'DNA Evidence Tracker',          status: 'NOT STARTED', href: '/dna-tracker'        },
+  { id: 12, name: 'Correspondence Log',            status: 'NOT STARTED', href: '/correspondence'     },
+  { id: 13, name: 'File Naming System',            status: 'NOT STARTED', href: '/file-naming'        },
 ]
 
 const STATUS_STYLE: Record<ModuleStatus, { bg: string; color: string }> = {
   'COMPLETE':    { bg: 'var(--green-bg)',         color: 'var(--green-ink)' },
+  'IN DESIGN':   { bg: 'var(--amber-bg)',         color: 'var(--amber-ink)' },
   'BUILD READY': { bg: 'var(--amber-bg)',         color: 'var(--amber-ink)' },
   'NOT STARTED': { bg: 'var(--parchment-darker)', color: 'var(--ink-faint)' },
 }
