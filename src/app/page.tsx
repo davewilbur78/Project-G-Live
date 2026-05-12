@@ -16,12 +16,12 @@ const MODULES: { id: number; name: string; status: ModuleStatus; href: string }[
   { id: 6,  name: 'Source Conflict Resolver',      status: 'COMPLETE',    href: '/conflict-resolver'  },
   { id: 7,  name: 'Timeline Builder',              status: 'COMPLETE',    href: '/timeline'           },
   { id: 16, name: 'Research Investigation',        status: 'COMPLETE',    href: '/investigation'      },
+  { id: 12, name: 'Correspondence Log',            status: 'COMPLETE',    href: '/correspondence'     },
+  { id: 14, name: 'DNA Evidence Tracker',          status: 'COMPLETE',    href: '/dna-tracker'        },
   { id: 9,  name: 'Research Report Writer',        status: 'NOT STARTED', href: '/report-writer'      },
   { id: 1,  name: 'GEDCOM Bridge',                 status: 'NOT STARTED', href: '/gedcom-bridge'      },
   { id: 11, name: 'Family Group Sheet Builder',    status: 'NOT STARTED', href: '/family-group-sheet' },
   { id: 8,  name: 'FAN Club Mapper',               status: 'NOT STARTED', href: '/fan-club'           },
-  { id: 14, name: 'DNA Evidence Tracker',          status: 'NOT STARTED', href: '/dna-tracker'        },
-  { id: 12, name: 'Correspondence Log',            status: 'NOT STARTED', href: '/correspondence'     },
   { id: 13, name: 'File Naming System',            status: 'NOT STARTED', href: '/file-naming'        },
 ]
 
