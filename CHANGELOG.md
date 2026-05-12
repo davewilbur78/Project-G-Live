@@ -1,3 +1,62 @@
+## 2026-05-11 14:30 UTC -- Session: BUILD (Module 14 DNA Evidence Tracker)
+
+Posture: BUILD. Module 14 built complete while user stepped away.
+Also fixed dashboard bug: Module 12 (Correspondence Log) was showing NOT STARTED.
+
+### What was done
+
+Module 14 (DNA Evidence Tracker) -- COMPLETE.
+
+SQL migration:
+- sql/018-dna-tracker.sql: dna_matches table with platform check constraint
+  (23andme | ancestry | ftdna | myheritage | gedmatch | other), status check constraint
+  (identified | working_hypothesis | unresolved), shared_cm numeric(8,2),
+  shared_segments integer, largest_segment_cm numeric(8,2), kit_number text,
+  match_email text, person_id uuid FK to persons ON DELETE SET NULL,
+  hypothesized_relationship text, ancestral_line text, documentary_evidence text,
+  endogamy_context text, in_common_with text, notes text.
+  5 indexes (status, platform, ancestral_line, person_id, shared_cm DESC).
+  RLS enabled. Migration run via Claude in Chrome + Monaco setValue() method: SUCCESS.
+
+API routes:
+- src/app/api/dna-matches/route.ts: GET (list, filterable by status/platform/ancestral_line,
+  ordered by shared_cm DESC), POST
+- src/app/api/dna-matches/[id]/route.ts: GET, PATCH (partial update, allowed field list), DELETE
+
+Pages:
+- src/app/dna-tracker/page.tsx: list with GPS note banner, summary bar
+  (total/identified/working hypothesis/unresolved), status filter tabs, platform badge,
+  ancestral line + hypothesized relationship in row metadata, linked person name if identified
+- src/app/dna-tracker/new/page.tsx: full 2-column form with GPS note, all fields,
+  redirects to detail page on save
+- src/app/dna-tracker/[id]/page.tsx: read mode + edit toggle + two-step delete,
+  params handled via React use() hook (Next.js 15 pattern)
+
+Dashboard fix:
+- src/app/page.tsx: Module 12 status corrected from NOT STARTED to COMPLETE.
+  Module 14 status set to COMPLETE. Build order list updated.
+
+GPS compliance: GPS note enforced on every page (list, new, detail) --
+"DNA evidence is corroborating indirect evidence -- never standalone proof."
+Ashkenazi endogamy context field built in at the schema and UI level.
+All pages include dashboard breadcrumb navigation.
+No AI calls in v1 -- module is structured data entry, evidence linking, and retrieval.
+
+### Build phase
+
+Phase 3 ACTIVE -- 11 of 16 modules complete.
+
+Modules complete: 2, 3, 4, 5, 6, 7, 10, 12, 14, 15, 16.
+Modules remaining: 1, 8, 9 (voice profile required), 11, 13.
+
+### Smoke tests still needed
+
+Module 12 and Module 14 smoke tests: hand to Claude Code.
+Protocol: git pull, restart dev server (pkill + rm -rf .next + npm run dev),
+open /correspondence and /dna-tracker, create one entry each, verify list and detail pages.
+
+---
+
 ## 2026-05-12 (dinner session) UTC -- Session: BUILD (Module 12 Correspondence Log)
 
 Posture: BUILD. Module 12 built complete while user was at dinner.
