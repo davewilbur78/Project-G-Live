@@ -1,3 +1,50 @@
+## 2026-05-12 (dinner session) UTC -- Session: BUILD (Module 12 Correspondence Log)
+
+Posture: BUILD. Module 12 built complete while user was at dinner.
+
+### What was done
+
+Module 12 (Correspondence Log) -- COMPLETE.
+
+SQL migration:
+- sql/017-correspondence.sql: correspondence table with recipient_type check constraint
+  (repository | courthouse | archive | researcher | dna_match | other), outcome_status
+  check constraint (pending | responded | no_response | closed), follow_up_needed boolean,
+  FKs to repositories, persons, sources. RLS enabled. 3 indexes.
+  Migration run in Supabase via Claude in Chrome + Monaco setValue(): SUCCESS.
+
+API routes:
+- src/app/api/correspondence/route.ts: GET (list, filterable by status + recipient_type), POST
+- src/app/api/correspondence/[id]/route.ts: GET, PATCH (partial update, allowed field list), DELETE
+
+Pages:
+- src/app/correspondence/page.tsx: list with summary bar (total/pending/follow-up counts),
+  status filter tabs, hover-highlight rows, empty state
+- src/app/correspondence/new/page.tsx: sectioned form (Recipient / Inquiry / Response / Notes),
+  response section optional at creation, follow-up flag checkbox
+- src/app/correspondence/[id]/page.tsx: read mode + edit toggle + two-step delete,
+  params handled via React use() hook (Next.js 15 pattern)
+
+GPS compliance: module documents reasonably exhaustive search outreach (GPS element 1).
+All pages include dashboard breadcrumb navigation.
+No AI calls in v1 -- module is purely structured data entry and retrieval.
+
+### Session notes
+
+MCP connector went down twice (Docker restarts). Code was staged locally in container
+during outage and pushed once connector recovered. Two-batch push strategy used to
+avoid timeout on large payloads. Monaco setValue() + find(Run button) + ref click
+for SQL execution.
+
+### Build phase
+
+Phase 3 ACTIVE -- 10 of 16 modules complete.
+
+Modules complete: 2, 3, 4, 5, 6, 7, 10, 12, 15, 16.
+Modules remaining: 1, 8, 9 (voice profile required), 11, 13, 14.
+
+---
+
 ## 2026-05-12 00:10 UTC -- Session: BUILD (Supabase migrations + prompt library complete)
 
 Posture: BUILD. Completed all outstanding open threads from SESSION-2026-05-11-2200-UTC.
