@@ -1,6 +1,6 @@
 Project-G-Live AGENT.md
-Version: 2.8.0
-Last updated: 2026-05-11 22:00 UTC
+Version: 2.8.1
+Last updated: 2026-05-12 00:45 UTC
 Last updated by: Claude
 
 # What This Is
@@ -229,7 +229,7 @@ Semantic versioning: MAJOR.MINOR.PATCH
 
 All timestamps: YYYY-MM-DD HH:MM UTC. Time to the minute required. No date-only stamps.
 
-Current version: 2.8.0
+Current version: 2.8.1
 
 ---
 
@@ -453,7 +453,7 @@ PHASE 3 BUILD ORDER:
     TIMESTAMP: 2026-05-11 22:00 UTC.
     Persistent AI-collaborative workspace for open-ended research problems.
     Sits upstream of Case Study Builder. Entry: conversation, not a form.
-    SQL migration: sql/016-investigations.sql (written; not yet run in Supabase).
+    SQL migrations run in Supabase: 2026-05-12 00:10 UTC.
     5 tables: investigations, investigation_messages, investigation_evidence,
     investigation_candidates, investigation_matrix_cells.
     7 API routes: /api/investigation (list+create), /api/investigation/[id]
@@ -467,9 +467,6 @@ PHASE 3 BUILD ORDER:
     AI context pre-loading: every conversation turn loads full investigation
     state (problem statement, evidence, candidates, orientation) into the
     system prompt so the AI partner is fully oriented on every response.
-    NOTE: sql/015-assertions.sql and sql/016-investigations.sql must be run
-    in Supabase before Module 16 is usable. Use Claude in Chrome + Monaco
-    setValue() method. Run 015 first, then 016.
 
 10. Research Report Writer (Module 9) -- NOT STARTED
     Requires: most modules above. Will use Narrative Assistant v3 + Linguistic
@@ -496,6 +493,7 @@ PHASE 3 BUILD ORDER:
 ## Prompt Engine Library
 
 TIMESTAMP established: 2026-05-11 19:15 UTC
+TIMESTAMP last updated: 2026-05-12 00:35 UTC
 Sync tracking: prompts/UPSTREAM-SYNC.md (authoritative -- read this before
 any prompt-related work; it tracks versions, download dates, and sync protocol)
 
@@ -522,9 +520,10 @@ Engine Registry Pattern:
   The GRA is the base GPS enforcement layer -- composed into all research-facing routes.
   Prompts load from /prompts/ directory via filesystem read at runtime.
 
-Current engine inventory (/prompts/):
+Current engine inventory (/prompts/) -- ALL 15 COMMITTED AND LIVE as of 2026-05-12:
   research/gra-v8.5.2c.md                    GPS enforcement base layer
   research/research-agent-assignment-v2.1.md  Research Plan Builder
+  research/research-assistant-v8.md           700-line comprehensive GPS research assistant
   transcription/ocr-htr-v08.md               General diplomatic transcription
   transcription/jewish-transcription-v2.md    Jewish document transcription (critical for Ashkenazi research)
   image-analysis/deep-look-v2.md              9-layer forensic image analysis
@@ -533,13 +532,12 @@ Current engine inventory (/prompts/):
   writing/fact-narrator-v4.md                Assertions to narrative prose
   writing/narrative-assistant-v3.md          GPS-informed narrative (3 modes: new/revision/edit)
   writing/linguistic-profiler-v3.md          Writer voice fingerprinting (powers Layer 2 flywheel)
+  writing/lingua-maven-v9.md                 AHD-style language advisor (writing quality)
   writing/conversation-abstractor-v2.md      Session/interview summarization
   writing/document-distiller-v2.md           Document summarization and action extraction
   writing/image-citation-builder-v2.md       Image provenance citation (layered model)
 
-Still to fetch from upstream (see prompts/UPSTREAM-SYNC.md for fetch instructions):
-  research/research-assistant-v8.md          700-line full research assistant
-  writing/lingua-maven-v9.md                 AHD-style language advisor
+No prompts remain to fetch from upstream. Library is complete.
 
 Module-Engine Mapping:
   Module 2 Research Plan Builder      research-agent-assignment-v2.1, gra
@@ -570,14 +568,15 @@ Steve Little collaboration:
 ## Assertions Table
 
 TIMESTAMP established: 2026-05-11 18:50 UTC
+TIMESTAMP migrations run in Supabase: 2026-05-12 00:10 UTC
 Design spec: docs/architecture/assertions-table.md
-SQL migration: sql/015-assertions.sql (WRITTEN -- not yet run in Supabase)
+SQL migration: sql/015-assertions.sql -- LIVE in Supabase as of 2026-05-12 00:10 UTC.
 
 The assertions table is the connective tissue between sources and conclusions.
 Every GPS-classified, source-located atomic fact extracted from any document
 produces an assertion record.
 
-Three tables:
+Three tables (all live):
 - assertions (core: person_id, source_id, predicate, value_as_stated,
   value_normalized, where_within, information_type, evidence_type,
   confidence_score, extraction_method, engine_version)
@@ -589,10 +588,6 @@ Design decisions:
 - Evidence type stored as default on assertion; overridable per case study
 - extraction_method + engine_version track AI vs. human provenance
 - Predicate controlled vocabulary (born_in, died_in, resided_at, married, etc.)
-
-Must be run before Module 16 is usable in production.
-Run sql/015-assertions.sql first, then sql/016-investigations.sql.
-Use Claude in Chrome + Supabase SQL editor + Monaco setValue() method.
 
 ---
 
@@ -751,10 +746,10 @@ RULES FOR CLAUDE CODE SESSIONS:
   013-event-types.sql          -- event_types lookup + FK on timeline_events
   014-dual-date-audit.sql      -- dual-date pattern audit (no DDL)
   015-assertions.sql           -- assertions + assertion_case_study_links + assertion_conflict_links
-                                  WRITTEN -- NOT YET RUN IN SUPABASE
+                                  LIVE in Supabase as of 2026-05-12 00:10 UTC
   016-investigations.sql       -- investigations + investigation_messages + investigation_evidence
                                   + investigation_candidates + investigation_matrix_cells
-                                  WRITTEN -- NOT YET RUN IN SUPABASE
+                                  LIVE in Supabase as of 2026-05-12 00:15 UTC
 /src/               -- Application source code
   /src/app/         -- Next.js App Router pages
     /citation-builder/
@@ -786,7 +781,7 @@ RULES FOR CLAUDE CODE SESSIONS:
     /api/persons/               -- Shared persons list + create
   /src/components/case-study/
   /src/lib/
-    ai.ts                       -- callWithEngine() + callWithEngineAndHistory() -- COMPLETE
+    ai.ts                       -- callWithEngine() + callWithEngineAndHistory() -- COMPLETE. 15 engines.
     supabase.ts
   /src/types/
 wip/ branch         -- Partially built work, committed even if broken
@@ -821,65 +816,44 @@ instruction from the user.
 
 ## Project State
 
-TIMESTAMP last updated: 2026-05-11 22:00 UTC by Claude
+TIMESTAMP last updated: 2026-05-12 00:45 UTC by Claude
 
 Build phase: Phase 3 ACTIVE -- 9 of 16 modules complete
 
-Genealogical data foundation: COMPLETE and LIVE as of 2026-05-11 10:30 UTC.
-  Migrations 001-014 have been run in Supabase SQL editor.
-  persons, families, repositories, associations, event_types tables live.
-  Dual-date pattern confirmed complete across all tables (migration 014 audit).
+Genealogical data foundation: COMPLETE and LIVE.
+  Migrations 001-016 all run in Supabase SQL editor.
+  All tables live including assertions (015) and investigations (016).
 
-src/types/index.ts: FULLY CURRENT as of 2026-05-11 17:00 UTC.
-  All entity interfaces through migration 014. Investigation types not yet added.
+src/types/index.ts: current through migration 014.
+  Investigation types not yet added -- defer until type error surfaces.
 
-src/lib/ai.ts: COMPLETE as of 2026-05-11 21:00 UTC.
+src/lib/ai.ts: COMPLETE as of 2026-05-12 00:35 UTC.
   callWithEngine() and callWithEngineAndHistory() fully implemented.
-  13 engines registered. GRA composed as base layer for research-facing engines.
+  15 engines registered and active. GRA composes as base layer for research-facing engines.
   Prompts load from /prompts/ via filesystem read.
 
-Prompt engine library: COMMITTED as of 2026-05-11 19:15 UTC.
-  13 Steve Little engine files in /prompts/.
-  prompts/UPSTREAM-SYNC.md -- sync tracking and protocol committed.
-  Two prompts still to fetch: research-assistant-v8.md, lingua-maven-v9.md.
-  See prompts/UPSTREAM-SYNC.md for exact fetch instructions.
-
-SQL migrations written but NOT YET RUN:
-  sql/015-assertions.sql -- run this first
-  sql/016-investigations.sql -- run after 015
-
-Committed and clean (all modules 4, 10, 5, 3, 15, 2, 6, 7, 16 source files):
-- All /src/app/investigation/ pages
-- All /src/app/api/investigation/ routes
-- src/lib/ai.ts (callWithEngine complete)
-- sql/015-assertions.sql
-- sql/016-investigations.sql
-- prompts/UPSTREAM-SYNC.md
-- src/app/page.tsx (dashboard -- Module 16 added)
-- CHANGELOG.md (this session)
-- AGENT.md v2.8.0
+Prompt engine library: COMPLETE as of 2026-05-12 00:35 UTC.
+  15 Steve Little engine files in /prompts/. All committed and live.
+  prompts/UPSTREAM-SYNC.md -- sync tracking current. No files remaining to fetch.
 
 What does not exist yet:
-- sql/015 and sql/016 NOT YET RUN in Supabase (immediate next action)
+- Module 16 smoke test (requires local git pull + dev server start)
 - src/types/index.ts: investigation types not added (defer until needed)
-- research-assistant-v8.md and lingua-maven-v9.md (fetch locally from Steve's repo)
-- ENGINE_FILES in ai.ts: two commented entries need uncommenting after files fetched
 - /api/persons endpoint may need updating for new person fields (defer until a module uses them)
 - Supabase seed data (Singer/Springer sources)
 - PowerPoint export endpoint
 - File upload to Supabase storage (deferred)
 - Module 5 upgrade: full input pipeline (Fact Extractor -> assertions table)
-- Module 9 Research Report Writer
+- Module 9 Research Report Writer (voice profile discussion required first)
 - Voice profile discussion (scheduled, not yet had)
 - Modules 9, 1, 11, 8, 14, 12, 13 (7 modules remaining)
 
 Next immediate action:
-  TIMESTAMP: 2026-05-11 22:00 UTC
-  Run sql/015-assertions.sql in Supabase via Claude in Chrome (Monaco setValue method).
-  Then run sql/016-investigations.sql the same way.
-  Then: git pull locally, start dev server, smoke test Module 16 at /investigation.
-  Then: fetch research-assistant-v8.md and lingua-maven-v9.md from Steve's repo locally
-  and commit them (see prompts/UPSTREAM-SYNC.md for exact commands).
+  TIMESTAMP: 2026-05-12 00:45 UTC
+  git pull locally at /Users/dave/Project-G-Live
+  Start dev server: cd /Users/dave/Project-G-Live && npm run dev
+  Smoke test Module 16: open localhost:3000/investigation
+  Create a test investigation, send one message, verify AI responds with context loaded.
 
 ---
 
