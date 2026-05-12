@@ -1,6 +1,6 @@
 Project-G-Live AGENT.md
-Version: 2.8.2
-Last updated: 2026-05-12 01:30 UTC
+Version: 2.8.3
+Last updated: 2026-05-12 (dinner session) UTC
 Last updated by: Claude
 
 # What This Is
@@ -229,7 +229,7 @@ Semantic versioning: MAJOR.MINOR.PATCH
 
 All timestamps: YYYY-MM-DD HH:MM UTC. Time to the minute required. No date-only stamps.
 
-Current version: 2.8.2
+Current version: 2.8.3
 
 ---
 
@@ -455,6 +455,7 @@ PHASE 3 BUILD ORDER:
     Sits upstream of Case Study Builder. Entry: conversation, not a form.
     SQL migrations run in Supabase: 2026-05-12 00:10 UTC.
     Dev server verified clean: 2026-05-12 01:10 UTC (Claude Code cache-fix session).
+    Functional smoke test passed: 2026-05-12 (dinner session) by Dave.
     5 tables: investigations, investigation_messages, investigation_evidence,
     investigation_candidates, investigation_matrix_cells.
     7 API routes: /api/investigation (list+create), /api/investigation/[id]
@@ -469,23 +470,33 @@ PHASE 3 BUILD ORDER:
     state (problem statement, evidence, candidates, orientation) into the
     system prompt so the AI partner is fully oriented on every response.
 
-10. Research Report Writer (Module 9) -- NOT STARTED
+10. Correspondence Log (Module 12) -- COMPLETE
+    TIMESTAMP: 2026-05-12 (dinner session) UTC.
+    Tracks all outgoing research inquiries and responses. GPS element 1
+    (reasonably exhaustive search). No AI calls in v1.
+    correspondence table: recipient_type check constraint, outcome_status check
+    constraint, follow_up_needed boolean, FKs to repositories/persons/sources.
+    SQL migration: sql/017-correspondence.sql -- LIVE in Supabase.
+    2 API routes: /api/correspondence (GET+POST), /api/correspondence/[id]
+    (GET+PATCH+DELETE).
+    3 pages: list (summary bar, status filter tabs), new, detail (edit toggle,
+    two-step delete).
+
+11. Research Report Writer (Module 9) -- NOT STARTED
     Requires: most modules above. Will use Narrative Assistant v3 + Linguistic
     Profiler v3 + voice profile system. Voice profile discussion scheduled.
 
-11. GEDCOM Bridge (Module 1) -- NOT STARTED
+12. GEDCOM Bridge (Module 1) -- NOT STARTED
     Onboarding layer. Build after core app is working.
 
-12. Family Group Sheet Builder (Module 11) -- NOT STARTED
+13. Family Group Sheet Builder (Module 11) -- NOT STARTED
 
-13. FAN Club Mapper (Module 8) -- NOT STARTED
+14. FAN Club Mapper (Module 8) -- NOT STARTED
     NOTE: Should eventually be redesigned as a spatial FAN map using the
     addresses table as its primary data source. See Address-as-Evidence
     principle and Module 7 design doc.
 
-14. DNA Evidence Tracker (Module 14) -- NOT STARTED
-
-15. Correspondence Log (Module 12) -- NOT STARTED.
+15. DNA Evidence Tracker (Module 14) -- NOT STARTED
 
 16. File Naming System (Module 13) -- NOT STARTED.
 
@@ -609,12 +620,12 @@ Design decisions:
 Phase 1: Documentation and architecture -- COMPLETE
 Phase 2: Prototype artifacts to test interview logic -- COMPLETE
 Phase 3: Full web app built module by module -- ACTIVE
-  9 of 16 modules complete:
+  10 of 16 modules complete:
   Module 4 (Citation Builder), Module 10 (Case Study Builder),
   Module 5 (Document Analysis Worksheet), Module 3 (Research Log),
   Module 15 (Research To-Do Tracker), Module 2 (Research Plan Builder),
   Module 6 (Source Conflict Resolver), Module 7 (Timeline Builder),
-  Module 16 (Research Investigation)
+  Module 16 (Research Investigation), Module 12 (Correspondence Log)
 Phase 4: GEDCOM Bridge built as onboarding layer
 Phase 5: Case Study Builder with PowerPoint export as flagship
 
@@ -654,7 +665,8 @@ When running SQL migrations via Claude in Chrome against the Supabase SQL editor
 - USE the Monaco editor API instead:
     window.monaco.editor.getModels()[n].setValue(sql)
   This sets the editor content directly, bypassing all autocomplete interference.
-- After setValue(), click in the editor area and use cmd+Return to run.
+- After setValue(), use find() to locate the Run button by ref, then click via ref.
+  Do NOT rely on coordinate clicks for the Run button -- coordinates shift.
 - The Supabase project reference ID for Project G: slqjooudyfvmnaoetdvi
   SQL editor direct URL: https://supabase.com/dashboard/project/slqjooudyfvmnaoetdvi/sql/new
 
@@ -755,6 +767,7 @@ RULES FOR CLAUDE CODE SESSIONS:
   014-dual-date-audit.sql      -- dual-date pattern audit (no DDL)
   015-assertions.sql           -- LIVE in Supabase as of 2026-05-12 00:10 UTC
   016-investigations.sql       -- LIVE in Supabase as of 2026-05-12 00:15 UTC
+  017-correspondence.sql       -- LIVE in Supabase as of 2026-05-12 (dinner session) UTC
 /src/               -- Application source code
   /src/app/         -- Next.js App Router pages and API routes (see module list above)
   /src/lib/
@@ -793,35 +806,31 @@ instruction from the user.
 
 ## Project State
 
-TIMESTAMP last updated: 2026-05-12 01:30 UTC by Claude
+TIMESTAMP last updated: 2026-05-12 (dinner session) UTC by Claude
 
-Build phase: Phase 3 ACTIVE -- 9 of 16 modules complete
+Build phase: Phase 3 ACTIVE -- 10 of 16 modules complete
 
 Genealogical data foundation: COMPLETE and LIVE.
-  Migrations 001-016 all run in Supabase.
+  Migrations 001-017 all run in Supabase.
 
 src/lib/ai.ts: COMPLETE. 15 engines registered and live.
 
 Prompt engine library: COMPLETE. No files remaining to fetch from upstream.
 
-Dev server: clean cold start confirmed 2026-05-12 01:10 UTC by Claude Code.
-  All routes 200. CSS assets resolving. npx tsc --noEmit exit 0.
-  localhost:3000/investigation is ready for functional smoke test.
+Module 16 smoke test: PASSED by Dave, 2026-05-12 (dinner session).
 
 What still needs to happen:
-- Module 16 functional smoke test: open localhost:3000/investigation, create
-  a test investigation, send one message, verify AI responds with context loaded.
-  Requires human in browser. Dev server is ready.
+- Module 12 smoke test: git pull, restart dev server, open localhost:3000/correspondence,
+  create one entry, verify list and detail pages work.
 - src/types/index.ts: investigation types not added (defer until type error surfaces)
-- Supabase seed data (Singer/Springer sources) -- after smoke test passes
+- Supabase seed data (Singer/Springer sources) -- after smoke tests pass
 - Voice profile discussion (required before Module 9 begins)
-- Modules 9, 1, 11, 8, 14, 12, 13 (7 modules remaining)
+- Modules 9, 1, 11, 8, 14, 13 (6 modules remaining)
 
 Next immediate action:
-  TIMESTAMP: 2026-05-12 01:30 UTC
-  Open localhost:3000/investigation in the browser.
-  Create one test investigation. Send one message. Verify AI responds with
-  investigation context (problem statement) loaded in its reply.
+  TIMESTAMP: 2026-05-12 (dinner session) UTC
+  git pull locally, restart dev server clean (check for stale cache),
+  open localhost:3000/correspondence, smoke test Module 12.
 
 ---
 
