@@ -1,6 +1,6 @@
 Project-G-Live AGENT.md
-Version: 2.8.3
-Last updated: 2026-05-12 (dinner session) UTC
+Version: 2.8.4
+Last updated: 2026-05-12 (post-dinner) UTC
 Last updated by: Claude
 
 # What This Is
@@ -229,7 +229,7 @@ Semantic versioning: MAJOR.MINOR.PATCH
 
 All timestamps: YYYY-MM-DD HH:MM UTC. Time to the minute required. No date-only stamps.
 
-Current version: 2.8.3
+Current version: 2.8.4
 
 ---
 
@@ -701,6 +701,75 @@ INTERNAL PLATFORM IDs are plumbing. Never surface in researcher-facing output.
 
 ---
 
+## Dual-AI Workflow
+
+TIMESTAMP established: 2026-05-12 (post-dinner) UTC
+
+Two AI interfaces are active on this project. They share the repo as the
+single source of truth. AGENT.md and /sessions/ are the handoff layer.
+
+CLAUDE.AI (this interface)
+- Architecture, design decisions, writing new modules
+- GitHub connector: reads and writes repo directly
+- Session memory system: AGENT.md + /sessions/ snapshots
+- Supabase SQL migrations via Claude in Chrome
+- Any task requiring cross-session project state
+
+CLAUDE CODE
+- Local execution: git pull, npm, TypeScript checks, dev server
+- Smoke tests and debugging in the running app
+- Diagnosing local environment issues (stale cache, port conflicts, etc.)
+- Anything requiring bash or direct filesystem access
+- Reads AGENT.md and /sessions/ at session start for full orientation
+- Writes session snapshots to /sessions/ for handoff back to claude.ai
+
+DIVISION OF LABOR IN PRACTICE:
+- When a build is complete here, hand smoke test to Claude Code -- do NOT
+  give Dave a list of terminal commands to run himself.
+- When Claude Code finds a local issue, it documents it in /sessions/ and
+  claude.ai picks it up at next session start.
+- Neither interface duplicates the other's work.
+- Claude Code is fully aware of the project via AGENT.md. No re-briefing needed.
+
+---
+
+## MCP Infrastructure
+
+TIMESTAMP established: 2026-05-12 (post-dinner) UTC
+Migrated by: Claude Code (happy accident session)
+
+GitHub MCP now runs via NPX (Node.js directly). No Docker. No GitHub Copilot
+subscription required. First run downloads a small package; subsequent runs
+use the cache. This replaced the Docker container that was going to sleep
+and killing the connector mid-session.
+
+Manager script: ~/.claude/mcp-manager.py
+  python3 ~/.claude/mcp-manager.py use npx     -- current mode (recommended)
+  python3 ~/.claude/mcp-manager.py use docker  -- original Docker setup (still available)
+  python3 ~/.claude/mcp-manager.py use http    -- GitHub HTTP endpoint (not usable, no subscription)
+  python3 ~/.claude/mcp-manager.py status      -- check what is active
+
+Config files controlled by the manager:
+  ~/Library/Application Support/Claude/claude_desktop_config.json  (claude.ai desktop)
+  ~/.claude/settings.json                                           (Claude Code)
+
+The PAT is read from the original Docker backup -- the manager never needs to
+ask for it again.
+
+Backup and restore:
+  Backup: claude_desktop_config.BACKUP.json (same folder as config)
+  To restore: python3 ~/.claude/mcp-manager.py use docker
+
+Full migration plan: ~/.claude/projects/-Users-dave-Project-G-Live/memory/mcp_migration_plan.md
+
+After any mode switch: quit and reopen Claude Desktop for config to take effect.
+
+If the connector goes down: run status check first, then verify the desktop
+app was restarted after the last mode switch. No Docker process should be
+required for NPX mode.
+
+---
+
 ## Local Environment Rules
 
 TIMESTAMP established: 2026-05-10 21:30 UTC
@@ -806,7 +875,7 @@ instruction from the user.
 
 ## Project State
 
-TIMESTAMP last updated: 2026-05-12 (dinner session) UTC by Claude
+TIMESTAMP last updated: 2026-05-12 (post-dinner) UTC by Claude
 
 Build phase: Phase 3 ACTIVE -- 10 of 16 modules complete
 
@@ -819,18 +888,21 @@ Prompt engine library: COMPLETE. No files remaining to fetch from upstream.
 
 Module 16 smoke test: PASSED by Dave, 2026-05-12 (dinner session).
 
+MCP infrastructure: NPX mode active. Manager script at ~/.claude/mcp-manager.py.
+  Docker removed from active config. Connector stable pending desktop app restart.
+
 What still needs to happen:
-- Module 12 smoke test: git pull, restart dev server, open localhost:3000/correspondence,
-  create one entry, verify list and detail pages work.
+- Claude Desktop restart to activate NPX MCP config (not yet done this session).
+- Module 12 smoke test: Claude Code to git pull + restart dev server +
+  open localhost:3000/correspondence, create one entry, verify pages work.
 - src/types/index.ts: investigation types not added (defer until type error surfaces)
 - Supabase seed data (Singer/Springer sources) -- after smoke tests pass
 - Voice profile discussion (required before Module 9 begins)
 - Modules 9, 1, 11, 8, 14, 13 (6 modules remaining)
 
 Next immediate action:
-  TIMESTAMP: 2026-05-12 (dinner session) UTC
-  git pull locally, restart dev server clean (check for stale cache),
-  open localhost:3000/correspondence, smoke test Module 12.
+  TIMESTAMP: 2026-05-12 (post-dinner) UTC
+  Build Module 14 (DNA Evidence Tracker) -- highest-value unblocked module.
 
 ---
 
