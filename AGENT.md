@@ -1,6 +1,6 @@
 Project-G-Live AGENT.md
-Version: 2.8.1
-Last updated: 2026-05-12 00:45 UTC
+Version: 2.8.2
+Last updated: 2026-05-12 01:30 UTC
 Last updated by: Claude
 
 # What This Is
@@ -229,7 +229,7 @@ Semantic versioning: MAJOR.MINOR.PATCH
 
 All timestamps: YYYY-MM-DD HH:MM UTC. Time to the minute required. No date-only stamps.
 
-Current version: 2.8.1
+Current version: 2.8.2
 
 ---
 
@@ -454,6 +454,7 @@ PHASE 3 BUILD ORDER:
     Persistent AI-collaborative workspace for open-ended research problems.
     Sits upstream of Case Study Builder. Entry: conversation, not a form.
     SQL migrations run in Supabase: 2026-05-12 00:10 UTC.
+    Dev server verified clean: 2026-05-12 01:10 UTC (Claude Code cache-fix session).
     5 tables: investigations, investigation_messages, investigation_evidence,
     investigation_candidates, investigation_matrix_cells.
     7 API routes: /api/investigation (list+create), /api/investigation/[id]
@@ -691,6 +692,7 @@ INTERNAL PLATFORM IDs are plumbing. Never surface in researcher-facing output.
 ## Local Environment Rules
 
 TIMESTAMP established: 2026-05-10 21:30 UTC
+TIMESTAMP stale-cache rule added: 2026-05-12 01:10 UTC
 
 The one true local path is `/Users/dave/Project-G-Live/`.
 The dev server must always run from this directory.
@@ -704,9 +706,15 @@ RULES FOR CLAUDE CODE SESSIONS:
 - If the app looks wrong at localhost:3000 (wrong module status, missing pages,
   routes returning 404), run `pwd` before anything else. If the path is not
   `/Users/dave/Project-G-Live/`, that is the problem -- not a code bug.
-- The dev server runs once. Do not start a second instance on a different port.
+- Check for a stale dev server before starting one: `lsof -iTCP:3000`
   If port 3000 is occupied, kill the old process first: `pkill -f "next dev"`
   then restart from `/Users/dave/Project-G-Live/`.
+- STALE CACHE RULE: A long-running dev server will serve stale CSS asset hashes
+  after new routes, styles, or prompts are added in a separate session. Symptom:
+  UI renders as unstyled text or raw HTML; GET on CSS asset returns 404.
+  Before assuming a code regression, curl the CSS asset URL from the HTML source.
+  If it 404s, the cache is stale -- not a code bug.
+  Fix: `pkill -f "next dev"` then `rm -rf .next` then `npm run dev`.
 - All repo reads and writes use the GitHub connector directly.
   Claude Code handles local execution only (npm, running the app, git operations).
 - After any GitHub connector push, pull locally before assuming files are current:
@@ -745,43 +753,12 @@ RULES FOR CLAUDE CODE SESSIONS:
   012-associations.sql         -- associations (FAN Club data model)
   013-event-types.sql          -- event_types lookup + FK on timeline_events
   014-dual-date-audit.sql      -- dual-date pattern audit (no DDL)
-  015-assertions.sql           -- assertions + assertion_case_study_links + assertion_conflict_links
-                                  LIVE in Supabase as of 2026-05-12 00:10 UTC
-  016-investigations.sql       -- investigations + investigation_messages + investigation_evidence
-                                  + investigation_candidates + investigation_matrix_cells
-                                  LIVE in Supabase as of 2026-05-12 00:15 UTC
+  015-assertions.sql           -- LIVE in Supabase as of 2026-05-12 00:10 UTC
+  016-investigations.sql       -- LIVE in Supabase as of 2026-05-12 00:15 UTC
 /src/               -- Application source code
-  /src/app/         -- Next.js App Router pages
-    /citation-builder/
-    /case-study/
-    /document-analysis/
-    /research-log/
-    /todos/
-    /research-plans/
-    /conflict-resolver/
-    /timeline/
-    /investigation/             -- Module 16 COMPLETE
-    /investigation/new/
-    /investigation/[id]/
-    /api/citation-builder/
-    /api/case-study/
-    /api/document-analysis/
-    /api/research-log/
-    /api/todos/
-    /api/research-plans/
-    /api/conflict-resolver/
-    /api/timeline/
-    /api/investigation/         -- Module 16 COMPLETE
-    /api/investigation/[id]/
-    /api/investigation/[id]/messages/
-    /api/investigation/[id]/evidence/
-    /api/investigation/[id]/candidates/
-    /api/investigation/[id]/candidates/[candidateId]/
-    /api/investigation/[id]/matrix/
-    /api/persons/               -- Shared persons list + create
-  /src/components/case-study/
+  /src/app/         -- Next.js App Router pages and API routes (see module list above)
   /src/lib/
-    ai.ts                       -- callWithEngine() + callWithEngineAndHistory() -- COMPLETE. 15 engines.
+    ai.ts                       -- callWithEngine() + callWithEngineAndHistory() -- 15 engines
     supabase.ts
   /src/types/
 wip/ branch         -- Partially built work, committed even if broken
@@ -816,44 +793,35 @@ instruction from the user.
 
 ## Project State
 
-TIMESTAMP last updated: 2026-05-12 00:45 UTC by Claude
+TIMESTAMP last updated: 2026-05-12 01:30 UTC by Claude
 
 Build phase: Phase 3 ACTIVE -- 9 of 16 modules complete
 
 Genealogical data foundation: COMPLETE and LIVE.
-  Migrations 001-016 all run in Supabase SQL editor.
-  All tables live including assertions (015) and investigations (016).
+  Migrations 001-016 all run in Supabase.
 
-src/types/index.ts: current through migration 014.
-  Investigation types not yet added -- defer until type error surfaces.
+src/lib/ai.ts: COMPLETE. 15 engines registered and live.
 
-src/lib/ai.ts: COMPLETE as of 2026-05-12 00:35 UTC.
-  callWithEngine() and callWithEngineAndHistory() fully implemented.
-  15 engines registered and active. GRA composes as base layer for research-facing engines.
-  Prompts load from /prompts/ via filesystem read.
+Prompt engine library: COMPLETE. No files remaining to fetch from upstream.
 
-Prompt engine library: COMPLETE as of 2026-05-12 00:35 UTC.
-  15 Steve Little engine files in /prompts/. All committed and live.
-  prompts/UPSTREAM-SYNC.md -- sync tracking current. No files remaining to fetch.
+Dev server: clean cold start confirmed 2026-05-12 01:10 UTC by Claude Code.
+  All routes 200. CSS assets resolving. npx tsc --noEmit exit 0.
+  localhost:3000/investigation is ready for functional smoke test.
 
-What does not exist yet:
-- Module 16 smoke test (requires local git pull + dev server start)
-- src/types/index.ts: investigation types not added (defer until needed)
-- /api/persons endpoint may need updating for new person fields (defer until a module uses them)
-- Supabase seed data (Singer/Springer sources)
-- PowerPoint export endpoint
-- File upload to Supabase storage (deferred)
-- Module 5 upgrade: full input pipeline (Fact Extractor -> assertions table)
-- Module 9 Research Report Writer (voice profile discussion required first)
-- Voice profile discussion (scheduled, not yet had)
+What still needs to happen:
+- Module 16 functional smoke test: open localhost:3000/investigation, create
+  a test investigation, send one message, verify AI responds with context loaded.
+  Requires human in browser. Dev server is ready.
+- src/types/index.ts: investigation types not added (defer until type error surfaces)
+- Supabase seed data (Singer/Springer sources) -- after smoke test passes
+- Voice profile discussion (required before Module 9 begins)
 - Modules 9, 1, 11, 8, 14, 12, 13 (7 modules remaining)
 
 Next immediate action:
-  TIMESTAMP: 2026-05-12 00:45 UTC
-  git pull locally at /Users/dave/Project-G-Live
-  Start dev server: cd /Users/dave/Project-G-Live && npm run dev
-  Smoke test Module 16: open localhost:3000/investigation
-  Create a test investigation, send one message, verify AI responds with context loaded.
+  TIMESTAMP: 2026-05-12 01:30 UTC
+  Open localhost:3000/investigation in the browser.
+  Create one test investigation. Send one message. Verify AI responds with
+  investigation context (problem statement) loaded in its reply.
 
 ---
 
@@ -925,13 +893,6 @@ KNOWN SCHEMA ISSUES (minor, non-urgent)
 
 STANDALONE / SHAREABLE PRODUCT VISION
 TIMESTAMP noted: 2026-05-10 19:45 UTC. Long-range idea only. Not a build concern now.
-
-The platform is built modular by design. Research Investigation (Module 16) is a
-strong candidate for extraction as a standalone tool -- self-contained, solves a
-universal genealogical problem. The broader vision: a version shareable with other
-serious researchers or organizations. Steve Little's Open-Genealogy project is a
-potential collaborator. This is not a pivot. When this idea matures, it belongs in a
-dedicated product vision document. For now it lives here as a named, timestamped intention.
 
 Steve collaboration is held, not closed. Revisit when platform is further along.
 
