@@ -17,6 +17,7 @@ export const MODEL = 'claude-sonnet-4-6'
 const ENGINE_FILES: Record<string, string> = {
   gra:                     'prompts/research/gra-v8.5.2c.md',
   research_agent:          'prompts/research/research-agent-assignment-v2.1.md',
+  research_assistant:      'prompts/research/research-assistant-v8.md',
   ocr_htr:                 'prompts/transcription/ocr-htr-v08.md',
   jewish_transcription:    'prompts/transcription/jewish-transcription-v2.md',
   deep_look:               'prompts/image-analysis/deep-look-v2.md',
@@ -25,12 +26,10 @@ const ENGINE_FILES: Record<string, string> = {
   fact_narrator:           'prompts/writing/fact-narrator-v4.md',
   narrative_assistant:     'prompts/writing/narrative-assistant-v3.md',
   linguistic_profiler:     'prompts/writing/linguistic-profiler-v3.md',
+  lingua_maven:            'prompts/writing/lingua-maven-v9.md',
   conversation_abstractor: 'prompts/writing/conversation-abstractor-v2.md',
   document_distiller:      'prompts/writing/document-distiller-v2.md',
   image_citation_builder:  'prompts/writing/image-citation-builder-v2.md',
-  // Pending fetch from upstream Steve Little repo:
-  // research_assistant:   'prompts/research/research-assistant-v8.md',
-  // lingua_maven:         'prompts/writing/lingua-maven-v9.md',
 }
 
 export type EngineKey = keyof typeof ENGINE_FILES
@@ -39,6 +38,7 @@ export type EngineKey = keyof typeof ENGINE_FILES
 // The gra key itself is excluded -- it IS the base, not composed on top of itself.
 const RESEARCH_ENGINES: Set<string> = new Set([
   'research_agent',
+  'research_assistant',
   'ocr_htr',
   'jewish_transcription',
   'deep_look',
