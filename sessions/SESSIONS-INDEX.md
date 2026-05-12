@@ -4,6 +4,7 @@ Format: TIMESTAMP | Posture | AI | One-sentence summary
 
 ---
 
+2026-05-12 01:10 UTC | FIX | Claude Code | Stale .next cache diagnosed and cleared; dev server cold-started clean; all routes 200; Module 16 functional smoke test still requires human in browser.
 2026-05-12 00:45 UTC | BUILD | Claude (claude-sonnet-4-6) | sql/015+016 run in Supabase; research-assistant-v8 + lingua-maven-v9 fetched and committed; ai.ts ENGINE_FILES complete (15 engines live); prompt library fully synced.
 2026-05-11 22:00 UTC | BUILD (override) | Claude (claude-sonnet-4-6) | callWithEngine() complete + sql/015+016 written + Module 16 Research Investigation built + Steve Little sync system (UPSTREAM-SYNC.md) + AGENT.md v2.8.0.
 2026-05-11 20:00 UTC | EXPLORE->BUILD | Claude (claude-sonnet-4-6) | Full 30,000-ft project review + Steve Little deep-dive + integration architecture decided + /prompts/ directory committed + assertions table spec written.
