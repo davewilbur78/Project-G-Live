@@ -4,6 +4,7 @@ Format: TIMESTAMP | Posture | AI | One-sentence summary
 
 ---
 
+2026-05-13 UTC | BUILD | Claude Code (claude-sonnet-4-6) | AGENT.md v2.8.6 complete: Modules 12+14+13 smoke tests PASSED, 12/16 modules done, 4 remaining; session snapshot written and committed.
 2026-05-11 14:30 UTC | BUILD | Claude (claude-sonnet-4-6) | Module 14 (DNA Evidence Tracker) complete: sql/018 live, 2 API routes, 3 pages, GPS note enforced; dashboard fixed (Module 12 now shows COMPLETE); AGENT.md v2.8.5.
 2026-05-12 (post-dinner close) UTC | BUILD | Claude (claude-sonnet-4-6) | Module 12 complete + MCP migrated to NPX + Dual-AI workflow + AGENT.md v2.8.4; Module 14 deferred to fresh session.
 2026-05-12 (dinner session) UTC | BUILD | Claude (claude-sonnet-4-6) | Module 12 (Correspondence Log) built complete: sql/017, 2 API routes, 3 pages; migration live in Supabase.
