@@ -55,7 +55,7 @@ export async function POST(
   const [invResult, messagesResult, evidenceResult, candidatesResult] = await Promise.all([
     supabase
       .from('investigations')
-      .select('*, persons:primary_person_id(id, name_given, name_surname)')
+      .select('*, persons:primary_person_id(id, given_name, surname)')
       .eq('id', id)
       .single(),
     supabase
@@ -86,7 +86,7 @@ export async function POST(
     problem_statement: investigation?.problem_statement,
     status: investigation?.status,
     primary_subject: investigation?.persons
-      ? `${investigation.persons.name_given} ${investigation.persons.name_surname}`
+      ? `${investigation.persons.given_name} ${investigation.persons.surname}`
       : 'Not specified',
     orientation: investigation?.orientation ?? null,
     evidence_captured: evidence.length > 0 ? evidence : 'None captured yet',

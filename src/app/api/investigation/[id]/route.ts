@@ -12,7 +12,7 @@ export async function GET(
     .from('investigations')
     .select(`
       *,
-      persons:primary_person_id (id, name_given, name_surname)
+      persons:primary_person_id (id, given_name, surname)
     `)
     .eq('id', id)
     .single()

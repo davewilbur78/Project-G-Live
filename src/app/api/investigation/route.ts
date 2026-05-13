@@ -10,7 +10,7 @@ export async function GET() {
       id, name, problem_statement, entry_point, status,
       opened_at, last_worked_at, resolved_at,
       primary_person_id,
-      persons:primary_person_id (name_given, name_surname)
+      persons:primary_person_id (given_name, surname)
     `)
     .order('last_worked_at', { ascending: false })
 

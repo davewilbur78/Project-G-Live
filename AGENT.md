@@ -1,7 +1,7 @@
 Project-G-Live AGENT.md
-Version: 2.9.0
+Version: 2.9.1
 Last updated: 2026-05-13 UTC
-Last updated by: Claude (claude.ai)
+Last updated by: Claude Code
 
 # What This Is
 
@@ -229,7 +229,7 @@ Semantic versioning: MAJOR.MINOR.PATCH
 
 All timestamps: YYYY-MM-DD HH:MM UTC. Time to the minute required. No date-only stamps.
 
-Current version: 2.9.0
+Current version: 2.9.1
 
 ---
 
@@ -457,6 +457,9 @@ PHASE 3 BUILD ORDER:
     SQL migrations run in Supabase: 2026-05-12 00:10 UTC.
     Dev server verified clean: 2026-05-12 01:10 UTC (Claude Code cache-fix session).
     Functional smoke test passed: 2026-05-12 (dinner session) by Dave.
+    Bug fix 2026-05-13 UTC: persons join used wrong column names (name_given/name_surname)
+    instead of actual schema (given_name/surname). List page silently showed empty.
+    Fixed in 5 files. Commit: v2.9.1.
     5 tables: investigations, investigation_messages, investigation_evidence,
     investigation_candidates, investigation_matrix_cells.
     7 API routes: /api/investigation (list+create), /api/investigation/[id]

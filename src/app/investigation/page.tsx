@@ -29,7 +29,7 @@ export default async function InvestigationsPage() {
     .select(`
       id, name, problem_statement, status, entry_point,
       opened_at, last_worked_at,
-      persons:primary_person_id (name_given, name_surname)
+      persons:primary_person_id (given_name, surname)
     `)
     .order('last_worked_at', { ascending: false })
 
@@ -87,7 +87,7 @@ export default async function InvestigationsPage() {
                         </p>
                         {person && (
                           <p className="text-xs text-stone-400 mt-1">
-                            Subject: {person.name_given} {person.name_surname}
+                            Subject: {person.given_name} {person.surname}
                           </p>
                         )}
                       </div>

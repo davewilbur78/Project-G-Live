@@ -46,7 +46,7 @@ type Investigation = {
   conclusion_notes: string | null
   opened_at: string
   last_worked_at: string
-  persons?: { id: string; name_given: string; name_surname: string } | null
+  persons?: { id: string; given_name: string; surname: string } | null
 }
 
 type Tab = 'conversation' | 'evidence' | 'people' | 'conclusions'
@@ -323,7 +323,7 @@ export default function InvestigationWorkbenchPage({
                 </span>
                 {inv.persons && (
                   <span className="text-xs text-stone-400">
-                    Subject: {inv.persons.name_given} {inv.persons.name_surname}
+                    Subject: {inv.persons.given_name} {inv.persons.surname}
                   </span>
                 )}
               </div>
