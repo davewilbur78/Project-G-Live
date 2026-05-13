@@ -565,3 +565,184 @@ export interface TimelineEvent {
   address?: Address | null
   event_type_record?: EventType | null
 }
+
+// -----------------------------------------------------------------------
+// Research Investigation (Module 16)
+// TIMESTAMP added: 2026-05-12 -- migration 016
+// Five tables: investigations, messages, evidence, candidates, matrix_cells
+// -----------------------------------------------------------------------
+
+export type InvestigationEntryPoint =
+  | 'known_problem'
+  | 'mid_research'
+  | 'conflict_detection'
+
+export type InvestigationStatus =
+  | 'in_progress'
+  | 'resolved'
+  | 'stalled'
+  | 'handed_off'
+
+export interface Investigation {
+  id: string
+  name: string
+  problem_statement: string
+  entry_point: InvestigationEntryPoint
+  status: InvestigationStatus
+  primary_person_id?: string | null
+  source_conflict_id?: string | null
+  case_study_id?: string | null
+  orientation?: {
+    determined_so_far?: string
+    next_question?: string
+    [key: string]: unknown
+  } | null
+  conclusion_notes?: string | null
+  handed_off_to_case_study_id?: string | null
+  opened_at: string
+  last_worked_at: string
+  resolved_at?: string | null
+  created_at: string
+  // Joined
+  primary_person?: Person | null
+  messages?: InvestigationMessage[]
+  evidence?: InvestigationEvidence[]
+  candidates?: InvestigationCandidate[]
+}
+
+export interface InvestigationMessage {
+  id: string
+  investigation_id: string
+  role: 'user' | 'assistant'
+  content: string
+  created_at: string
+}
+
+export interface InvestigationEvidence {
+  id: string
+  investigation_id: string
+  source_id?: string | null
+  title: string
+  record_type?: string | null   // free-form: city_directory, census, naturalization, etc.
+  record_date?: string | null   // free-form date string (dual-date display format)
+  notes?: string | null
+  added_at: string
+  // Joined
+  source?: Source | null
+}
+
+export type InvestigationCandidateStatus =
+  | 'unresolved'
+  | 'confirmed'
+  | 'eliminated'
+
+export interface InvestigationCandidate {
+  id: string
+  investigation_id: string
+  person_id?: string | null
+  candidate_name: string
+  notes?: string | null
+  status: InvestigationCandidateStatus
+  created_at: string
+  // Joined
+  person?: Person | null
+  matrix_cells?: InvestigationMatrixCell[]
+}
+
+export interface InvestigationMatrixCell {
+  id: string
+  investigation_id: string
+  candidate_id: string
+  record_type: string       // column header, e.g. "1920 census", "city directory"
+  value?: string | null     // null = not yet searched; '' = searched, not found; text = found
+  source_id?: string | null
+  created_at: string
+  updated_at: string
+  // Joined
+  source?: Source | null
+}
+
+// -----------------------------------------------------------------------
+// Correspondence Log (Module 12)
+// TIMESTAMP added: 2026-05-12 -- migration 017
+// -----------------------------------------------------------------------
+
+export type CorrespondenceRecipientType =
+  | 'repository'
+  | 'courthouse'
+  | 'archive'
+  | 'researcher'
+  | 'dna_match'
+  | 'other'
+
+export type CorrespondenceOutcomeStatus =
+  | 'pending'
+  | 'responded'
+  | 'no_response'
+  | 'closed'
+
+export interface Correspondence {
+  id: string
+  date_sent: string                           // YYYY-MM-DD
+  recipient_name: string
+  recipient_type: CorrespondenceRecipientType
+  repository_id?: string | null
+  person_id?: string | null
+  subject: string
+  question_asked: string
+  date_responded?: string | null              // YYYY-MM-DD
+  outcome?: string | null
+  outcome_status: CorrespondenceOutcomeStatus
+  follow_up_needed: boolean
+  source_id?: string | null
+  notes?: string | null
+  created_at: string
+  updated_at: string
+  // Joined
+  repository?: Repository | null
+  person?: Person | null
+  source?: Source | null
+}
+
+// -----------------------------------------------------------------------
+// DNA Evidence Tracker (Module 14)
+// TIMESTAMP added: 2026-05-12 -- migration 018
+// GPS note: DNA is always corroborating indirect evidence, never standalone proof.
+// Designed with Ashkenazi Jewish endogamy in mind.
+// -----------------------------------------------------------------------
+
+export type DnaMatchPlatform =
+  | '23andme'
+  | 'ancestry'
+  | 'ftdna'
+  | 'myheritage'
+  | 'gedmatch'
+  | 'other'
+
+export type DnaMatchStatus =
+  | 'identified'
+  | 'working_hypothesis'
+  | 'unresolved'
+
+export interface DnaMatch {
+  id: string
+  match_name: string
+  platform: DnaMatchPlatform
+  shared_cm?: number | null
+  shared_segments?: number | null
+  largest_segment_cm?: number | null
+  kit_number?: string | null
+  match_email?: string | null
+  person_id?: string | null
+  status: DnaMatchStatus
+  hypothesized_relationship?: string | null
+  ancestral_line?: string | null
+  documentary_evidence?: string | null
+  endogamy_context?: string | null
+  in_common_with?: string | null
+  notes?: string | null
+  created_at: string
+  updated_at: string
+  // Joined
+  person?: Person | null
+}
