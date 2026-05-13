@@ -1,6 +1,6 @@
 Project-G-Live AGENT.md
-Version: 2.8.5
-Last updated: 2026-05-12 (post-dinner + Claude Code types session) UTC
+Version: 2.8.6
+Last updated: 2026-05-13 UTC
 Last updated by: Claude
 
 # What This Is
@@ -229,7 +229,7 @@ Semantic versioning: MAJOR.MINOR.PATCH
 
 All timestamps: YYYY-MM-DD HH:MM UTC. Time to the minute required. No date-only stamps.
 
-Current version: 2.8.5
+Current version: 2.8.6
 
 ---
 
@@ -481,7 +481,7 @@ PHASE 3 BUILD ORDER:
     (GET+PATCH+DELETE).
     3 pages: list (summary bar, status filter tabs), new, detail (edit toggle,
     two-step delete).
-    Smoke test: PENDING (Claude Code task -- git pull + open localhost:3000/correspondence).
+    Smoke test: PASSED 2026-05-13 UTC by Claude Code. All pages 200. API confirmed live.
 
 11. Research Report Writer (Module 9) -- NOT STARTED
     Requires: most modules above. Will use Narrative Assistant v3 + Linguistic
@@ -497,9 +497,19 @@ PHASE 3 BUILD ORDER:
     addresses table as its primary data source. See Address-as-Evidence
     principle and Module 7 design doc.
 
-15. DNA Evidence Tracker (Module 14) -- NOT STARTED
+15. DNA Evidence Tracker (Module 14) -- COMPLETE
+    sql/018-dna-tracker.sql LIVE in Supabase.
+    2 API routes: /api/dna-matches (GET list, POST create),
+                  /api/dna-matches/[id] (GET detail, PATCH update, DELETE).
+    3 pages: /dna-matches (list), /dna-matches/new (create), /dna-matches/[id] (detail/edit).
+    GPS note enforced: DNA is always corroborating indirect evidence, never standalone proof.
+    Designed for Ashkenazi Jewish endogamy context. cM + segments + largest segment tracked.
+    Smoke test: PASSED 2026-05-13 UTC by Claude Code.
 
-16. File Naming System (Module 13) -- NOT STARTED.
+16. File Naming System (Module 13) -- COMPLETE
+    Generator page at /file-naming. No DB (stateless utility).
+    1 page: generates GPS-compliant filenames from source metadata fields.
+    Smoke test: PASSED 2026-05-13 UTC by Claude Code.
 
 ---
 
@@ -838,6 +848,7 @@ RULES FOR CLAUDE CODE SESSIONS:
   015-assertions.sql           -- LIVE in Supabase as of 2026-05-12 00:10 UTC
   016-investigations.sql       -- LIVE in Supabase as of 2026-05-12 00:15 UTC
   017-correspondence.sql       -- LIVE in Supabase as of 2026-05-12 (dinner session) UTC
+  018-dna-tracker.sql          -- LIVE in Supabase as of 2026-05-13 UTC
 /src/               -- Application source code
   /src/app/         -- Next.js App Router pages and API routes (see module list above)
   /src/lib/
@@ -879,12 +890,12 @@ instruction from the user.
 
 ## Project State
 
-TIMESTAMP last updated: 2026-05-12 (post-dinner + Claude Code types session) UTC by Claude
+TIMESTAMP last updated: 2026-05-13 UTC by Claude Code
 
-Build phase: Phase 3 ACTIVE -- 10 of 16 modules complete
+Build phase: Phase 3 ACTIVE -- 12 of 16 modules complete
 
 Genealogical data foundation: COMPLETE and LIVE.
-  Migrations 001-017 all run in Supabase.
+  Migrations 001-018 all run in Supabase.
 
 src/lib/ai.ts: COMPLETE. 15 engines registered and live.
 
@@ -899,15 +910,18 @@ MCP infrastructure: NPX mode active. Manager script at ~/.claude/mcp-manager.py.
   Docker removed from active config. Connector stable.
 
 What still needs to happen:
-- Module 12 smoke test: Claude Code to git pull + restart dev server +
-  open localhost:3000/correspondence, create one entry, verify pages work.
-- Supabase seed data (Singer/Springer sources) -- after smoke tests pass
+- Supabase seed data (Singer/Springer sources)
 - Voice profile discussion (required before Module 9 begins)
-- Modules 9, 1, 11, 8, 14, 13 (6 modules remaining)
+- Module 16 functional smoke test: human in browser -- create investigation,
+  send message, confirm AI responds with full context loaded
+- Modules 9, 1, 11, 8 (4 modules remaining)
 
 Next immediate action:
-  TIMESTAMP: 2026-05-12 (post-dinner + Claude Code types session) UTC
-  BUILD: Module 14 (DNA Evidence Tracker) -- highest-value unblocked module.
+  TIMESTAMP: 2026-05-13 UTC
+  Module 16 functional smoke test: browser at http://localhost:3000/investigation,
+  create new investigation, send one message, confirm AI responds correctly.
+  If green: voice profile discussion → Module 9 (Research Report Writer), OR
+  pick from Modules 1, 11, 8 if voice profile not ready.
 
 ---
 
