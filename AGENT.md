@@ -1,6 +1,6 @@
 Project-G-Live AGENT.md
-Version: 2.8.4
-Last updated: 2026-05-12 (post-dinner) UTC
+Version: 2.8.5
+Last updated: 2026-05-12 (post-dinner + Claude Code types session) UTC
 Last updated by: Claude
 
 # What This Is
@@ -229,7 +229,7 @@ Semantic versioning: MAJOR.MINOR.PATCH
 
 All timestamps: YYYY-MM-DD HH:MM UTC. Time to the minute required. No date-only stamps.
 
-Current version: 2.8.4
+Current version: 2.8.5
 
 ---
 
@@ -481,6 +481,7 @@ PHASE 3 BUILD ORDER:
     (GET+PATCH+DELETE).
     3 pages: list (summary bar, status filter tabs), new, detail (edit toggle,
     two-step delete).
+    Smoke test: PENDING (Claude Code task -- git pull + open localhost:3000/correspondence).
 
 11. Research Report Writer (Module 9) -- NOT STARTED
     Requires: most modules above. Will use Narrative Assistant v3 + Linguistic
@@ -843,6 +844,9 @@ RULES FOR CLAUDE CODE SESSIONS:
     ai.ts                       -- callWithEngine() + callWithEngineAndHistory() -- 15 engines
     supabase.ts
   /src/types/
+    index.ts                    -- COMPLETE as of 2026-05-12 (Claude Code session, commit 25693a7)
+                                   Investigation (5 types), Correspondence, DnaMatch all added.
+                                   tsc --noEmit clean. tsconfig.json also committed same session.
 wip/ branch         -- Partially built work, committed even if broken
 
 Claude Code local path: /Users/dave/Project-G-Live/
@@ -875,7 +879,7 @@ instruction from the user.
 
 ## Project State
 
-TIMESTAMP last updated: 2026-05-12 (post-dinner) UTC by Claude
+TIMESTAMP last updated: 2026-05-12 (post-dinner + Claude Code types session) UTC by Claude
 
 Build phase: Phase 3 ACTIVE -- 10 of 16 modules complete
 
@@ -884,25 +888,26 @@ Genealogical data foundation: COMPLETE and LIVE.
 
 src/lib/ai.ts: COMPLETE. 15 engines registered and live.
 
+src/types/index.ts: COMPLETE. Investigation (5 types), Correspondence, DnaMatch added.
+  tsc --noEmit clean. tsconfig.json committed. All in commit 25693a7.
+
 Prompt engine library: COMPLETE. No files remaining to fetch from upstream.
 
 Module 16 smoke test: PASSED by Dave, 2026-05-12 (dinner session).
 
 MCP infrastructure: NPX mode active. Manager script at ~/.claude/mcp-manager.py.
-  Docker removed from active config. Connector stable pending desktop app restart.
+  Docker removed from active config. Connector stable.
 
 What still needs to happen:
-- Claude Desktop restart to activate NPX MCP config (not yet done this session).
 - Module 12 smoke test: Claude Code to git pull + restart dev server +
   open localhost:3000/correspondence, create one entry, verify pages work.
-- src/types/index.ts: investigation types not added (defer until type error surfaces)
 - Supabase seed data (Singer/Springer sources) -- after smoke tests pass
 - Voice profile discussion (required before Module 9 begins)
 - Modules 9, 1, 11, 8, 14, 13 (6 modules remaining)
 
 Next immediate action:
-  TIMESTAMP: 2026-05-12 (post-dinner) UTC
-  Build Module 14 (DNA Evidence Tracker) -- highest-value unblocked module.
+  TIMESTAMP: 2026-05-12 (post-dinner + Claude Code types session) UTC
+  BUILD: Module 14 (DNA Evidence Tracker) -- highest-value unblocked module.
 
 ---
 
@@ -967,8 +972,9 @@ Whisper API transcription -> Conversation Abstractor v2 -> Fact Extractor v4 ->
 assertions table. Plan alongside PowerPoint export endpoint.
 
 KNOWN SCHEMA ISSUES (minor, non-urgent)
-- gps_stage_reached on case_studies: check constraint says between 1 and 5.
-  Production app has 6 stages. Fix in a future migration.
+- gps_stage_reached on case_studies: CONFIRMED FIXED. sql/002 expanded the check
+  constraint to 1-6 and was run in Supabase. Open thread was stale -- closed
+  2026-05-12 (Claude Code session). No migration needed.
 - Dual-date naming inconsistency: migration 008 uses event_date + date_display.
   Migrations 009+ use _display + _sort. Both work. Future cosmetic cleanup.
 
