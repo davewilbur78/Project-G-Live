@@ -157,6 +157,7 @@ int main(int argc, char* argv[]) {
     fputs("{\n", g_out);
 
     /* ---- persons ---- */
+    /* Note: FTM 2024 schema 20200615 has no IsLiving column; living flag is computed at runtime */
     dump_table("persons",
         "SELECT ID, GivenName, FamilyName, FullName, Title, NameSuffix, Sex, Private, "
         "BirthDate, BirthPlace, DeathDate, DeathPlace, "

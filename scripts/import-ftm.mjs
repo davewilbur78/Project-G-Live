@@ -12,17 +12,9 @@
  *   --dry-run       Print what would be imported, don't write to Supabase
  *   --skip-extract  Reuse /tmp/ftm_data.json from a previous run
  *
- * Re-import (after changing the script):
- *   Before re-running, clean up timeline_events and families to avoid duplicates:
- *   In Supabase SQL editor:
- *     DELETE FROM timeline_events
- *       WHERE person_id IN (SELECT id FROM persons WHERE changedby = 'FTM Import');
- *     DELETE FROM family_members
- *       WHERE family_id IN (SELECT id FROM families);
- *     DELETE FROM families;
- *     DELETE FROM sources WHERE collection = 'FTM Import';
- *   Persons can be left in place — the script will update them in-place.
- *   Then re-run: node scripts/import-ftm.mjs --skip-extract
+ * Re-import is fully idempotent — no manual cleanup required.
+ * Families and timeline_events are deleted and re-inserted on each run.
+ * Persons, repositories, and sources are upserted in-place.
  *
  * Requirements:
  *   - scripts/ftm-extractor must be compiled (see scripts/ftm-extractor.c)
@@ -33,13 +25,14 @@
  *   1. repositories
  *   2. persons
  *   3. sources  (FK → repositories)
+ *   3.5. cleanup: delete prior FTM families + timeline_events
  *   4. families (FK → persons)
  *   5. family_members (FK → persons + families)
- *   6. timeline_events (FK → persons)
+ *   6. timeline_events (FK → persons, sources)
  */
 
 import { createClient } from '@supabase/supabase-js';
-import { readFileSync, existsSync } from 'fs';
+import { readFileSync, existsSync, writeFileSync } from 'fs';
 import { spawnSync } from 'child_process';
 import { fileURLToPath } from 'url';
 import { dirname, join, resolve } from 'path';
@@ -169,6 +162,16 @@ function parseFTMPlace(name) {
 }
 
 /* ------------------------------------------------------------------ */
+/* GEDCOM name cleaner: strips /Surname/ delimiters from name strings  */
+/* ------------------------------------------------------------------ */
+
+function cleanGedcomName(text) {
+  if (!text) return null;
+  // GEDCOM format wraps surnames in forward slashes: "Given /Surname/ Suffix"
+  return text.replace(/\/([^/]*)\//g, '$1').replace(/\s+/g, ' ').trim() || null;
+}
+
+/* ------------------------------------------------------------------ */
 /* RTF stripper (rough but effective for genealogy notes)              */
 /* ------------------------------------------------------------------ */
 
@@ -265,6 +268,7 @@ function extractFTMData() {
   }
 
   const json = result.stdout.toString('utf8');
+  writeFileSync(JSON_DUMP, json);  // cache for --skip-extract
   const data = JSON.parse(json);
   console.log(`Extracted: ${data.persons.length} persons, ${data.facts.length} facts, `
     + `${data.masterSources.length} sources, ${data.relationships.length} families`);
@@ -338,6 +342,22 @@ async function main() {
     console.log(`  Would process ${repoRows.length} repositories`);
   }
 
+  /* ---- Pre-Phase 2: Build alternate names map ---- */
+  // FactClass=257 NAME and ALIA facts carry alternate name strings in Text field.
+  // Text uses GEDCOM format (/Surname/ delimiters) — clean before storing.
+  const altNamesMap = new Map();  // ftm person ID → deduplicated string[]
+  for (const f of data.facts) {
+    if (f.LinkTableID !== 5) continue;
+    if (f.factTypeTag !== 'NAME' && f.factTypeTag !== 'ALIA') continue;
+    const cleaned = cleanGedcomName(f.Text);
+    if (!cleaned) continue;
+    const set = altNamesMap.get(f.LinkID) ?? new Set();
+    set.add(cleaned);
+    altNamesMap.set(f.LinkID, set);
+  }
+  // Convert sets to arrays
+  for (const [id, set] of altNamesMap) altNamesMap.set(id, [...set]);
+
   /* ---- Phase 2: Persons ---- */
   console.log('\n[2/6] Persons...');
 
@@ -364,7 +384,8 @@ async function main() {
       suffix:           p.NameSuffix || null,
       sex:              ftmSex(p.Sex),
       private:          Boolean(p.Private),
-      living:           false,  // FTM IsLiving not in our extract; default to false
+      living:           false,  // FTM 2024 schema 20200615 has no IsLiving column
+      alt_names:        altNamesMap.get(p.ID) ?? [],
       birth_date:       birth.display,
       birth_date_sort:  birth.sort,
       birth_place:      parseFTMPlace(p.BirthPlace),
@@ -434,31 +455,110 @@ async function main() {
       evidence_type:  'Indirect',
       ee_full_citation:  fullCit,
       ee_short_citation: ms.Title,
-      collection:     'FTM Import',   // used as marker for re-import cleanup
+      collection:     'FTM Import',   // used as marker for idempotency
       repository_id:  ms.RepositoryID ? repoIdMap.get(ms.RepositoryID) ?? null : null,
     };
   });
 
   if (!DRY_RUN) {
-    // Check for existing FTM-imported sources
-    const { data: existingFTM } = await sb.from('sources').select('id').eq('collection', 'FTM Import').limit(1);
-    if (existingFTM?.length) {
-      console.log('  WARNING: FTM sources already exist. Skipping source import to avoid duplicates.');
-      console.log('  To reimport, delete sources where collection = \'FTM Import\' first.');
-      // Rebuild sourceIdMap from existing data (best effort - match by label)
-    } else {
-      for (let i = 0; i < sourceRows.length; i += 200) {
-        const chunk = sourceRows.slice(i, i + 200);
+    // Fetch existing FTM Import sources keyed by ee_full_citation
+    const { data: existingSources, error: srcFetchErr } = await sb.from('sources')
+      .select('id, ee_full_citation')
+      .eq('collection', 'FTM Import');
+    if (srcFetchErr) throw new Error(`Fetch sources: ${srcFetchErr.message}`);
+
+    const existingByCitation = new Map((existingSources ?? []).map(s => [s.ee_full_citation, s.id]));
+
+    const toInsert = [];
+    const toInsertIndices = [];
+    for (let i = 0; i < sourceRows.length; i++) {
+      const existingId = existingByCitation.get(sourceRows[i].ee_full_citation);
+      if (existingId) {
+        sourceIdMap.set(data.masterSources[i].ID, existingId);
+      } else {
+        toInsert.push(sourceRows[i]);
+        toInsertIndices.push(i);
+      }
+    }
+
+    if (toInsert.length > 0) {
+      for (let i = 0; i < toInsert.length; i += 200) {
+        const chunk = toInsert.slice(i, i + 200);
+        const idxChunk = toInsertIndices.slice(i, i + 200);
         const { data: inserted, error } = await sb.from('sources').insert(chunk).select('id');
         if (error) throw new Error(`Source insert: ${error.message}`);
         for (let j = 0; j < chunk.length; j++) {
-          sourceIdMap.set(data.masterSources[i + j].ID, inserted[j].id);
+          sourceIdMap.set(data.masterSources[idxChunk[j]].ID, inserted[j].id);
         }
       }
-      console.log(`  ${sourceRows.length} sources inserted`);
     }
+    console.log(`  ${toInsert.length} sources inserted, ${sourceRows.length - toInsert.length} reused`);
   } else {
-    console.log(`  Would insert ${sourceRows.length} sources`);
+    console.log(`  Would insert/reuse ${sourceRows.length} sources`);
+  }
+
+  /* ---- Build source chain map (SourceLink wiring) ---- */
+  // Build sourceCitation → masterSource map
+  const citationToMasterMap = new Map();
+  for (const sc of data.sourceCitations) {
+    citationToMasterMap.set(sc.ID, sc.MasterSourceID);
+  }
+
+  // LinkTableID=2 is FTM's internal Fact table ID — confirmed from test file diagnostic.
+  // All SourceLinks in this schema version link to Fact records.
+  const factSourceMap = new Map();  // ftm fact ID → supabase source UUID
+  for (const sl of data.sourceLinks) {
+    if (sl.LinkTableID !== 2) continue;  // only Fact-linked sourceLinks
+    const masterSourceId = citationToMasterMap.get(sl.SourceID);
+    if (masterSourceId == null) continue;
+    const uuid = sourceIdMap.get(masterSourceId);
+    if (uuid) factSourceMap.set(sl.LinkID, uuid);
+  }
+  console.log(`  SourceLink wiring: ${factSourceMap.size} fact→source links (from ${data.sourceLinks.length} total sourceLinks)`);
+
+  /* ---- Phase 3.5: Clean prior FTM families + timeline_events ---- */
+  // Delete-then-reinsert ensures idempotency without unique constraints.
+  // FTM is authoritative for these records; persons are preserved (upserted above).
+  if (!DRY_RUN) {
+    console.log('\n[3.5] Cleaning prior FTM import data...');
+    const ftmPersonUuids = [...personIdMap.values()];
+
+    // Delete timeline_events for FTM persons (chunked to stay within URL limits)
+    let deletedEvents = 0;
+    for (let i = 0; i < ftmPersonUuids.length; i += 200) {
+      const chunk = ftmPersonUuids.slice(i, i + 200);
+      const { count, error } = await sb.from('timeline_events')
+        .delete({ count: 'exact' }).in('person_id', chunk);
+      if (error) throw new Error(`Delete timeline_events: ${error.message}`);
+      deletedEvents += count ?? 0;
+    }
+    console.log(`  Deleted ${deletedEvents} timeline_events`);
+
+    // Fetch all families that involve any FTM person (chunked)
+    const ftmFamilyIds = new Set();
+    for (let i = 0; i < ftmPersonUuids.length; i += 100) {
+      const chunk = ftmPersonUuids.slice(i, i + 100);
+      const ids = chunk.join(',');
+      const { data: famBatch, error } = await sb.from('families').select('id')
+        .or(`partner1_id.in.(${ids}),partner2_id.in.(${ids})`);
+      if (error) throw new Error(`Fetch families for cleanup: ${error.message}`);
+      for (const f of famBatch ?? []) ftmFamilyIds.add(f.id);
+    }
+
+    if (ftmFamilyIds.size > 0) {
+      const famIdArr = [...ftmFamilyIds];
+      for (let i = 0; i < famIdArr.length; i += 200) {
+        const { error } = await sb.from('family_members').delete().in('family_id', famIdArr.slice(i, i + 200));
+        if (error) throw new Error(`Delete family_members: ${error.message}`);
+      }
+      for (let i = 0; i < famIdArr.length; i += 200) {
+        const { error } = await sb.from('families').delete().in('id', famIdArr.slice(i, i + 200));
+        if (error) throw new Error(`Delete families: ${error.message}`);
+      }
+      console.log(`  Deleted ${ftmFamilyIds.size} families + their members`);
+    } else {
+      console.log('  No prior families found to delete');
+    }
   }
 
   /* ---- Phase 4: Families ---- */
@@ -550,8 +650,7 @@ async function main() {
   }
 
   if (!DRY_RUN) {
-    // Insert family members; unique(person_id, family_id) prevents duplicates on re-run
-    // via Supabase's ignoreDuplicates option
+    // family_members has unique(person_id, family_id) — ignoreDuplicates is safe
     let n = 0;
     for (let i = 0; i < memberRows.length; i += 200) {
       const chunk = memberRows.slice(i, i + 200);
@@ -622,14 +721,18 @@ async function main() {
       description:    description,
       notes:          f.Text || null,
       evidence_type:  'Indirect',  // GPS default; researcher corrects
+      source_id:      factSourceMap.get(f.ID) ?? null,
     });
   }
 
   if (!DRY_RUN) {
     const n = await batchInsert(sb, 'timeline_events', eventRows);
-    console.log(`  ${n} timeline events inserted`);
+    const withSource = eventRows.filter(e => e.source_id !== null).length;
+    console.log(`  ${n} timeline events inserted (${withSource} with source_id wired)`);
   } else {
     console.log(`  Would insert ${eventRows.length} timeline events`);
+    const withSource = eventRows.filter(e => e.source_id !== null).length;
+    console.log(`  ${withSource} would have source_id wired`);
     const byType = {};
     for (const e of eventRows) byType[e.event_type] = (byType[e.event_type] ?? 0) + 1;
     console.log('  By type:', byType);
