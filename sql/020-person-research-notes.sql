@@ -4,6 +4,7 @@
 -- https://supabase.com/dashboard/project/slqjooudyfvmnaoetdvi/sql/new
 
 -- 1. Add research_status to persons table
+-- 4 manual states only. has_conflicts is derived at query time from source_conflicts, not stored.
 ALTER TABLE persons
   ADD COLUMN IF NOT EXISTS research_status text
     NOT NULL DEFAULT 'not_started'
@@ -11,8 +12,7 @@ ALTER TABLE persons
       'not_started',
       'in_progress',
       'complete',
-      'needs_archive_visit',
-      'has_conflicts'
+      'needs_archive_visit'
     ));
 
 -- 2. Create person_research_notes table

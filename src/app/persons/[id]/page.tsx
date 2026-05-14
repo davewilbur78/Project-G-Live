@@ -89,18 +89,52 @@ const STATUS_CONFIG: Record<string, { label: string; badge: string; dot: string 
     badge: 'bg-amber-50 text-amber-800 border-amber-300',
     dot: 'bg-amber-500',
   },
-  has_conflicts: {
-    label: 'Has Conflicts',
-    badge: 'bg-red-50 text-red-800 border-red-300',
-    dot: 'bg-red-500',
-  },
 };
 
-const STATUS_ORDER = ['not_started', 'in_progress', 'complete', 'needs_archive_visit', 'has_conflicts'];
+const STATUS_ORDER = ['not_started', 'in_progress', 'complete', 'needs_archive_visit'];
 
 function personName(p: { given_name: string | null; surname: string | null } | null): string {
   if (!p) return 'Unknown';
   return [p.given_name, p.surname].filter(Boolean).join(' ') || 'Unknown';
+}
+
+// ---- Markdown renderer (no library) ----
+
+function applyInline(text: string): string {
+  return text
+    .replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>')
+    .replace(/\*(.+?)\*/g, '<em>$1</em>')
+    .replace(/_(.+?)_/g, '<em>$1</em>');
+}
+
+function renderMarkdown(raw: string): string {
+  const safe = raw.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+  const lines = safe.split('\n');
+  const out: string[] = [];
+  let inList = false;
+  for (const line of lines) {
+    if (line.startsWith('### ')) {
+      if (inList) { out.push('</ul>'); inList = false; }
+      out.push(`<h3 style="font-family:serif;font-weight:600;font-size:0.95rem;color:#111;margin:1rem 0 0.25rem">${applyInline(line.slice(4))}</h3>`);
+    } else if (line.startsWith('## ')) {
+      if (inList) { out.push('</ul>'); inList = false; }
+      out.push(`<h2 style="font-family:serif;font-weight:600;font-size:1.05rem;color:#111;margin:1.25rem 0 0.35rem">${applyInline(line.slice(3))}</h2>`);
+    } else if (line.startsWith('# ')) {
+      if (inList) { out.push('</ul>'); inList = false; }
+      out.push(`<h1 style="font-family:serif;font-weight:700;font-size:1.2rem;color:#111;margin:1.5rem 0 0.5rem">${applyInline(line.slice(2))}</h1>`);
+    } else if (line.startsWith('- ') || line.startsWith('* ')) {
+      if (!inList) { out.push('<ul style="list-style:disc;padding-left:1.25rem;margin:0.25rem 0">'); inList = true; }
+      out.push(`<li style="font-family:serif;font-size:0.875rem;color:#1f2937;line-height:1.6;margin:0.15rem 0">${applyInline(line.slice(2))}</li>`);
+    } else if (line.trim() === '') {
+      if (inList) { out.push('</ul>'); inList = false; }
+      out.push('<div style="height:0.5rem"></div>');
+    } else {
+      if (inList) { out.push('</ul>'); inList = false; }
+      out.push(`<p style="font-family:serif;font-size:0.875rem;color:#1f2937;line-height:1.7;margin:0.2rem 0">${applyInline(line)}</p>`);
+    }
+  }
+  if (inList) out.push('</ul>');
+  return out.join('');
 }
 
 // ---- Page ----
@@ -126,11 +160,15 @@ export default function PersonDetailPage({ params }: { params: Promise<{ id: str
   const [notes, setNotes] = useState('');
   const [notesSaving, setNotesSaving] = useState(false);
   const [notesLastSaved, setNotesLastSaved] = useState<Date | null>(null);
+  const [notesPreview, setNotesPreview] = useState(false);
+  const [notesLoaded, setNotesLoaded] = useState(false);
+  const [notesStarted, setNotesStarted] = useState(false);
   const saveTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
-  // Icebreaker
+  // Scaffold (icebreaker + research notes scaffold — one call, two targets)
   const [icebreaker, setIcebreaker] = useState<string | null>(null);
-  const [icebreakerLoading, setIcebreakerLoading] = useState(true);
+  const [scaffold, setScaffold] = useState<string | null>(null);
+  const [scaffoldLoading, setScaffoldLoading] = useState(true);
 
   // Status
   const [statusOpen, setStatusOpen] = useState(false);
@@ -170,19 +208,25 @@ export default function PersonDetailPage({ params }: { params: Promise<{ id: str
   useEffect(() => {
     fetch(`/api/persons/${id}/research-notes`)
       .then(r => r.json())
-      .then(data => setNotes(data.content || ''))
-      .catch(() => {});
+      .then(data => {
+        const content = data.content || '';
+        setNotes(content);
+        setNotesLoaded(true);
+        if (content.length > 0) setNotesStarted(true);
+      })
+      .catch(() => setNotesLoaded(true));
   }, [id]);
 
-  // Load icebreaker
+  // Load scaffold (returns icebreaker + research notes scaffold in one call)
   useEffect(() => {
-    fetch(`/api/persons/${id}/icebreaker`)
+    fetch(`/api/persons/${id}/scaffold`)
       .then(r => r.json())
       .then(data => {
         setIcebreaker(data.icebreaker || null);
-        setIcebreakerLoading(false);
+        setScaffold(data.scaffold || null);
+        setScaffoldLoading(false);
       })
-      .catch(() => setIcebreakerLoading(false));
+      .catch(() => setScaffoldLoading(false));
   }, [id]);
 
   // Auto-save notes with 1.5s debounce
@@ -346,7 +390,7 @@ export default function PersonDetailPage({ params }: { params: Promise<{ id: str
               <div className="text-xs font-semibold text-amber-700 uppercase tracking-wider mb-1.5">
                 Research Prompt
               </div>
-              {icebreakerLoading ? (
+              {scaffoldLoading ? (
                 <p className="text-sm text-amber-600 font-serif animate-pulse">Analyzing research data...</p>
               ) : icebreaker ? (
                 <p className="text-sm text-amber-900 font-serif leading-relaxed">{icebreaker}</p>
@@ -360,21 +404,76 @@ export default function PersonDetailPage({ params }: { params: Promise<{ id: str
         {/* PANEL 3: Research Notes */}
         <div className="bg-white rounded-xl border border-stone-200 shadow-sm p-6">
           <div className="flex items-center justify-between mb-4">
-            <h2 className="font-serif text-lg font-semibold text-gray-900">Research Notes</h2>
-            <div className="text-xs text-gray-400">
-              {notesSaving
-                ? 'Saving…'
-                : notesLastSaved
-                ? `Saved at ${notesLastSaved.toLocaleTimeString()}`
-                : 'Auto-saves as you type'}
+            <div className="flex items-center gap-3">
+              <h2 className="font-serif text-lg font-semibold text-gray-900">Research Notes</h2>
+              {/* Write / Preview toggle — only show once notes are started */}
+              {notesStarted && (
+                <div className="flex rounded-md border border-gray-200 overflow-hidden text-xs">
+                  <button
+                    onClick={() => setNotesPreview(false)}
+                    className={`px-2.5 py-1 transition-colors ${!notesPreview ? 'bg-gray-100 text-gray-900 font-medium' : 'text-gray-500 hover:text-gray-700'}`}
+                  >
+                    Write
+                  </button>
+                  <button
+                    onClick={() => setNotesPreview(true)}
+                    className={`px-2.5 py-1 transition-colors border-l border-gray-200 ${notesPreview ? 'bg-gray-100 text-gray-900 font-medium' : 'text-gray-500 hover:text-gray-700'}`}
+                  >
+                    Preview
+                  </button>
+                </div>
+              )}
             </div>
+            {notesStarted && (
+              <div className="text-xs text-gray-400">
+                {notesSaving
+                  ? 'Saving…'
+                  : notesLastSaved
+                  ? `Saved at ${notesLastSaved.toLocaleTimeString()}`
+                  : 'Auto-saves as you type'}
+              </div>
+            )}
           </div>
-          <textarea
-            value={notes}
-            onChange={e => handleNotesChange(e.target.value)}
-            placeholder="Your running research narrative for this person. Document hypotheses, negative evidence (failed searches are real evidence), gaps, and reasoning here. This is not the Research Log -- write freely."
-            className="w-full min-h-[180px] resize-y text-sm font-serif text-gray-800 placeholder-gray-400 border border-gray-200 rounded-lg p-4 focus:outline-none focus:ring-2 focus:ring-amber-400 focus:border-transparent leading-relaxed"
-          />
+
+          {/* First-open choice — shown when notes are blank and not yet started */}
+          {notesLoaded && !notesStarted ? (
+            <div className="flex flex-col items-center justify-center py-10 gap-4">
+              <p className="text-sm text-gray-500 font-serif text-center max-w-sm">
+                No research notes yet. Start with an AI scaffold based on this person&apos;s data, or open a blank page.
+              </p>
+              <div className="flex gap-3">
+                <button
+                  onClick={() => setNotesStarted(true)}
+                  className="px-4 py-2 text-sm border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-50 transition-colors font-serif"
+                >
+                  Start blank
+                </button>
+                <button
+                  disabled={scaffoldLoading || !scaffold}
+                  onClick={() => {
+                    if (!scaffold) return;
+                    handleNotesChange(scaffold);
+                    setNotesStarted(true);
+                  }}
+                  className="px-4 py-2 text-sm bg-amber-600 text-white rounded-lg hover:bg-amber-700 transition-colors font-serif disabled:opacity-50 disabled:cursor-wait"
+                >
+                  {scaffoldLoading ? 'Preparing scaffold…' : 'Start with AI scaffold'}
+                </button>
+              </div>
+            </div>
+          ) : notesPreview ? (
+            <div
+              className="min-h-[180px] px-4 py-3 border border-gray-200 rounded-lg bg-gray-50"
+              dangerouslySetInnerHTML={{ __html: notes ? renderMarkdown(notes) : '<p style="color:#9ca3af;font-family:serif;font-size:0.875rem">Nothing to preview yet.</p>' }}
+            />
+          ) : (
+            <textarea
+              value={notes}
+              onChange={e => handleNotesChange(e.target.value)}
+              placeholder="Your running research narrative for this person. Document hypotheses, negative evidence (failed searches are real evidence), gaps, and reasoning here. This is not the Research Log -- write freely."
+              className="w-full min-h-[180px] resize-y text-sm font-serif text-gray-800 placeholder-gray-400 border border-gray-200 rounded-lg p-4 focus:outline-none focus:ring-2 focus:ring-amber-400 focus:border-transparent leading-relaxed"
+            />
+          )}
         </div>
 
         {/* PANEL 4: Timeline */}
