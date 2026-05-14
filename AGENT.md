@@ -1,6 +1,6 @@
 Project-G-Live AGENT.md
-Version: 2.10.0
-Last updated: 2026-05-13 UTC
+Version: 2.11.0
+Last updated: 2026-05-14 UTC
 Last updated by: Claude (claude.ai)
 
 # What This Is
@@ -229,7 +229,7 @@ Semantic versioning: MAJOR.MINOR.PATCH
 
 All timestamps: YYYY-MM-DD HH:MM UTC. Time to the minute required. No date-only stamps.
 
-Current version: 2.10.0
+Current version: 2.11.0
 
 ---
 
@@ -720,14 +720,40 @@ FTMDatabaseFoundation ARM64 binary in a single Claude Code session.
 ### Person Detail Page
 
   TIMESTAMP noted: 2026-05-13 UTC.
-  Status: NEXT BUILD TARGET as of 2026-05-13 UTC.
+  TIMESTAMP design finalized: 2026-05-14 UTC.
+  Status: NEXT BUILD TARGET. Migration 020 runs first.
 
-  No person detail page exists. With 144 real people in Supabase this is now
-  a visible gap. Should show: name/dates/places, timeline with sourced events,
-  family connections, sources list, external links (when available),
-  basic/advanced field toggle.
-  Not a numbered module -- a core platform UI component.
+  7-panel design (finalized 2026-05-14 UTC):
+    1. Header anchor -- preferred name, birth/death dates and places, research
+       status badge (5 states: not_started / in_progress / complete /
+       needs_archive_visit / has_conflicts). Links to Ancestry and FamilySearch
+       profiles when available via person_external_ids.
+    2. AI Icebreaker -- platform-generated research prompt on page load.
+       Not a summary -- a single observation derived from what the data actually
+       shows. Examples: a census gap, a sourced conflict, a migration implied
+       by the timeline. Engine: GRA + research-assistant-v8. Cacheable.
+       NOTE: Any example icebreaker shown in design discussion is ILLUSTRATIVE
+       ONLY -- not drawn from actual Supabase data. Never fabricate.
+    3. Research Notes -- rich text editor. One living document per person.
+       Auto-saves. NOT the Research Log (Module 3). Research Log tracks what
+       you searched for and when. Research Notes is a living chronological
+       narrative per person: hypotheses, negative evidence findings, red-flagged
+       gaps, embedded reasoning. Connie Knox builds these in Word; this platform
+       is that home. Requires person_research_notes table (migration 020).
+    4. Timeline -- chronological events, each with a source badge.
+       Green dot = sourced, yellow = unsourced, red = has conflict.
+    5. Map -- geographic life story. Pins for every place in the record,
+       connected in chronological order. Address-as-Evidence made visible.
+       v1: show places where lat/lng is already populated. Geocoding deferred.
+       The addresses table lat/lng fields were designed for exactly this.
+    6. Family connections -- parents, spouse(s), children. Each links to
+       their own person page.
+    7. Sources -- all sources attached to this person, Three-Layer quality.
+    8. Open to-dos -- pulled from Module 15, filtered to this person.
+    9. FAN Club -- people from the associations table. Lightweight list in v1.
+
   Route: /persons/[id]
+  Not a numbered module -- a core platform UI component.
 
 ---
 
@@ -793,6 +819,7 @@ Module-Engine Mapping:
   Module 10 Case Study Builder        gra
   Module 16 Research Investigation    gra, conversation-abstractor-v2
   Module 17 FTM Bridge                no AI engine in v1 (pure data pipeline)
+  Person Detail Page icebreaker       gra, research-assistant-v8
 
 Photo Restoration (future, last priority):
   Claude's own vision and image capabilities for photo restoration should be
@@ -1061,6 +1088,7 @@ RULES FOR CLAUDE CODE SESSIONS:
   ftm-extractor     -- Compiled binary (gitignored; rebuild from .c)
   import-ftm.mjs    -- Node.js FTM -> Supabase importer (recurring sync tool, fully idempotent)
 /docs/research/     -- Research output files
+  connie-knox-workflow-reference.md -- Connie Knox methodology reference (committed 919b2a7)
 /docs/modules/      -- Module design documents (16 files, one per module)
 /docs/architecture/ -- Architecture decision records
   architecture.md              -- Supabase schema reference (through migration 014)
@@ -1092,6 +1120,7 @@ RULES FOR CLAUDE CODE SESSIONS:
   017-correspondence.sql       -- LIVE in Supabase as of 2026-05-12 (dinner session) UTC
   018-dna-tracker.sql          -- LIVE in Supabase as of 2026-05-13 UTC
   019-person-external-ids.sql  -- NOT YET WRITTEN -- add when synchronized tree ready
+  020-person-research-notes.sql -- NOT YET WRITTEN -- next migration to write
 /src/               -- Application source code
   /src/app/         -- Next.js App Router pages and API routes (see module list above)
   /src/lib/
@@ -1133,11 +1162,32 @@ instruction from the user.
   mapping of all 109 internal FTM tables. Risk of corrupting TreeSync. See
   FTM Bridge -- Bidirectional Sync section above.
 
+- Connie Knox is a standing workflow reference for this project.
+  TIMESTAMP locked in: 2026-05-14 UTC.
+  Connie Knox is a professional genealogist whose research methodology videos
+  have been reviewed and incorporated into the platform's design decisions.
+  Every time a workflow feature is being designed -- person pages, FAN Club,
+  notes, research plans, case studies -- ask whether there is a Connie Knox
+  video worth reviewing first. Reference doc: docs/research/connie-knox-workflow-reference.md.
+  Key methodology insight locked in: negative evidence (failed searches) is
+  GPS-valid evidence and must be documentable in Research Notes with source,
+  date, and record set searched.
+
+- Research Notes are NOT the Research Log (Module 3).
+  TIMESTAMP locked in: 2026-05-14 UTC.
+  Module 3 (Research Log) tracks what was searched for and when -- a log of
+  research sessions and sources consulted.
+  Research Notes (person_research_notes table, migration 020) is a living
+  chronological narrative per person: hypotheses, observations, negative
+  evidence findings, red-flagged gaps, embedded reasoning. One document per
+  person. The researcher writes into it; the platform gives it a home with
+  GPS-sourced data alongside it. Do not conflate these two things.
+
 ---
 
 ## Project State
 
-TIMESTAMP last updated: 2026-05-13 UTC by Claude (claude.ai) -- v2.10.0
+TIMESTAMP last updated: 2026-05-14 UTC by Claude (claude.ai) -- v2.11.0
 
 Build phase: Phase 3 ACTIVE -- 12 of 16 original modules complete + Module 17 Phase 2
 
@@ -1163,22 +1213,27 @@ FTM Bridge Phase 2: COMPLETE and SMOKE TESTED. Commit 291f786.
   Idempotency: FULLY SAFE. SourceLink: WIRED. Alt names: IMPORTED. Smoke test: PASSED.
   Full tree (~1500 persons): READY when synchronized .ftm file is provided.
 
+Connie Knox workflow reference: COMMITTED. docs/research/connie-knox-workflow-reference.md.
+  Commit 919b2a7.
+
 What still needs to happen (priority order):
-1. Person detail page -- /persons/[id]. Core UI component. NEXT BUILD TARGET.
-2. Run full synchronized tree when .ftm file is provided.
-3. FTM Bridge Phase 3 UI: /ftm-import page.
-4. Deployment: Vercel setup, production environment variables, deployment config.
-5. Supabase backups: point-in-time recovery or periodic export snapshots.
-6. Voice profile discussion (required before Module 9 begins).
-7. Modules 9, 1, 11, 8 (4 original modules remaining).
-8. migration 019 (person_external_ids) after synchronized tree import.
-9. Supabase seed data (Singer/Springer sources from prototype).
+1. Migration 020 -- person_research_notes table + research_status column on persons.
+   Write SQL, run via Claude in Chrome against Supabase SQL editor.
+2. Person detail page -- /persons/[id]. 7-panel design finalized. Core UI component.
+3. Run full synchronized tree when .ftm file is provided.
+4. FTM Bridge Phase 3 UI: /ftm-import page.
+5. Deployment: Vercel setup, production environment variables, deployment config.
+6. Supabase backups: point-in-time recovery or periodic export snapshots.
+7. Voice profile discussion (required before Module 9 begins).
+8. Modules 9, 1, 11, 8 (4 original modules remaining).
+9. migration 019 (person_external_ids) after synchronized tree import.
+10. Supabase seed data (Singer/Springer sources from prototype).
 
 Next immediate action:
-  TIMESTAMP: 2026-05-13 UTC
-  BUILD person detail page (/persons/[id]): name/dates/places panel, timeline
-  with sourced events, family connections, sources list.
-  claude.ai BUILD session.
+  TIMESTAMP: 2026-05-14 UTC
+  Write migration 020 (person_research_notes + research_status on persons),
+  then BUILD person detail page /persons/[id] with all panels.
+  Session posture: EXPLORE -> BUILD.
 
 ---
 
@@ -1208,10 +1263,20 @@ FTM BRIDGE FUTURE
   Deferred until synchronized tree is imported.
 
 PERSON DETAIL PAGE
-No person detail page exists. With 144 real persons in Supabase this is now visible.
-Should show: name/dates/places panel, timeline with sourced events, family connections,
-sources list, external links (Ancestry/FamilySearch when available), basic/advanced toggle.
-Not a numbered module -- a core platform UI component. Route: /persons/[id]
+See full 7-panel design spec in the FTM Bridge -- Person Detail Page section above.
+Migration 020 runs first. Route: /persons/[id].
+
+LUCIDCHART PATTERNS -- FLAGGED FOR FUTURE MODULES
+TIMESTAMP noted: 2026-05-14 UTC.
+Lucidchart-style spatial diagrams have legs in at least five places:
+- FAN Club Mapper (Module 8): target ancestor at center, FAN Club members around them,
+  colored connector lines by record type.
+- DNA Evidence Tracker: descendancy chart for DNA match visualization (common ancestor
+  at top, descendants below, cM amounts in each box).
+- Case Study Builder PowerPoint export: generate these charts as slides.
+- Research Plan Builder: visual research trip planning.
+- Person detail page: eventual embedded mini community map.
+Revisit when building each of these.
 
 DEPLOYMENT AND INFRASTRUCTURE
 - Vercel deployment: not yet done. App runs locally only.
@@ -1257,7 +1322,7 @@ FILE UPLOAD + OCR-HTR TRANSCRIPTION
 Module 5 v1 uses manual transcription entry. Deferred until Supabase storage bucket.
 When ready: document upload -> OCR-HTR v08 -> Fact Extractor v4 -> assertions table.
 This is also the pipeline for populating FTM-rich fields from scanned documents --
-part of the broader bidirectional vision (extracted facts -> back into FTM via GEDCOM).
+part of the broader bidirectional vision (extracted facts -> back into FTM via GEDCOM)
 
 ASSERTIONS TABLE UPSTREAM WRITERS
 Assertions table is live but nothing writes to it. Planned first writers:
