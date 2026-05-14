@@ -1,3 +1,33 @@
+## 2026-05-14 04:00 UTC -- Session: BUILD (v2.11.0 cleanup · migration 020 · person detail page)
+
+### AGENT.md v2.11.0
+- Version bump from v2.10.0 (missed at prior session close)
+- Connie Knox locked into Static Rules: Greene/Greenspun line is active research, do not use as test data
+- Research Notes vs Research Log distinction made permanent: Research Notes is a free-form living document per person; Research Log is the structured event-by-event audit trail
+
+### Migration 020 — person_research_notes + research_status (LIVE)
+- `persons.research_status`: text column, NOT NULL, default `'not_started'`, CHECK constraint enforcing 5 values: `not_started`, `in_progress`, `complete`, `needs_archive_visit`, `has_conflicts`
+- `person_research_notes` table: one row per person, UUID PK, FK to persons(id) ON DELETE CASCADE, unique constraint on person_id, RLS enabled
+- Index: `idx_person_research_notes_person_id`
+- Run via Claude in Chrome Monaco editor API; both verification probes passed (1 row each)
+
+### Person detail page — /persons/[id] (commit f28a7c3 + smoke test fixes)
+- 9 panels: Header Anchor, AI Icebreaker, Research Notes, Timeline, Geographic Life Story (map), Family Connections, Sources, Open To-Dos, FAN Club
+- AI icebreaker: generated on page load via GRA + research-assistant-v8; cacheable
+- Research notes: auto-save with 1.5s debounce; PATCH to person_research_notes
+- Research status badge: clickable dropdown, 5 states, optimistic update
+- Map panel: Leaflet v1.9.4, geocoded address pins with migration path polyline; shows addresses where lat/lng already populated
+- Smoke test (Claude Code): 7 column name mismatches found and fixed post-commit
+  - `event_types.name` → `display_name`
+  - `addresses.latitude/longitude` → `lat/lng`; `state` → `state_province`
+  - `sources.title/short_footnote_form/information_type` → `label/ee_short_citation/info_type`
+  - `todos.description` → `title`
+  - `persons.birth_date_display/death_date_display` → `birth_date/death_date`
+  - Route aliases DB names back to frontend-expected names in return payload
+- Smoke test result: PASS — Chetney C Clark: 25 events, 100% sourced, 19 sources, family panel (parents + 4 spouses), all 9 panels load, no JS errors
+
+---
+
 ## 2026-05-11 14:30 UTC -- Session: BUILD (Module 14 DNA Evidence Tracker)
 
 Posture: BUILD. Module 14 built complete while user stepped away.
