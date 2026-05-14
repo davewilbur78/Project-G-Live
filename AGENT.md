@@ -1,5 +1,5 @@
 Project-G-Live AGENT.md
-Version: 2.9.2
+Version: 2.10.0
 Last updated: 2026-05-13 UTC
 Last updated by: Claude (claude.ai)
 
@@ -229,7 +229,7 @@ Semantic versioning: MAJOR.MINOR.PATCH
 
 All timestamps: YYYY-MM-DD HH:MM UTC. Time to the minute required. No date-only stamps.
 
-Current version: 2.9.2
+Current version: 2.10.0
 
 ---
 
@@ -501,23 +501,30 @@ PHASE 3 BUILD ORDER:
     1 page: generates GPS-compliant filenames from source metadata fields.
     Smoke test: PASSED 2026-05-13 UTC by Claude Code.
 
-13. FTM Bridge (Module 17) -- PHASE 2 COMPLETE (scripts only, no UI yet)
-    Phase 1 committed: 2026-05-13 UTC. Commit: f0e3708.
-    Phase 2 committed: 2026-05-13 UTC. Commit: 291f786.
+13. FTM Bridge (Module 17) -- PHASE 2 COMPLETE
+    Phase 1 commit: f0e3708. Phase 2 commit: 291f786. TIMESTAMP: 2026-05-13 UTC.
+    Smoke test: PASSED 2026-05-13 UTC by Claude Code.
+      144 persons clean, 0 raw ftm: in visible fields, 0 pipes/slashes in names.
+      Aaron Jacob Klein: 19/20 events sourced. Stanley Samuel Kwass: 13/13 sourced.
+      Source citations human-readable ("1900 United States Federal Census", etc.).
+      Known data quality notes (FTM source artifacts, not code issues):
+        "Avraham" -- one person has literal quote characters in display name.
+          Source: FTM data-entry artifact. Not a code bug.
+        *igdor Gr?er -- one person has mangled name with * and ? characters.
+          Source: character encoding artifact for non-ASCII (Yiddish) name in FTM.
+          Not a code bug.
+        Alt names include primary name -- FTM stores a NAME fact matching the primary.
+          Functionally harmless. Not a code bug.
     Direct import pipeline from Family Tree Maker .ftm files into Supabase.
     No GEDCOM intermediate. Uses FTM's own SQLite SEE library to read the
-    encrypted database directly. This is the primary data ingestion path
-    for Dave's personal research tree (~1500 persons in main tree).
-    See FTM Bridge section below for full encryption details and roadmap.
+    encrypted database directly.
     Scripts: scripts/ftm-extractor.c (C extractor), scripts/import-ftm.mjs (Node importer).
-    Phase 2 data live in Supabase (test file): 143 persons, 96 families, 1189 timeline
-    events (1117 sourced, 93.8%), 371 sources, 5 repositories.
+    Phase 2 live in Supabase: 144 persons, 96 families, 1189 timeline events
+    (1117 sourced = 93.8%), 371 sources, 5 repositories.
     Idempotency: FULLY SAFE. Delete-then-reinsert. Zero duplicates on re-run confirmed.
-    SourceLink: WIRED. LinkTableID=2 confirmed as FTM Fact table. GPS evidence chain live.
+    SourceLink: WIRED. LinkTableID=2 confirmed. GPS evidence chain active in timeline UI.
     Alternate names: IMPORTED. GEDCOM slashes stripped, duplicates removed.
-    Living flag: NOT IMPORTABLE. IsLiving column does not exist in FTM 2024 schema
-      (schema 20200615). FTM computes it at runtime. living=false for all imported persons.
-      Future: compute from death date absence + birth year heuristic.
+    IsLiving: does NOT exist in FTM 2024 schema (20200615). living=false correct.
     Full tree (~1500 persons): READY TO RUN when synchronized .ftm file is provided.
     Phase 3 (UI here): /ftm-import page with import trigger, status, diff view.
 
@@ -601,7 +608,7 @@ FTMDatabaseFoundation ARM64 binary in a single Claude Code session.
     with source_id wired via SourceLink (93.8% coverage on test file -- the 6.2%
     without source_id had no SourceLink in FTM itself, not an import gap).
 
-### What Is NOT Imported -- Phase 3 / Future Work
+### What Is NOT Imported -- Future Work
 
   Living flag -- IsLiving column does not exist in FTM 2024 schema (20200615).
     FTM computes it at runtime from death date and birth year. Cannot import directly.
@@ -610,6 +617,23 @@ FTMDatabaseFoundation ARM64 binary in a single Claude Code session.
   Media files -- needs Supabase storage bucket first.
   PersonExternal (Ancestry/FamilySearch IDs) -- empty in test file (unsynchronized tree).
     Will populate when full synchronized tree is imported. Requires migration 019.
+
+### Known FTM Data Quality Issues (source artifacts, not code bugs)
+
+  TIMESTAMP confirmed: 2026-05-13 UTC (Phase 2 smoke test).
+  These exist in the FTM source data and will be present in the full tree import too.
+
+  Quote characters in display names -- e.g., "Avraham" with literal quotes.
+    Cause: FTM data-entry artifact. The quotes were typed into FTM directly.
+    Impact: cosmetic only. Not a code bug. Do not attempt to strip in importer
+    without explicit instruction (could corrupt legitimate data).
+
+  Non-ASCII character corruption -- e.g., *igdor Gr?er.
+    Cause: Yiddish or other non-ASCII name stored in FTM with encoding mismatch.
+    Impact: cosmetic only. Not a code bug.
+
+  Alt names include primary name -- FTM stores a NAME fact matching the primary name.
+    Cause: FTM structure. Harmless. Not a code bug.
 
 ### Idempotency Status -- FULLY SAFE AS OF PHASE 2
 
@@ -622,7 +646,7 @@ FTMDatabaseFoundation ARM64 binary in a single Claude Code session.
   Families:         SAFE (delete-then-reinsert for FTM persons' families)
   Timeline events:  SAFE (delete-then-reinsert for FTM persons' events)
 
-  Acceptance test passed: Run 1 and Run 2 produce identical counts.
+  Acceptance test passed 2026-05-13 UTC: Run 1 and Run 2 produce identical counts.
   96 families, 238 members, 1189 events, 1117 sourced -- identical both runs.
 
 ### Running the Importer
@@ -693,15 +717,17 @@ FTMDatabaseFoundation ARM64 binary in a single Claude Code session.
   be written back clean. Preserve FTM field names and values where possible.
   GEDCOM pruning/grafting is known to be lossy -- approach with caution.
 
-### Person Detail Page Gap
+### Person Detail Page
 
   TIMESTAMP noted: 2026-05-13 UTC.
+  Status: NEXT BUILD TARGET as of 2026-05-13 UTC.
 
-  No person detail page exists. With real data in Supabase this is now
-  a visible gap. Should show: name/dates/places, timeline, family connections,
-  sources, external links (when available), basic/advanced field toggle.
-  Not a numbered module -- a core platform UI component to build alongside
-  FTM Bridge Phase 3 UI.
+  No person detail page exists. With 144 real people in Supabase this is now
+  a visible gap. Should show: name/dates/places, timeline with sourced events,
+  family connections, sources list, external links (when available),
+  basic/advanced field toggle.
+  Not a numbered module -- a core platform UI component.
+  Route: /persons/[id]
 
 ---
 
@@ -832,14 +858,14 @@ predicate, and extraction_method set.
 Phase 1: Documentation and architecture -- COMPLETE
 Phase 2: Prototype artifacts to test interview logic -- COMPLETE
 Phase 3: Full web app built module by module -- ACTIVE
-  12 of 16 original modules complete + Module 17 Phase 2 (FTM Bridge scripts, fully idempotent):
+  12 of 16 original modules complete + Module 17 Phase 2 (FTM Bridge, fully idempotent, sourced):
   Module 4 (Citation Builder), Module 10 (Case Study Builder),
   Module 5 (Document Analysis Worksheet), Module 3 (Research Log),
   Module 15 (Research To-Do Tracker), Module 2 (Research Plan Builder),
   Module 6 (Source Conflict Resolver), Module 7 (Timeline Builder),
   Module 16 (Research Investigation), Module 12 (Correspondence Log),
   Module 14 (DNA Evidence Tracker), Module 13 (File Naming System),
-  Module 17 FTM Bridge Phase 2 (scripts + live data, idempotent, sourced, no UI yet)
+  Module 17 FTM Bridge Phase 2 (scripts + live data, idempotent, sourced, smoke tested)
 Phase 4: GEDCOM Bridge built as onboarding layer (Module 1)
 Phase 5: Case Study Builder with PowerPoint export as flagship
 
@@ -1111,14 +1137,14 @@ instruction from the user.
 
 ## Project State
 
-TIMESTAMP last updated: 2026-05-13 UTC by Claude (claude.ai) -- v2.9.2
+TIMESTAMP last updated: 2026-05-13 UTC by Claude (claude.ai) -- v2.10.0
 
 Build phase: Phase 3 ACTIVE -- 12 of 16 original modules complete + Module 17 Phase 2
 
 Genealogical data foundation: COMPLETE and LIVE.
   Migrations 001-018 all run in Supabase.
-  143 real persons from Dave's family tree live in Supabase (FTM import).
-  1117 of 1189 timeline events have source_id wired (GPS evidence chain live).
+  144 real persons from Dave's family tree live in Supabase (FTM import, smoke tested).
+  1117 of 1189 timeline events have source_id wired (GPS evidence chain live, confirmed).
   Importer is fully idempotent. Safe to re-run against any .ftm file.
 
 src/lib/ai.ts: COMPLETE. 15 engines registered and live.
@@ -1133,30 +1159,26 @@ Module 16 smoke test: PASSED by Dave, 2026-05-12 (dinner session).
 MCP infrastructure: NPX mode active. Manager script at ~/.claude/mcp-manager.py.
   Docker removed from active config. Connector stable.
 
-FTM Bridge Phase 2: COMPLETE. Commit 291f786.
-  Idempotency: FULLY SAFE (delete-then-reinsert, zero duplicates confirmed).
-  SourceLink: WIRED (93.8% coverage, 1117/1189 events sourced).
-  Alternate names: IMPORTED (GEDCOM slashes stripped, deduped).
-  Living flag: NOT IMPORTABLE (column does not exist in FTM 2024 schema).
+FTM Bridge Phase 2: COMPLETE and SMOKE TESTED. Commit 291f786.
+  Idempotency: FULLY SAFE. SourceLink: WIRED. Alt names: IMPORTED. Smoke test: PASSED.
   Full tree (~1500 persons): READY when synchronized .ftm file is provided.
 
 What still needs to happen (priority order):
-1. Smoke test Phase 2 at localhost:3000 (Claude Code) -- confirm source citations
-   visible in Timeline UI for imported persons.
-2. Run full synchronized tree when .ftm file is provided -- will add Ancestry/FS person IDs.
-3. Person detail page (core UI component -- not a numbered module).
-4. FTM Bridge Phase 3 UI: /ftm-import page (trigger, status, diff view).
-5. Deployment: Vercel setup, production environment variables, deployment config.
-6. Supabase backups: point-in-time recovery or periodic export snapshots.
-7. Voice profile discussion (required before Module 9 begins).
-8. Modules 9, 1, 11, 8 (4 original modules remaining).
-9. migration 019 (person_external_ids) after synchronized tree import.
-10. Supabase seed data (Singer/Springer sources from prototype).
+1. Person detail page -- /persons/[id]. Core UI component. NEXT BUILD TARGET.
+2. Run full synchronized tree when .ftm file is provided.
+3. FTM Bridge Phase 3 UI: /ftm-import page.
+4. Deployment: Vercel setup, production environment variables, deployment config.
+5. Supabase backups: point-in-time recovery or periodic export snapshots.
+6. Voice profile discussion (required before Module 9 begins).
+7. Modules 9, 1, 11, 8 (4 original modules remaining).
+8. migration 019 (person_external_ids) after synchronized tree import.
+9. Supabase seed data (Singer/Springer sources from prototype).
 
 Next immediate action:
   TIMESTAMP: 2026-05-13 UTC
-  Claude Code: smoke test Phase 2 at localhost:3000. Confirm source citations
-  are visible in Timeline module for imported persons. Report back.
+  BUILD person detail page (/persons/[id]): name/dates/places panel, timeline
+  with sourced events, family connections, sources list.
+  claude.ai BUILD session.
 
 ---
 
@@ -1186,10 +1208,10 @@ FTM BRIDGE FUTURE
   Deferred until synchronized tree is imported.
 
 PERSON DETAIL PAGE
-No person detail page exists. With real data in Supabase this is now visible.
-Should show: name/dates/places panel, timeline, family connections, sources,
-external links (Ancestry/FamilySearch when available), basic/advanced toggle.
-Not a numbered module -- a core platform UI component.
+No person detail page exists. With 144 real persons in Supabase this is now visible.
+Should show: name/dates/places panel, timeline with sourced events, family connections,
+sources list, external links (Ancestry/FamilySearch when available), basic/advanced toggle.
+Not a numbered module -- a core platform UI component. Route: /persons/[id]
 
 DEPLOYMENT AND INFRASTRUCTURE
 - Vercel deployment: not yet done. App runs locally only.
