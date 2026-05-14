@@ -1,6 +1,6 @@
 Project-G-Live AGENT.md
-Version: 2.11.0
-Last updated: 2026-05-14 UTC
+Version: 2.12.0
+Last updated: 2026-05-13 22:15 UTC
 Last updated by: Claude (claude.ai)
 
 # What This Is
@@ -229,7 +229,7 @@ Semantic versioning: MAJOR.MINOR.PATCH
 
 All timestamps: YYYY-MM-DD HH:MM UTC. Time to the minute required. No date-only stamps.
 
-Current version: 2.11.0
+Current version: 2.12.0
 
 ---
 
@@ -721,12 +721,13 @@ FTMDatabaseFoundation ARM64 binary in a single Claude Code session.
 
   TIMESTAMP noted: 2026-05-13 UTC.
   TIMESTAMP design finalized: 2026-05-14 UTC.
-  Status: NEXT BUILD TARGET. Migration 020 runs first.
+  Status: COMPLETE. Route: /persons/[id]. All 9 panels live. Commit ed2402e.
 
   7-panel design (finalized 2026-05-14 UTC):
     1. Header anchor -- preferred name, birth/death dates and places, research
-       status badge (5 states: not_started / in_progress / complete /
-       needs_archive_visit / has_conflicts). Links to Ancestry and FamilySearch
+       status badge (4 manual states: not_started / in_progress / complete /
+       needs_archive_visit). has_conflicts is derived at query time from
+       source_conflicts -- NOT stored. Links to Ancestry and FamilySearch
        profiles when available via person_external_ids.
     2. AI Icebreaker -- platform-generated research prompt on page load.
        Not a summary -- a single observation derived from what the data actually
@@ -734,12 +735,13 @@ FTMDatabaseFoundation ARM64 binary in a single Claude Code session.
        by the timeline. Engine: GRA + research-assistant-v8. Cacheable.
        NOTE: Any example icebreaker shown in design discussion is ILLUSTRATIVE
        ONLY -- not drawn from actual Supabase data. Never fabricate.
-    3. Research Notes -- rich text editor. One living document per person.
-       Auto-saves. NOT the Research Log (Module 3). Research Log tracks what
-       you searched for and when. Research Notes is a living chronological
-       narrative per person: hypotheses, negative evidence findings, red-flagged
-       gaps, embedded reasoning. Connie Knox builds these in Word; this platform
-       is that home. Requires person_research_notes table (migration 020).
+    3. Research Notes -- COMPLETE. Markdown textarea, Write/Preview toggle,
+       optional AI scaffold on first open. Auto-saves. NOT the Research Log
+       (Module 3). Research Log tracks what you searched for and when.
+       Research Notes is a living chronological narrative per person:
+       hypotheses, negative evidence findings, red-flagged gaps, embedded
+       reasoning. Connie Knox builds these in Word; this platform is that home.
+       Migration 020 live.
     4. Timeline -- chronological events, each with a source badge.
        Green dot = sourced, yellow = unsourced, red = has conflict.
     5. Map -- geographic life story. Pins for every place in the record,
@@ -754,6 +756,7 @@ FTMDatabaseFoundation ARM64 binary in a single Claude Code session.
 
   Route: /persons/[id]
   Not a numbered module -- a core platform UI component.
+  Smoke test: PASSED on Aaron Jacob Klein, 2026-05-13 22:15 UTC (Claude Code, commit ed2402e).
 
 ---
 
@@ -819,7 +822,7 @@ Module-Engine Mapping:
   Module 10 Case Study Builder        gra
   Module 16 Research Investigation    gra, conversation-abstractor-v2
   Module 17 FTM Bridge                no AI engine in v1 (pure data pipeline)
-  Person Detail Page icebreaker       gra, research-assistant-v8
+  Person Detail Page icebreaker+scaffold gra, research-assistant-v8 (one combined call)
 
 Photo Restoration (future, last priority):
   Claude's own vision and image capabilities for photo restoration should be
@@ -1006,6 +1009,8 @@ DIVISION OF LABOR IN PRACTICE:
   claude.ai picks it up at next session start.
 - Neither interface duplicates the other's work.
 - Claude Code is fully aware of the project via AGENT.md. No re-briefing needed.
+- Handoffs to Claude Code should be task-focused, not restoration prompts.
+  Claude Code always reads AGENT.md and /sessions/ first. No re-briefing needed.
 
 ---
 
@@ -1120,7 +1125,8 @@ RULES FOR CLAUDE CODE SESSIONS:
   017-correspondence.sql       -- LIVE in Supabase as of 2026-05-12 (dinner session) UTC
   018-dna-tracker.sql          -- LIVE in Supabase as of 2026-05-13 UTC
   019-person-external-ids.sql  -- NOT YET WRITTEN -- add when synchronized tree ready
-  020-person-research-notes.sql -- NOT YET WRITTEN -- next migration to write
+  020-person-research-notes.sql -- LIVE in Supabase as of 2026-05-13 22:15 UTC
+                                   person_research_notes table + research_status on persons.
 /src/               -- Application source code
   /src/app/         -- Next.js App Router pages and API routes (see module list above)
   /src/lib/
@@ -1172,6 +1178,8 @@ instruction from the user.
   Key methodology insight locked in: negative evidence (failed searches) is
   GPS-valid evidence and must be documentable in Research Notes with source,
   date, and record set searched.
+  A summary of her "How to Use Ancestry Well" playlist is forthcoming from Dave.
+  Review it when provided and surface platform gaps and new ideas.
 
 - Research Notes are NOT the Research Log (Module 3).
   TIMESTAMP locked in: 2026-05-14 UTC.
@@ -1183,28 +1191,43 @@ instruction from the user.
   person. The researcher writes into it; the platform gives it a home with
   GPS-sourced data alongside it. Do not conflate these two things.
 
+- Research Notes scaffold is optional and offered, not imposed.
+  TIMESTAMP locked in: 2026-05-13 22:15 UTC.
+  The AI does not write the notes -- it seeds a structured starting point on
+  first open for researchers who want it. The researcher authors the content.
+  Connie Knox (researcher owns the notes) and ADHD-friendly (past the blank page)
+  are complementary, not in conflict. Do not re-litigate this decision.
+
+- has_conflicts is NEVER stored on persons.
+  TIMESTAMP locked in: 2026-05-13 22:15 UTC.
+  Derive at query time from source_conflicts. Storing it creates a data model
+  that goes stale. This was an explicit design decision, corrected after an
+  implementation that stored it. Do not add it back.
+
 ---
 
 ## Project State
 
-TIMESTAMP last updated: 2026-05-14 UTC by Claude (claude.ai) -- v2.11.0
+TIMESTAMP last updated: 2026-05-13 22:15 UTC by Claude (claude.ai) -- v2.12.0
 
 Build phase: Phase 3 ACTIVE -- 12 of 16 original modules complete + Module 17 Phase 2
+  + person detail page complete (all 9 panels, Research Notes, icebreaker + scaffold)
 
 Genealogical data foundation: COMPLETE and LIVE.
-  Migrations 001-018 all run in Supabase.
+  Migrations 001-020 all run in Supabase.
   144 real persons from Dave's family tree live in Supabase (FTM import, smoke tested).
   1117 of 1189 timeline events have source_id wired (GPS evidence chain live, confirmed).
   Importer is fully idempotent. Safe to re-run against any .ftm file.
 
 src/lib/ai.ts: COMPLETE. 15 engines registered and live.
 
-src/types/index.ts: COMPLETE. Investigation (5 types), Correspondence, DnaMatch added.
-  tsc --noEmit clean. tsconfig.json committed. All in commit 25693a7.
+src/types/index.ts: COMPLETE. tsc --noEmit clean. tsconfig.json committed. Commit 25693a7.
 
 Prompt engine library: COMPLETE. No files remaining to fetch from upstream.
 
-Module 16 smoke test: PASSED by Dave, 2026-05-12 (dinner session).
+Person detail page /persons/[id]: COMPLETE. Commit ed2402e. All 9 panels live.
+  Research Notes: markdown textarea, Write/Preview toggle, optional AI scaffold,
+  auto-save. Smoke tested on Aaron Jacob Klein. PASSED.
 
 MCP infrastructure: NPX mode active. Manager script at ~/.claude/mcp-manager.py.
   Docker removed from active config. Connector stable.
@@ -1214,26 +1237,25 @@ FTM Bridge Phase 2: COMPLETE and SMOKE TESTED. Commit 291f786.
   Full tree (~1500 persons): READY when synchronized .ftm file is provided.
 
 Connie Knox workflow reference: COMMITTED. docs/research/connie-knox-workflow-reference.md.
-  Commit 919b2a7.
+  Commit 919b2a7. Ancestry playlist summary forthcoming from Dave.
 
 What still needs to happen (priority order):
-1. Migration 020 -- person_research_notes table + research_status column on persons.
-   Write SQL, run via Claude in Chrome against Supabase SQL editor.
-2. Person detail page -- /persons/[id]. 7-panel design finalized. Core UI component.
+1. Connie Knox Ancestry playlist review (when Dave provides the summary).
+2. Voice profile discussion (required before Module 9 begins).
 3. Run full synchronized tree when .ftm file is provided.
-4. FTM Bridge Phase 3 UI: /ftm-import page.
+4. FTM Bridge Phase 3 UI: /ftm-import page (trigger, last import timestamp, diff view).
 5. Deployment: Vercel setup, production environment variables, deployment config.
 6. Supabase backups: point-in-time recovery or periodic export snapshots.
-7. Voice profile discussion (required before Module 9 begins).
-8. Modules 9, 1, 11, 8 (4 original modules remaining).
-9. migration 019 (person_external_ids) after synchronized tree import.
-10. Supabase seed data (Singer/Springer sources from prototype).
+7. Modules 9, 1, 11, 8 (4 original modules remaining).
+8. Migration 019 (person_external_ids) after synchronized tree import.
+9. Supabase seed data (Singer/Springer sources from prototype).
+10. Dead icebreaker route cleanup (src/app/api/persons/[id]/icebreaker -- no longer called).
 
 Next immediate action:
-  TIMESTAMP: 2026-05-14 UTC
-  Write migration 020 (person_research_notes + research_status on persons),
-  then BUILD person detail page /persons/[id] with all panels.
-  Session posture: EXPLORE -> BUILD.
+  TIMESTAMP: 2026-05-13 22:15 UTC
+  Wait for Connie Knox Ancestry playlist summary from Dave.
+  Then: voice profile conversation.
+  Then: FTM Bridge Phase 3 UI or Vercel deployment.
 
 ---
 
