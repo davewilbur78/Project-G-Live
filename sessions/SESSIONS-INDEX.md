@@ -45,3 +45,4 @@ Format: TIMESTAMP | Posture | AI | one-sentence summary
 2026-05-13 23:45 UTC | BUILD | Claude (claude.ai) | Priority triage; FTM Bridge Phase 2 spec designed and executed via Claude Code; idempotency confirmed; SourceLink live; v2.10.0.
 2026-05-14 01:00 UTC | EXPLORE | Claude (claude.ai) | Connie Knox workflow research; person detail page design; Lucidchart flagged; Research Notes concept established; v2.11.0.
 2026-05-14 01:15 UTC | EXPLORE | Claude (claude.ai) | AI icebreaker and maps added as first-class person detail page features; session close.
+2026-05-13 22:15 UTC | EXPLORE->BUILD | Claude (claude.ai) + Claude Code | Research Notes panel: migration 020, scaffold, preview toggle, has_conflicts fix; smoke test passed on Aaron Jacob Klein; v2.12.0.
