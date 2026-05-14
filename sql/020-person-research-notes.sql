@@ -11,8 +11,9 @@
 --      Rich text stored as markdown. Auto-saved from the UI.
 --
 --   2. research_status column on persons
---      5 states surfaced in the person detail page header badge.
---      Manually set by the researcher. Drives visual status across the platform.
+--      4 manual states only. has_conflicts is derived at query time from
+--      source_conflicts, never stored. Manually set by the researcher.
+--      Drives visual status across the platform.
 
 -- ------------------------------------------------------------
 -- 1. person_research_notes
@@ -33,16 +34,16 @@ CREATE POLICY "person_research_notes_all" ON person_research_notes FOR ALL USING
 
 -- ------------------------------------------------------------
 -- 2. research_status on persons
+-- 4 states only. has_conflicts is derived, never stored.
 -- ------------------------------------------------------------
 
 ALTER TABLE persons
-  ADD COLUMN research_status text NOT NULL DEFAULT 'not_started'
+  ADD COLUMN IF NOT EXISTS research_status text NOT NULL DEFAULT 'not_started'
   CHECK (research_status IN (
     'not_started',
     'in_progress',
     'complete',
-    'needs_archive_visit',
-    'has_conflicts'
+    'needs_archive_visit'
   ));
 
 CREATE INDEX persons_research_status_idx ON persons (research_status);
