@@ -1,6 +1,6 @@
 Project-G-Live AGENT.md
-Version: 2.13.0
-Last updated: 2026-05-14 UTC
+Version: 2.13.1
+Last updated: 2026-05-15 UTC
 Last updated by: Claude (claude.ai)
 
 # What This Is
@@ -11,8 +11,11 @@ All operating rules and project context live here. No other file overrides this 
 Claude has a direct GitHub connector. Use it for all repo reads and writes.
 No workarounds, no raw URLs, no base64 decoding required.
 
-At session start: read this file, confirm version and date in natural language,
-fetch the most recent session snapshot from /sessions/ to orient, then ask for posture.
+At session start: read this file, confirm version number and last-updated date in natural language,
+then navigate to /sessions/: read SESSIONS-INDEX.md, take the filename from the first field of the
+first entry (index is ordered most-recent-first), and read that snapshot file in full to orient.
+If SESSIONS-INDEX.md is missing or the filename does not resolve, fall back to scanning the
+directory and opening the most recent SESSION-*.md file by name. Ask for posture: BUILD, FIX, or EXPLORE.
 Do not read additional files unless the session's work specifically requires them.
 
 ---
@@ -100,7 +103,7 @@ File naming: SESSION-YYYY-MM-DD-HHMM-UTC.md
 Snapshots are never deleted, never overwritten. The full archive is a first-class artifact.
 
 SESSIONS-INDEX.md: one line per session.
-Format: TIMESTAMP | Posture | AI | one-sentence summary.
+Format: FILENAME | TIMESTAMP | Posture | AI | one-sentence summary.
 Update every time a new snapshot is committed.
 
 ## Session Snapshot Format
@@ -213,7 +216,7 @@ Mandatory at the end of every session. No exceptions.
 2. Commit all work products to GitHub using the connector
 3. Commit wip/ branch if any partially built work exists
 4. Write final session snapshot to /sessions/
-5. Update SESSIONS-INDEX.md with this session's entry
+5. Update SESSIONS-INDEX.md: prepend the snapshot filename as the first field, then TIMESTAMP | Posture | AI | one-sentence summary
 6. Update AGENT.md version number and last updated timestamp
 7. Write CHANGELOG.md entry for this session
 8. Commit AGENT.md, CHANGELOG.md, and session files
@@ -229,7 +232,7 @@ Semantic versioning: MAJOR.MINOR.PATCH
 
 All timestamps: YYYY-MM-DD HH:MM UTC. Time to the minute required. No date-only stamps.
 
-Current version: 2.13.0
+Current version: 2.13.1
 
 ---
 
@@ -1253,6 +1256,8 @@ TIMESTAMP: 2026-05-14 UTC
   Contains Code's session snapshot and SESSIONS-INDEX update from the Phase 3 UI review.
   The actual bug fix (a4b1fca) was committed to main by claude.ai directly. The worktree
   branch can be deleted; its content is captured in SESSION-2026-05-14-FTMUI-CLAUDEAI-UTC.md.
+  A stub file (SESSION-2026-05-14-CCREVIEW-UTC.md) was created on main during the
+  2026-05-15 UTC index migration to preserve the SESSIONS-INDEX filename reference.
 - stats query .in() with large UUID lists: GET /api/ftm-import uses .in('person_id', ftmPersonIds).
   With 144 persons this is fine. For the full ~1500-person tree, chunking may be needed.
   Flag for attention when full tree import runs.
@@ -1261,7 +1266,7 @@ TIMESTAMP: 2026-05-14 UTC
 
 ## Project State
 
-TIMESTAMP last updated: 2026-05-14 UTC by Claude (claude.ai) -- v2.13.0
+TIMESTAMP last updated: 2026-05-15 UTC by Claude (claude.ai) -- v2.13.1
 
 Build phase: Phase 3 ACTIVE -- 13 of 17 modules complete
   + person detail page COMPLETE AND CLEAN
@@ -1311,10 +1316,9 @@ What still needs to happen (priority order):
 7. Supabase seed data (Singer/Springer sources from prototype).
 
 Next immediate action:
-  TIMESTAMP: 2026-05-14 UTC
-  Provide synchronized .ftm file for full tree import.
-  Claude Code runs it with Opus. Full accounting of all FTM data surfaces.
-  Alternatively: begin Vercel deployment setup if tree file is not yet ready.
+  TIMESTAMP: 2026-05-15 UTC
+  Session-start alignment complete (AGENT.md v2.13.1 + SESSIONS-INDEX migration).
+  Declare posture for next work item.
 
 ---
 
