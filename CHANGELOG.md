@@ -1,491 +1,60 @@
-## 2026-05-14 UTC -- Session: BUILD (claude.ai -- triage, cleanup, AGENT.md v2.12.3)
+# Changelog
 
-Posture: BUILD (declared at session open).
+## v2.13.0 -- 2026-05-14 UTC
 
-### What was done
+### FTM Bridge Phase 3 UI -- COMPLETE
+- Built `/ftm-import` page (Module 17 Phase 3). All three phases of Module 17 now complete.
+- New: `src/lib/ftm-import.ts` -- shared lock/log constants + isImportRunning() with 15-min stale-lock auto-clear.
+- New: `src/app/api/ftm-import/route.ts` -- GET stats (persons/sources/families/events/sourced/last-imported/running) + POST trigger (spawns import script as detached child process, fire-and-forget).
+- New: `src/app/api/ftm-import/status/route.ts` -- GET log content + running flag for client polling.
+- New: `src/app/ftm-import/page.tsx` -- 5 stat tiles, file path input pre-filled, Run Import button, live log with auto-scroll, amber pulse while running, stats auto-refresh 800ms after exit.
+- Bug fix (a4b1fca): removed `if (!cancelled)` guard from post-import fetchStats() timeout. Effect cleanup was setting cancelled=true before the 800ms timeout fired, silently blocking every stats refresh after import. Caught independently by both claude.ai and Claude Code in parallel review.
+- Dashboard updated: Module 17 FTM Bridge added as COMPLETE, href /ftm-import. Dashboard now shows 13 of 17 complete.
+- tsc clean. Smoke test PASSED by Claude Code: 4/4 routes, zero console errors.
 
-TRIAGE OF UNCLOSED SESSION CONCERN
-User opened with concern that a session may have been unclosed and repo state uncertain.
-Triaged all four May 14 snapshots to reconstruct the full sequence. Found three
-concrete issues rather than one unclosed session:
-1. AGENT.md had a stale "NOT YET WRITTEN" entry for migration 020 (it was live).
-2. Scaffold commit ed2402e (scaffold route + page.tsx cleanup) was stranded on
-   worktree branch claude/affectionate-mahavira-e858dd and had never been merged to main.
-3. Dead icebreaker route was still present despite being flagged for deletion.
-
-AGENT.md v2.12.2 COMMITTED
-Fixed stale migration 020 line in Repository Structure ("NOT YET WRITTEN" -> "LIVE").
-Updated PERSON DETAIL PAGE backlog entry to reflect complete status.
-Updated next immediate action to cleanup pass.
-
-CLEANUP PASS (executed by Claude Code)
-- Git pull confirmed: main at 6d45b00.
-- Scaffold gap discovered before deletion: ed2402e never merged to main. Deleting
-  icebreaker without this would have silently broken Panel 2 (the only AI call
-  wired to the person detail page) on every person in the database.
-- ed2402e cherry-picked to main (commit 681fad8). One conflict in
-  sql/020-person-research-notes.sql -- HEAD structure preserved, ed2402e's
-  IF NOT EXISTS guard and corrected 4-state constraint (removing has_conflicts)
-  incorporated.
-- Dead icebreaker route deleted. .claude/ added to .gitignore (commit 4f2f3ea).
-- git add -A INCIDENT: running `git add -A` staged eight .claude/worktrees/
-  embedded git repos plus package-lock.json and other untracked files. Caught
-  immediately. Rollback committed (5d1c423). Rule added to both Coding Standards
-  and Local Environment Rules: never use `git add -A`; always use specific paths.
-- tsc --noEmit: CLEAN.
-- /persons list page: 200 confirmed.
-- /api/persons/[id]/scaffold: 200, both fields present, error handling graceful
-  when ANTHROPIC_API_KEY not in shell (no 500).
-- /api/persons/[id]/icebreaker: 404 confirmed (route gone).
-- Status dropdown: exactly 4 states (not_started, in_progress, complete,
-  needs_archive_visit) confirmed.
-
-AGENT.md v2.12.3 COMMITTED
-All debt items closed and documented:
-- Dead icebreaker route: RESOLVED.
-- Scaffold commit stranded on worktree: RESOLVED.
-- git add -A incident: RESOLVED and documented.
-- git add -A rule added to Coding Standards and Local Environment Rules.
-- Person detail page status updated to COMPLETE AND CLEAN.
-- Priority list updated; FTM Bridge Phase 3 UI is now the next build target.
-
-### Key decisions this session
-
-2026-05-14 UTC -- Triage before code. Identified three issues from session history
-  rather than one unclosed session.
-2026-05-14 UTC -- Never delete a route before confirming its replacement is live on main.
-  The scaffold route was not on main. This would have silently broken Panel 2 on
-  every person page.
-2026-05-14 UTC -- git add -A is permanently banned. Always use specific paths.
-  Incident documented in Known Technical Debt and both rule sections.
-
-### Build phase
-
-Phase 3 ACTIVE -- 12 of 16 original modules complete + Module 17 Phase 2
-+ person detail page COMPLETE AND CLEAN.
-
-Repo clean at commit 4f96cc2 (AGENT.md v2.12.3).
-
-### Next session
-
-FTM Bridge Phase 3 UI: /ftm-import page.
-Design: trigger import button, last run timestamp + record counts from Supabase,
-import diff view (what was added vs updated since last run).
-claude.ai writes it; Claude Code smoke tests it.
+### Protocol locked in
+- Full tree import (synchronized .ftm file): Claude Code handles execution. Opus model. Brief in claude.ai first. Documented in AGENT.md Static Rules.
 
 ---
 
-## 2026-05-14 UTC -- Session: BUILD (claude.ai -- administrative, housekeeping, v2.12.1)
+## v2.12.3 -- 2026-05-14 UTC
 
-Posture: BUILD (declared at session open, person detail page was the intended target
-but was already complete from a parallel Claude Code session).
-
-### What was done
-
-Known Technical Debt section added to AGENT.md (v2.11.1):
-- AGENT.md size and OS/app separation: recognized concern, not yet actioned.
-- Added via full file rewrite (GitHub API constraint -- no patch operation).
-
-Migration 020 committed (sql/020-person-research-notes.sql):
-- person_research_notes table: UUID PK, person_id FK with CASCADE delete, unique
-  constraint (one doc per person), content text default empty, timestamps, RLS.
-- research_status column on persons: 4 states (not_started / in_progress / complete /
-  needs_archive_visit). has_conflicts explicitly excluded -- derived at query time.
-- Commit: bda1cdc.
-- Note: migration 020 was also committed independently by a parallel Claude Code
-  session (22:15 UTC). Divergence resolved via merge 4dd3f06.
-
-Git divergence resolved (by Claude Code):
-- Two parallel sessions built on the same base commit (f28a7c3) without pulling.
-- Divergence: 3 local commits + 6 remote commits with no shared history after branch point.
-- Claude Code ran git merge origin/main, resolved CHANGELOG.md and SESSIONS-INDEX.md
-  conflicts manually, auto-merged all other files cleanly, pushed.
-- Both tracks fully reconciled. Merge commit: 4dd3f06.
-- Root cause documented in Known Technical Debt: sessions must git pull before beginning.
-
-Person detail page confirmed COMPLETE (work done in parallel Claude Code session):
-- 9 panels live and smoke tested on Chetney C Clark and Aaron Jacob Klein.
-- has_conflicts confirmed as derived only -- 4 stored states, not 5.
-- Icebreaker + scaffold: one combined API call via scaffold route.
-- Dead icebreaker route flagged for cleanup (not yet deleted).
-
-Mandatory re-read rule restored to AGENT.md (v2.12.1, by Claude Code):
-- Lost during Claude Code's merge (merge used older AGENT.md as base).
-- Claude Code restored via str_replace: mandatory re-read rule in Claude in Chrome
-  section + n=0 assumption warning + protocol drift bullet in Known Technical Debt.
-- Commit: v2.12.1.
-
-Protocol drift incident documented:
-- Both claude.ai and Claude Code skipped re-reading the Claude in Chrome section
-  before writing migration plans. User caught the errors.
-- Mandatory re-read rule added to AGENT.md as direct response.
-- Protocol drift note added to Known Technical Debt.
-
-### Build phase
-
-Phase 3 ACTIVE -- 12 of 16 original modules complete + Module 17 Phase 2
-+ person detail page COMPLETE.
-
-Migrations 001-020 all LIVE in Supabase.
-
-### What still needs to happen (priority order)
-
-1. Cleanup: delete dead icebreaker route.
-2. Run full synchronized tree when .ftm file is provided.
-3. FTM Bridge Phase 3 UI (/ftm-import page).
-4. Vercel deployment.
-5. Supabase backups.
-6. Voice profile discussion (required before Module 9).
-7. Modules 9, 1, 11, 8.
-8. Migration 019 after synchronized tree import.
-9. Supabase seed data.
+Cleanup pass: scaffold commit cherry-picked to main, dead icebreaker route deleted,
+git add -A incident rolled back, .claude/ added to .gitignore, AGENT.md updated.
 
 ---
 
-## 2026-05-14 04:00 UTC -- Session: BUILD (v2.11.0 cleanup · migration 020 · person detail page)
+## v2.12.0 -- 2026-05-13 UTC
 
-### AGENT.md v2.11.0
-- Version bump from v2.10.0 (missed at prior session close)
-- Connie Knox locked into Static Rules: Greene/Greenspun line is active research, do not use as test data
-- Research Notes vs Research Log distinction made permanent: Research Notes is a free-form living document per person; Research Log is the structured event-by-event audit trail
-
-### Migration 020 — person_research_notes + research_status (LIVE)
-- `persons.research_status`: text column, NOT NULL, default `'not_started'`, CHECK constraint enforcing 5 values: `not_started`, `in_progress`, `complete`, `needs_archive_visit`, `has_conflicts`
-- `person_research_notes` table: one row per person, UUID PK, FK to persons(id) ON DELETE CASCADE, unique constraint on person_id, RLS enabled
-- Index: `idx_person_research_notes_person_id`
-- Run via Claude in Chrome Monaco editor API; both verification probes passed (1 row each)
-
-### Person detail page — /persons/[id] (commit f28a7c3 + smoke test fixes)
-- 9 panels: Header Anchor, AI Icebreaker, Research Notes, Timeline, Geographic Life Story (map), Family Connections, Sources, Open To-Dos, FAN Club
-- AI icebreaker: generated on page load via GRA + research-assistant-v8; cacheable
-- Research notes: auto-save with 1.5s debounce; PATCH to person_research_notes
-- Research status badge: clickable dropdown, 5 states, optimistic update
-- Map panel: Leaflet v1.9.4, geocoded address pins with migration path polyline; shows addresses where lat/lng already populated
-- Smoke test (Claude Code): 7 column name mismatches found and fixed post-commit
-  - `event_types.name` → `display_name`
-  - `addresses.latitude/longitude` → `lat/lng`; `state` → `state_province`
-  - `sources.title/short_footnote_form/information_type` → `label/ee_short_citation/info_type`
-  - `todos.description` → `title`
-  - `persons.birth_date_display/death_date_display` → `birth_date/death_date`
-  - Route aliases DB names back to frontend-expected names in return payload
-- Smoke test result: PASS — Chetney C Clark: 25 events, 100% sourced, 19 sources, family panel (parents + 4 spouses), all 9 panels load, no JS errors
+Research Notes panel (person detail page): migration 020 live, scaffold route, preview toggle.
 
 ---
 
-## 2026-05-13 22:15 UTC -- Session: EXPLORE->BUILD (Research Notes panel complete)
+## v2.11.0 -- 2026-05-14 UTC
 
-Posture: EXPLORE -> BUILD. Design locked in EXPLORE; Claude Code executed the build.
-
-### What was done
-
-Migration 020 committed and run in Supabase:
-- sql/020-person-research-notes.sql: person_research_notes table (id, person_id FK
-  cascade delete, content text, created_at, updated_at). Unique index on person_id
-  (one document per person). RLS enabled.
-- ALTER TABLE persons ADD COLUMN research_status text NOT NULL DEFAULT 'not_started'
-  CHECK (not_started | in_progress | complete | needs_archive_visit).
-  has_conflicts explicitly excluded -- derived at query time from source_conflicts.
-
-Design decisions locked this session:
-- Markdown textarea + preview toggle (not Tiptap). Portable, no dependency, upgradeable.
-- 4 manual research_status states only. has_conflicts is derived, never stored.
-- AI scaffold optional on first open. "Start blank" or "Start with AI scaffold."
-- Scaffold sections ARE the prompts -- headers with one-line observations under each.
-- Icebreaker (Panel 2) and scaffold (Panel 3) share one API call. One call returns
-  { icebreaker, scaffold } together. Cannot contradict each other.
-- Research Notes are freeform. No GPS enforcement on content.
-- Voice profile conversation not yet had. Scaffold language neutral for now.
-
-Claude Code gaps found and fixed (four gaps between design and prior implementation):
-1. has_conflicts removed from STATUS_CONFIG and STATUS_ORDER in page.tsx.
-   Also corrected in sql/020-person-research-notes.sql for documentation accuracy.
-2. Markdown preview toggle added to Research Notes panel header. Write/Preview tabs.
-   renderMarkdown() inline function -- no library. Handles headers, bold/italic,
-   bullets, paragraphs. Toggle appears only once notes are started.
-3. Combined scaffold API route: src/app/api/persons/[id]/scaffold/route.ts.
-   One AI call via callWithEngine('gra', ...) returns { icebreaker, scaffold } as JSON.
-   Old /icebreaker route is dead code (not deleted -- flagged for cleanup pass).
-4. First-open choice UI in Panel 3. Blank notes show "Start blank" / "Start with
-   AI scaffold" instead of a textarea. Scaffold button populates textarea and
-   auto-saves. "Start blank" opens clean empty textarea.
-
-Smoke test: PASSED on Aaron Jacob Klein (commit ed2402e by Claude Code).
-- Panel 2 icebreaker: specific, data-driven, pointed to WWI service angle.
-- Panel 3 scaffold: consistent with icebreaker (same API call). Populated with
-  real timeline observations under structured section headers.
-- Write/Preview toggle working. Rendered markdown correct.
-- Status dropdown shows exactly 4 options. has_conflicts gone.
-- Auto-save confirmed ("Saved at" timestamp visible).
-
-### Build phase
-
-Phase 3 ACTIVE -- 12 of 16 original modules complete + Module 17 Phase 2 + person detail page.
-Person detail page: all panels live, Research Notes complete, icebreaker + scaffold working.
-
-### Open for next session
-
-- Delete dead icebreaker route (cleanup).
-- Voice profile conversation (required before Module 9).
-- Connie Knox Ancestry playlist review (Dave will provide summary).
-- FTM Bridge Phase 3 UI (/ftm-import page) or Vercel deployment -- next BUILD target.
+Person detail page: 9 panels complete. Migration 020 (person_research_notes) live.
 
 ---
 
-## 2026-05-11 14:30 UTC -- Session: BUILD (Module 14 DNA Evidence Tracker)
+## v2.9.1 -- 2026-05-13 UTC
 
-Posture: BUILD. Module 14 built complete while user stepped away.
-Also fixed dashboard bug: Module 12 (Correspondence Log) was showing NOT STARTED.
-
-### What was done
-
-Module 14 (DNA Evidence Tracker) -- COMPLETE.
-
-SQL migration:
-- sql/018-dna-tracker.sql: dna_matches table with platform check constraint
-  (23andme | ancestry | ftdna | myheritage | gedmatch | other), status check constraint
-  (identified | working_hypothesis | unresolved), shared_cm numeric(8,2),
-  shared_segments integer, largest_segment_cm numeric(8,2), kit_number text,
-  match_email text, person_id uuid FK to persons ON DELETE SET NULL,
-  hypothesized_relationship text, ancestral_line text, documentary_evidence text,
-  endogamy_context text, in_common_with text, notes text.
-  5 indexes (status, platform, ancestral_line, person_id, shared_cm DESC).
-  RLS enabled. Migration run via Claude in Chrome + Monaco setValue() method: SUCCESS.
-
-API routes:
-- src/app/api/dna-matches/route.ts: GET (list, filterable by status/platform/ancestral_line,
-  ordered by shared_cm DESC), POST
-- src/app/api/dna-matches/[id]/route.ts: GET, PATCH (partial update, allowed field list), DELETE
-
-Pages:
-- src/app/dna-tracker/page.tsx: list with GPS note banner, summary bar
-  (total/identified/working hypothesis/unresolved), status filter tabs, platform badge,
-  ancestral line + hypothesized relationship in row metadata, linked person name if identified
-- src/app/dna-tracker/new/page.tsx: full 2-column form with GPS note, all fields,
-  redirects to detail page on save
-- src/app/dna-tracker/[id]/page.tsx: read mode + edit toggle + two-step delete,
-  params handled via React use() hook (Next.js 15 pattern)
-
-Dashboard fix:
-- src/app/page.tsx: Module 12 status corrected from NOT STARTED to COMPLETE.
-  Module 14 status set to COMPLETE. Build order list updated.
-
-GPS compliance: GPS note enforced on every page (list, new, detail) --
-"DNA evidence is corroborating indirect evidence -- never standalone proof."
-Ashkenazi endogamy context field built in at the schema and UI level.
-All pages include dashboard breadcrumb navigation.
-No AI calls in v1 -- module is structured data entry, evidence linking, and retrieval.
-
-### Build phase
-
-Phase 3 ACTIVE -- 11 of 16 modules complete.
-
-Modules complete: 2, 3, 4, 5, 6, 7, 10, 12, 14, 15, 16.
-Modules remaining: 1, 8, 9 (voice profile required), 11, 13.
-
-### Smoke tests still needed
-
-Module 12 and Module 14 smoke tests: hand to Claude Code.
-Protocol: git pull, restart dev server (pkill + rm -rf .next + npm run dev),
-open /correspondence and /dna-tracker, create one entry each, verify list and detail pages.
+Module 16 bug fix: persons join used wrong column names. List page silently showing empty. Fixed in 5 files.
 
 ---
 
-## 2026-05-12 (dinner session) UTC -- Session: BUILD (Module 12 Correspondence Log)
+## v2.8.6 -- 2026-05-13 UTC
 
-Posture: BUILD. Module 12 built complete while user was at dinner.
-
-### What was done
-
-Module 12 (Correspondence Log) -- COMPLETE.
-
-SQL migration:
-- sql/017-correspondence.sql: correspondence table with recipient_type check constraint
-  (repository | courthouse | archive | researcher | dna_match | other), outcome_status
-  check constraint (pending | responded | no_response | closed), follow_up_needed boolean,
-  FKs to repositories, persons, sources. RLS enabled. 3 indexes.
-  Migration run in Supabase via Claude in Chrome + Monaco setValue(): SUCCESS.
-
-API routes:
-- src/app/api/correspondence/route.ts: GET (list, filterable by status + recipient_type), POST
-- src/app/api/correspondence/[id]/route.ts: GET, PATCH (partial update, allowed field list), DELETE
-
-Pages:
-- src/app/correspondence/page.tsx: list with summary bar (total/pending/follow-up counts),
-  status filter tabs, hover-highlight rows, empty state
-- src/app/correspondence/new/page.tsx: sectioned form (Recipient / Inquiry / Response / Notes),
-  response section optional at creation, follow-up flag checkbox
-- src/app/correspondence/[id]/page.tsx: read mode + edit toggle + two-step delete,
-  params handled via React use() hook (Next.js 15 pattern)
-
-GPS compliance: module documents reasonably exhaustive search outreach (GPS element 1).
-All pages include dashboard breadcrumb navigation.
-No AI calls in v1 -- module is purely structured data entry and retrieval.
-
-### Session notes
-
-MCP connector went down twice (Docker restarts). Code was staged locally in container
-during outage and pushed once connector recovered. Two-batch push strategy used to
-avoid timeout on large payloads. Monaco setValue() + find(Run button) + ref click
-for SQL execution.
-
-### Build phase
-
-Phase 3 ACTIVE -- 10 of 16 modules complete.
-
-Modules complete: 2, 3, 4, 5, 6, 7, 10, 12, 15, 16.
-Modules remaining: 1, 8, 9 (voice profile required), 11, 13, 14.
+Modules 12 (Correspondence Log), 14 (DNA Evidence Tracker), 13 (File Naming System)
+complete and smoke tested. FTM Bridge Phase 1 + Phase 2 complete.
 
 ---
 
-## 2026-05-12 00:10 UTC -- Session: BUILD (Supabase migrations + prompt library complete)
+## v2.8.0 -- 2026-05-11 UTC
 
-Posture: BUILD. Completed all outstanding open threads from SESSION-2026-05-11-2200-UTC.
-
-### What was done
-
-SQL migrations run in Supabase via Claude in Chrome + Monaco setValue() method:
-- sql/015-assertions.sql: assertions + assertion_case_study_links + assertion_conflict_links
-  tables, indexes, RLS policies. SUCCESS.
-- sql/016-investigations.sql: investigations + investigation_messages + investigation_evidence
-  + investigation_candidates + investigation_matrix_cells tables, indexes, RLS policies.
-  SUCCESS.
-
-Prompt library completed:
-- prompts/research/research-assistant-v8.md -- fetched from Steve Little's repo
-  via GitHub connector. 700-line comprehensive GPS research assistant. v8.0.
-- prompts/writing/lingua-maven-v9.md -- fetched from Steve Little's repo via
-  GitHub connector. AHD-style language advisor. v9.
-
-ai.ts ENGINE_FILES updated:
-- research_assistant: 'prompts/research/research-assistant-v8.md' -- UNCOMMENTED
-- lingua_maven: 'prompts/writing/lingua-maven-v9.md' -- UNCOMMENTED
-- research_assistant added to RESEARCH_ENGINES set (GRA composes as base layer)
-- Total engines now live: 15
-
-UPSTREAM-SYNC.md updated:
-- research-assistant-v8 and lingua-maven-v9 moved from Still to Fetch to What We Have
-- Still to Fetch section now reads: None.
-- Update Log entry added for 2026-05-12 actions
-
-AGENT.md updated to v2.8.1.
-
-### Closed threads (from SESSION-2026-05-11-2200 open thread list)
-
-- Thread 1 CLOSED: sql/015 and sql/016 run successfully in Supabase. Module 16 is
-  now usable pending smoke test (local git pull + dev server).
-- Thread 2 CLOSED: research-assistant-v8.md and lingua-maven-v9.md committed.
-  ENGINE_FILES uncommented. Prompt library complete -- no files left to fetch.
-- Thread 3 (smoke test): OPEN. Requires local git pull + dev server start.
-  Not done this session -- no local access.
-
-### Still open
-
-- Smoke test Module 16 locally (git pull, start dev server, open /investigation)
-- src/types/index.ts investigation types (deferred until type error surfaces)
-- Voice profile discussion
-- Platform name
-- Steve collaboration (held)
-- gps_stage_reached constraint bug (low priority)
+callWithEngine() complete. 15 prompt engines live. Module 16 (Research Investigation) built. Steve Little upstream sync added.
 
 ---
 
-## 2026-05-11 20:00 UTC -- Session: EXPLORE->BUILD (Steve Little Integration + Prompt Engine Library + Assertions Architecture)
+## Earlier versions
 
-EXPLORE session that transitioned to BUILD at 2026-05-11 18:45 UTC.
-
-### EXPLORE work
-
-Full 30,000-foot project review. Assessment covered:
-- What is working well (architecture sound, schema solid, session memory holding)
-- What has changed since the original plan (schema outpacing UI, Module 16 complexity)
-- What is missing (assertions table, person/family management UI, prompt engine wiring)
-- What is genuinely original and remarkable (Address-as-Evidence, GPS-as-architecture,
-  flywheel vision, session memory architecture, prototype-first schema approach)
-
-Full deep-dive of Steve Little's Open-Genealogy GitHub repo and Vibe Genealogy Substack.
-Key findings:
-- Steve is AI Program Director at the National Genealogical Society. Co-hosts
-  Family History AI Show. 2000+ Substack subscribers. Background in computational
-  linguistics and NLP.
-- Repo contains 120+ files / 16,500+ lines: research prompts (v6-v8.5), transcription
-  tools (general + Jewish-specialized), image analysis (9-layer forensic), Hebrew
-  headstone analysis (10-phase with gematria), writing tools (fact extractor/narrator,
-  narrative assistant, linguistic profiler, conversation abstractor, etc.), GRA skill,
-  benchmark framework, and a 100KB PRD for GPS-grade AI record analysis.
-- The PRD (January 2026, co-authored with Claude Opus 4.5) describes assertion
-  atomization as the core architectural move. Steve's prompts are the AI engine layer;
-  Project-G-Live is the application and persistence layer; the assertions table is
-  where they meet.
-- Steve's plan to link his workflow to a MySQL database (documented in Vibe Genealogy
-  blog) is the same architectural vision as Project-G-Live.
-
-Integration architecture decided: near-total integration approved. License: CC BY-NC-SA 4.0.
-Project-G-Live is personal and non-commercial -- use is fully within license terms.
-
-Exclusions (with reasoning):
-- Photo restoration prompts: Claude should be evaluated directly first. Dave has
-  achieved strong restoration results using Claude + good prompts. Do not default
-  to a third-party API without testing.
-- News hound, event materials synthesizer, quick editor/cleanup: too generic,
-  not genealogically specific, or redundant with other engines.
-- GPT configs, media folder: platform-specific or educational only.
-
-Steve collaboration: held, not closed. Dave has interfaced with Steve online. Not
-ready to approach formally yet. Revisit when the platform is further along.
-
-Voice profile discussion: identified as important, scheduled for a future session.
-The linguistic profiler + narrative assistant combo is what powers the Layer 2
-narrative flywheel and researcher voice matching across Module 9 output.
-
-### BUILD work
-
-All committed to main. No wip/ branch.
-
-- prompts/README.md -- engine library overview, module-engine mapping, attribution
-- prompts/research/gra-v8.5.2c.md -- GPS enforcement base layer
-- prompts/research/research-agent-assignment-v2.1.md -- Research Plan Builder engine
-- prompts/transcription/ocr-htr-v08.md -- general diplomatic transcription
-- prompts/transcription/jewish-transcription-v2.md -- Jewish document transcription
-- prompts/image-analysis/deep-look-v2.md -- 9-layer forensic image analysis
-- prompts/image-analysis/hebrew-headstone-helper-v9.md -- 10-phase headstone analysis
-- prompts/writing/fact-extractor-v4.md -- LABEL: Value extraction
-- prompts/writing/fact-narrator-v4.md -- assertions to narrative prose
-- prompts/writing/narrative-assistant-v3.md -- GPS-informed narrative (3 modes)
-- prompts/writing/linguistic-profiler-v3.md -- writer voice fingerprinting
-- prompts/writing/conversation-abstractor-v2.md -- session/interview summarization
-- prompts/writing/document-distiller-v2.md -- document summarization
-- prompts/writing/image-citation-builder-v2.md -- image provenance citation
-- docs/architecture/assertions-table.md -- full assertions schema spec
-
-Still to fetch from upstream and commit:
-- research-assistant-v8.md (700-line full version)
-- lingua-maven-v9.md
-
-### Key architectural decisions made this session
-
-Assertions table (migration 015):
-- Three tables: assertions, assertion_case_study_links, assertion_conflict_links
-- Forward-only: no retrofitting existing data
-- Evidence type stored as default; overridable per case study via join table
-- Extraction method + engine version fields track AI vs. human provenance
-- Sits between sources and conclusions; enables cross-module fact queries,
-  Address-as-Search-Key engine, GPS-compliant proof arguments, conflict detection
-
-Engine registry:
-- callWithEngine(engineName, content, context) in src/lib/ai.ts
-- No inline prompt approximations in API routes
-- GRA is base layer -- composed into all research-facing routes
-- All prompts load from /prompts/ directory
-
-Revised build sequence:
-1. DONE: /prompts/ directory + assertions spec
-2. NEXT: callWithEngine() engine registry in src/lib/ai.ts
-3. Replace inline approximations (Research Plan Builder gets real research-agent-assignment-v2.1)
-4. sql/015-assertions.sql + Supabase run via Claude in Chrome
-5. Module 16 (now builds on assertions foundation)
-6. Module 5 upgrade (full input pipeline)
-7. Module 9 Research Report Writer
-
-- sessions/SESSION-2026-05-11-2000-UTC.md -- session snapshot
-- sessions/SESSIONS-INDEX.md -- updated
-- AGENT.md v2.7.7 (next)
+See /sessions/ archive for full history.
