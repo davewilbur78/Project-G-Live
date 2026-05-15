@@ -1,3 +1,80 @@
+## 2026-05-14 UTC -- Session: BUILD (claude.ai -- triage, cleanup, AGENT.md v2.12.3)
+
+Posture: BUILD (declared at session open).
+
+### What was done
+
+TRIAGE OF UNCLOSED SESSION CONCERN
+User opened with concern that a session may have been unclosed and repo state uncertain.
+Triaged all four May 14 snapshots to reconstruct the full sequence. Found three
+concrete issues rather than one unclosed session:
+1. AGENT.md had a stale "NOT YET WRITTEN" entry for migration 020 (it was live).
+2. Scaffold commit ed2402e (scaffold route + page.tsx cleanup) was stranded on
+   worktree branch claude/affectionate-mahavira-e858dd and had never been merged to main.
+3. Dead icebreaker route was still present despite being flagged for deletion.
+
+AGENT.md v2.12.2 COMMITTED
+Fixed stale migration 020 line in Repository Structure ("NOT YET WRITTEN" -> "LIVE").
+Updated PERSON DETAIL PAGE backlog entry to reflect complete status.
+Updated next immediate action to cleanup pass.
+
+CLEANUP PASS (executed by Claude Code)
+- Git pull confirmed: main at 6d45b00.
+- Scaffold gap discovered before deletion: ed2402e never merged to main. Deleting
+  icebreaker without this would have silently broken Panel 2 (the only AI call
+  wired to the person detail page) on every person in the database.
+- ed2402e cherry-picked to main (commit 681fad8). One conflict in
+  sql/020-person-research-notes.sql -- HEAD structure preserved, ed2402e's
+  IF NOT EXISTS guard and corrected 4-state constraint (removing has_conflicts)
+  incorporated.
+- Dead icebreaker route deleted. .claude/ added to .gitignore (commit 4f2f3ea).
+- git add -A INCIDENT: running `git add -A` staged eight .claude/worktrees/
+  embedded git repos plus package-lock.json and other untracked files. Caught
+  immediately. Rollback committed (5d1c423). Rule added to both Coding Standards
+  and Local Environment Rules: never use `git add -A`; always use specific paths.
+- tsc --noEmit: CLEAN.
+- /persons list page: 200 confirmed.
+- /api/persons/[id]/scaffold: 200, both fields present, error handling graceful
+  when ANTHROPIC_API_KEY not in shell (no 500).
+- /api/persons/[id]/icebreaker: 404 confirmed (route gone).
+- Status dropdown: exactly 4 states (not_started, in_progress, complete,
+  needs_archive_visit) confirmed.
+
+AGENT.md v2.12.3 COMMITTED
+All debt items closed and documented:
+- Dead icebreaker route: RESOLVED.
+- Scaffold commit stranded on worktree: RESOLVED.
+- git add -A incident: RESOLVED and documented.
+- git add -A rule added to Coding Standards and Local Environment Rules.
+- Person detail page status updated to COMPLETE AND CLEAN.
+- Priority list updated; FTM Bridge Phase 3 UI is now the next build target.
+
+### Key decisions this session
+
+2026-05-14 UTC -- Triage before code. Identified three issues from session history
+  rather than one unclosed session.
+2026-05-14 UTC -- Never delete a route before confirming its replacement is live on main.
+  The scaffold route was not on main. This would have silently broken Panel 2 on
+  every person page.
+2026-05-14 UTC -- git add -A is permanently banned. Always use specific paths.
+  Incident documented in Known Technical Debt and both rule sections.
+
+### Build phase
+
+Phase 3 ACTIVE -- 12 of 16 original modules complete + Module 17 Phase 2
++ person detail page COMPLETE AND CLEAN.
+
+Repo clean at commit 4f96cc2 (AGENT.md v2.12.3).
+
+### Next session
+
+FTM Bridge Phase 3 UI: /ftm-import page.
+Design: trigger import button, last run timestamp + record counts from Supabase,
+import diff view (what was added vs updated since last run).
+claude.ai writes it; Claude Code smoke tests it.
+
+---
+
 ## 2026-05-14 UTC -- Session: BUILD (claude.ai -- administrative, housekeeping, v2.12.1)
 
 Posture: BUILD (declared at session open, person detail page was the intended target
