@@ -6,7 +6,7 @@ import Link from 'next/link'
 
 type ModuleStatus = 'COMPLETE' | 'BUILD READY' | 'IN DESIGN' | 'NOT STARTED'
 
-const MODULES: { id: number; name: string; status: ModuleStatus; href: string }[] = [
+const MODULES: { id: number | string; name: string; status: ModuleStatus; href: string }[] = [
   { id: 4,  name: 'Citation Builder',             status: 'COMPLETE',    href: '/citation-builder'   },
   { id: 10, name: 'Case Study Builder',            status: 'COMPLETE',    href: '/case-study'         },
   { id: 5,  name: 'Document Analysis Worksheet',   status: 'COMPLETE',    href: '/document-analysis'  },
@@ -19,6 +19,7 @@ const MODULES: { id: number; name: string; status: ModuleStatus; href: string }[
   { id: 12, name: 'Correspondence Log',            status: 'COMPLETE',    href: '/correspondence'     },
   { id: 14, name: 'DNA Evidence Tracker',          status: 'COMPLETE',    href: '/dna-tracker'        },
   { id: 13, name: 'File Naming System',            status: 'COMPLETE',    href: '/file-naming'        },
+  { id: 17, name: 'FTM Bridge',                    status: 'COMPLETE',    href: '/ftm-import'         },
   { id: 9,  name: 'Research Report Writer',        status: 'NOT STARTED', href: '/report-writer'      },
   { id: 1,  name: 'GEDCOM Bridge',                 status: 'NOT STARTED', href: '/gedcom-bridge'      },
   { id: 11, name: 'Family Group Sheet Builder',    status: 'NOT STARTED', href: '/family-group-sheet' },
@@ -80,7 +81,7 @@ export default function Dashboard() {
           if (isLive) {
             return (
               <Link
-                key={mod.id}
+                key={String(mod.id)}
                 href={mod.href}
                 className="flex items-center gap-4 p-4 rounded border border-[var(--rule)] bg-[var(--parchment)] hover:border-[var(--gold-mid)] hover:bg-[var(--gold-light)] transition-colors"
               >
@@ -91,7 +92,7 @@ export default function Dashboard() {
 
           return (
             <div
-              key={mod.id}
+              key={String(mod.id)}
               className="flex items-center gap-4 p-4 rounded border border-[var(--rule)] bg-[var(--parchment)] opacity-60 cursor-default"
             >
               {inner}
