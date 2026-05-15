@@ -1,5 +1,27 @@
 # Changelog
 
+## v2.13.1 -- 2026-05-15 UTC
+
+### Session-start alignment
+- AGENT.md lines 14-16 updated: two-step /sessions/ navigation now instructs Claude.ai
+  to read SESSIONS-INDEX.md first, extract the filename from the first field of the first
+  entry (most-recent-first), then read that snapshot file in full. Fallback to directory
+  scan if index is missing or filename does not resolve.
+- AGENT.md session close protocol step 5 updated: now specifies filename as first field
+  in SESSIONS-INDEX entry format.
+- AGENT.md SESSIONS-INDEX format definition updated: FILENAME | TIMESTAMP | Posture | AI | summary.
+- SESSIONS-INDEX.md migrated: filename prepended to all 45 existing entries.
+- Stub file SESSION-2026-05-14-CCREVIEW-UTC.md created on main. Preserves index reference
+  for Claude Code FTM UI review session whose snapshot was committed only to the stale
+  worktree branch (claude/suspicious-elion-5e5663). Content captured in FTMUI snapshot.
+- Known Technical Debt updated: stub file creation noted.
+
+### One manual step remaining
+User must paste new init prompt text into Claude.ai project settings.
+Text is in session SESSION-2026-05-15-2240-UTC.md and the session conversation.
+
+---
+
 ## v2.13.0 -- 2026-05-14 UTC
 
 ### FTM Bridge Phase 3 UI -- COMPLETE
