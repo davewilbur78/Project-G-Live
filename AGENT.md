@@ -1,7 +1,7 @@
 Project-G-Live AGENT.md
-Version: 2.11.1
+Version: 2.12.0
 Last updated: 2026-05-14 UTC
-Last updated by: Claude (claude.ai)
+Last updated by: Claude Code (claude-sonnet-4-6)
 
 # What This Is
 
@@ -229,7 +229,7 @@ Semantic versioning: MAJOR.MINOR.PATCH
 
 All timestamps: YYYY-MM-DD HH:MM UTC. Time to the minute required. No date-only stamps.
 
-Current version: 2.11.1
+Current version: 2.12.0
 
 ---
 
@@ -721,12 +721,14 @@ FTMDatabaseFoundation ARM64 binary in a single Claude Code session.
 
   TIMESTAMP noted: 2026-05-13 UTC.
   TIMESTAMP design finalized: 2026-05-14 UTC.
-  Status: NEXT BUILD TARGET. Migration 020 runs first.
+  TIMESTAMP built and LIVE: 2026-05-14 UTC.
+  Status: COMPLETE -- 9 panels live, smoke test PASSED (Chetney C Clark + Aaron Jacob Klein).
 
-  7-panel design (finalized 2026-05-14 UTC):
+  9-panel design (built 2026-05-14 UTC):
     1. Header anchor -- preferred name, birth/death dates and places, research
-       status badge (5 states: not_started / in_progress / complete /
-       needs_archive_visit / has_conflicts). Links to Ancestry and FamilySearch
+       status badge (4 states: not_started / in_progress / complete /
+       needs_archive_visit). has_conflicts is DERIVED at query time from
+       source_conflicts -- never stored. Links to Ancestry and FamilySearch
        profiles when available via person_external_ids.
     2. AI Icebreaker -- platform-generated research prompt on page load.
        Not a summary -- a single observation derived from what the data actually
@@ -734,12 +736,20 @@ FTMDatabaseFoundation ARM64 binary in a single Claude Code session.
        by the timeline. Engine: GRA + research-assistant-v8. Cacheable.
        NOTE: Any example icebreaker shown in design discussion is ILLUSTRATIVE
        ONLY -- not drawn from actual Supabase data. Never fabricate.
-    3. Research Notes -- rich text editor. One living document per person.
-       Auto-saves. NOT the Research Log (Module 3). Research Log tracks what
-       you searched for and when. Research Notes is a living chronological
-       narrative per person: hypotheses, negative evidence findings, red-flagged
-       gaps, embedded reasoning. Connie Knox builds these in Word; this platform
-       is that home. Requires person_research_notes table (migration 020).
+       IMPORTANT: Icebreaker and scaffold share ONE API call.
+       Route: src/app/api/persons/[id]/scaffold/route.ts
+       Returns { icebreaker, scaffold } together. The old /icebreaker route
+       (src/app/api/persons/[id]/icebreaker/route.ts) is dead code -- not yet
+       deleted. Flagged for cleanup.
+    3. Research Notes -- markdown textarea + preview toggle. One living document
+       per person. Auto-saves with 1.5s debounce (PATCH to person_research_notes).
+       NOT the Research Log (Module 3). Research Log tracks what you searched for
+       and when. Research Notes is a living chronological narrative per person:
+       hypotheses, negative evidence findings, red-flagged gaps, embedded reasoning.
+       Connie Knox builds these in Word; this platform is that home.
+       First-open UI: "Start blank" or "Start with AI scaffold." Scaffold populates
+       textarea and auto-saves. Preview toggle appears once notes are started.
+       Migration 020 (person_research_notes table): LIVE in Supabase.
     4. Timeline -- chronological events, each with a source badge.
        Green dot = sourced, yellow = unsourced, red = has conflict.
     5. Map -- geographic life story. Pins for every place in the record,
@@ -1190,17 +1200,24 @@ instruction from the user.
 TIMESTAMP: 2026-05-14 UTC
 
 - AGENT.md size and OS/app separation -- recognized concern, not yet actioned.
+- Dead icebreaker route: src/app/api/persons/[id]/icebreaker/route.ts -- superseded
+  by combined scaffold route. Not deleted. Cleanup pass needed.
+- git divergence (RESOLVED 2026-05-14 UTC): two parallel sessions built on the same
+  base commit without pulling. Caused duplicate migration 020 commits and split history.
+  Resolved via merge commit 4dd3f06. Both tracks fully reconciled. Push complete.
+  Root cause: sessions must git pull before beginning work.
 
 ---
 
 ## Project State
 
-TIMESTAMP last updated: 2026-05-14 UTC by Claude (claude.ai) -- v2.11.1
+TIMESTAMP last updated: 2026-05-14 UTC by Claude Code (claude-sonnet-4-6) -- v2.12.0
 
 Build phase: Phase 3 ACTIVE -- 12 of 16 original modules complete + Module 17 Phase 2
+  + person detail page COMPLETE
 
 Genealogical data foundation: COMPLETE and LIVE.
-  Migrations 001-018 all run in Supabase.
+  Migrations 001-020 all run in Supabase.
   144 real persons from Dave's family tree live in Supabase (FTM import, smoke tested).
   1117 of 1189 timeline events have source_id wired (GPS evidence chain live, confirmed).
   Importer is fully idempotent. Safe to re-run against any .ftm file.
@@ -1221,27 +1238,39 @@ FTM Bridge Phase 2: COMPLETE and SMOKE TESTED. Commit 291f786.
   Idempotency: FULLY SAFE. SourceLink: WIRED. Alt names: IMPORTED. Smoke test: PASSED.
   Full tree (~1500 persons): READY when synchronized .ftm file is provided.
 
+Person detail page: COMPLETE and LIVE. /persons/[id].
+  9 panels built. Smoke test PASSED on both Chetney C Clark and Aaron Jacob Klein.
+  Research Notes: markdown editor, preview toggle, auto-save, scaffold on first open.
+  Research status: 4 states only (has_conflicts derived, not stored).
+  Icebreaker + scaffold: one combined API call via scaffold route.
+  Dead icebreaker route: flagged for cleanup (see Known Technical Debt).
+  Commits: f28a7c3 (build) + dc3efa6 (column name fixes).
+
 Connie Knox workflow reference: COMMITTED. docs/research/connie-knox-workflow-reference.md.
   Commit 919b2a7.
 
+git repo: CLEAN. Divergence between two parallel sessions resolved via merge 4dd3f06.
+  All work from both tracks fully reconciled and pushed to origin/main.
+
 What still needs to happen (priority order):
-1. Migration 020 -- person_research_notes table + research_status column on persons.
-   Write SQL, run via Claude in Chrome against Supabase SQL editor.
-2. Person detail page -- /persons/[id]. 7-panel design finalized. Core UI component.
-3. Run full synchronized tree when .ftm file is provided.
-4. FTM Bridge Phase 3 UI: /ftm-import page.
-5. Deployment: Vercel setup, production environment variables, deployment config.
-6. Supabase backups: point-in-time recovery or periodic export snapshots.
-7. Voice profile discussion (required before Module 9 begins).
-8. Modules 9, 1, 11, 8 (4 original modules remaining).
-9. migration 019 (person_external_ids) after synchronized tree import.
-10. Supabase seed data (Singer/Springer sources from prototype).
+1. Cleanup: delete dead icebreaker route (src/app/api/persons/[id]/icebreaker/route.ts).
+2. Run full synchronized tree when .ftm file is provided.
+3. FTM Bridge Phase 3 UI: /ftm-import page.
+4. Deployment: Vercel setup, production environment variables, deployment config.
+5. Supabase backups: point-in-time recovery or periodic export snapshots.
+6. Voice profile discussion (required before Module 9 begins).
+7. Modules 9, 1, 11, 8 (4 original modules remaining).
+8. migration 019 (person_external_ids) after synchronized tree import.
+9. Supabase seed data (Singer/Springer sources from prototype).
 
 Next immediate action:
   TIMESTAMP: 2026-05-14 UTC
-  Write migration 020 (person_research_notes + research_status on persons),
-  then BUILD person detail page /persons/[id] with all panels.
-  Session posture: BUILD.
+  Options (discuss with Dave):
+  a) Cleanup pass -- delete dead icebreaker route, confirm tsc clean, smoke test person
+     detail page end-to-end with the dev server.
+  b) FTM Bridge Phase 3 UI (/ftm-import page).
+  c) Vercel deployment.
+  Session posture: DISCUSS before BUILD.
 
 ---
 
