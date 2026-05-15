@@ -4,6 +4,8 @@ Format: TIMESTAMP | Posture | AI | One-sentence summary
 
 ---
 
+2026-05-14 UTC | BUILD | Claude Code (claude-sonnet-4-6) | Cleanup pass 2: cherry-pick ed2402e (scaffold route + page.tsx fixes), delete dead icebreaker route, fix accidental git add -A, smoke test PASS -- all cleanup tasks closed.
+2026-05-14 UTC | BUILD | Claude Code (claude-sonnet-4-6) | Cleanup pass 1: git pull, smoke test -- icebreaker broken (stale columns), scaffold route missing from main (stranded on worktree branch), Task 2 blocked; findings documented.
 2026-05-14 UTC | BUILD | Claude (claude.ai) | Administrative session: Known Technical Debt added, migration 020 committed, person detail page confirmed COMPLETE via Claude Code parallel session, mandatory re-read rule restored after merge loss, v2.12.1.
 2026-05-14 04:00 UTC | BUILD | Claude (claude.ai) | v2.11.0 cleanup; migration 020 live; person detail page 9 panels built and committed
 2026-05-14 01:15 UTC | EXPLORE | Claude (claude.ai) | AI icebreaker and maps added as first-class person detail page features; session close.
