@@ -1,5 +1,5 @@
 Project-G-Live AGENT.md
-Version: 2.11.0
+Version: 2.11.1
 Last updated: 2026-05-14 UTC
 Last updated by: Claude (claude.ai)
 
@@ -229,7 +229,7 @@ Semantic versioning: MAJOR.MINOR.PATCH
 
 All timestamps: YYYY-MM-DD HH:MM UTC. Time to the minute required. No date-only stamps.
 
-Current version: 2.11.0
+Current version: 2.11.1
 
 ---
 
@@ -1185,9 +1185,17 @@ instruction from the user.
 
 ---
 
+## Known Technical Debt
+
+TIMESTAMP: 2026-05-14 UTC
+
+- AGENT.md size and OS/app separation -- recognized concern, not yet actioned.
+
+---
+
 ## Project State
 
-TIMESTAMP last updated: 2026-05-14 UTC by Claude (claude.ai) -- v2.11.0
+TIMESTAMP last updated: 2026-05-14 UTC by Claude (claude.ai) -- v2.11.1
 
 Build phase: Phase 3 ACTIVE -- 12 of 16 original modules complete + Module 17 Phase 2
 
@@ -1233,7 +1241,7 @@ Next immediate action:
   TIMESTAMP: 2026-05-14 UTC
   Write migration 020 (person_research_notes + research_status on persons),
   then BUILD person detail page /persons/[id] with all panels.
-  Session posture: EXPLORE -> BUILD.
+  Session posture: BUILD.
 
 ---
 
