@@ -1,5 +1,5 @@
 Project-G-Live AGENT.md
-Version: 2.12.2
+Version: 2.12.3
 Last updated: 2026-05-14 UTC
 Last updated by: Claude (claude.ai)
 
@@ -229,7 +229,7 @@ Semantic versioning: MAJOR.MINOR.PATCH
 
 All timestamps: YYYY-MM-DD HH:MM UTC. Time to the minute required. No date-only stamps.
 
-Current version: 2.12.2
+Current version: 2.12.3
 
 ---
 
@@ -722,7 +722,8 @@ FTMDatabaseFoundation ARM64 binary in a single Claude Code session.
   TIMESTAMP noted: 2026-05-13 UTC.
   TIMESTAMP design finalized: 2026-05-14 UTC.
   TIMESTAMP built and LIVE: 2026-05-14 UTC.
-  Status: COMPLETE -- 9 panels live, smoke test PASSED (Chetney C Clark + Aaron Jacob Klein).
+  TIMESTAMP cleanup pass completed: 2026-05-14 UTC.
+  Status: COMPLETE AND CLEAN. 9 panels live. All routes verified. tsc clean.
 
   9-panel design (built 2026-05-14 UTC):
     1. Header anchor -- preferred name, birth/death dates and places, research
@@ -732,15 +733,12 @@ FTMDatabaseFoundation ARM64 binary in a single Claude Code session.
        profiles when available via person_external_ids.
     2. AI Icebreaker -- platform-generated research prompt on page load.
        Not a summary -- a single observation derived from what the data actually
-       shows. Examples: a census gap, a sourced conflict, a migration implied
-       by the timeline. Engine: GRA + research-assistant-v8. Cacheable.
+       shows. Engine: GRA + research-assistant-v8. Cacheable.
        NOTE: Any example icebreaker shown in design discussion is ILLUSTRATIVE
        ONLY -- not drawn from actual Supabase data. Never fabricate.
-       IMPORTANT: Icebreaker and scaffold share ONE API call.
        Route: src/app/api/persons/[id]/scaffold/route.ts
-       Returns { icebreaker, scaffold } together. The old /icebreaker route
-       (src/app/api/persons/[id]/icebreaker/route.ts) is dead code -- not yet
-       deleted. Flagged for cleanup.
+       Returns { icebreaker, scaffold } together. One combined API call.
+       Old /icebreaker route deleted in cleanup pass (commit 4f2f3ea).
     3. Research Notes -- markdown textarea + preview toggle. One living document
        per person. Auto-saves with 1.5s debounce (PATCH to person_research_notes).
        NOT the Research Log (Module 3). Research Log tracks what you searched for
@@ -762,7 +760,7 @@ FTMDatabaseFoundation ARM64 binary in a single Claude Code session.
     8. Open to-dos -- pulled from Module 15, filtered to this person.
     9. FAN Club -- people from the associations table. Lightweight list in v1.
 
-  Route: /persons/[id]
+  Route: /persons/[id]. List page: /persons (200, confirmed).
   Not a numbered module -- a core platform UI component.
 
 ---
@@ -929,6 +927,10 @@ Phase 5: Case Study Builder with PowerPoint export as flagship
   In API route handlers (async functions): const { id } = await params
   Never access params.id directly. Never use the React use() hook in API route handlers.
 - No engine prompt is hardcoded inline in any API route. Use callWithEngine().
+- NEVER use `git add -A` when the intent is to stage a single file deletion or small change.
+  Always use `git add <specific-path>`. `git add -A` will stage all untracked files
+  including .claude/worktrees/, package-lock.json, and other items that must not enter the repo.
+  This caused an incident on 2026-05-14 that required an immediate rollback commit.
 
 ---
 
@@ -1093,6 +1095,9 @@ RULES FOR CLAUDE CODE SESSIONS:
   Claude Code handles local execution only (npm, running the app, git operations).
 - After any GitHub connector push, pull locally before assuming files are current:
   `cd /Users/dave/Project-G-Live && git pull`
+- NEVER use `git add -A`. Always stage specific paths: `git add src/path/to/file`.
+  `git add -A` will pull in .claude/worktrees/ embedded git repos and other
+  untracked junk. This caused a bad commit on 2026-05-14 that required rollback.
 
 ---
 
@@ -1207,8 +1212,15 @@ instruction from the user.
 TIMESTAMP: 2026-05-14 UTC
 
 - AGENT.md size and OS/app separation -- recognized concern, not yet actioned.
-- Dead icebreaker route: src/app/api/persons/[id]/icebreaker/route.ts -- superseded
-  by combined scaffold route. Not deleted. Cleanup pass needed.
+- Dead icebreaker route: RESOLVED 2026-05-14 UTC. Deleted in cleanup pass commit 4f2f3ea.
+  Scaffold commit ed2402e was stranded on worktree branch claude/affectionate-mahavira-e858dd
+  and had never been merged to main. Cherry-picked to main (commit 681fad8) before deletion.
+  The cherry-pick resolved a single conflict in sql/020 -- HEAD structure preserved,
+  ed2402e's IF NOT EXISTS guard and corrected 4-state constraint incorporated.
+- git add -A staging incident: RESOLVED 2026-05-14 UTC. Running `git add -A` when deleting
+  a single file caused .claude/worktrees/ embedded git repos and other untracked files to
+  be staged. Caught immediately, rollback committed (5d1c423). .claude/ added to .gitignore.
+  Rule added to both Coding Standards and Local Environment Rules: never use `git add -A`.
 - git divergence (RESOLVED 2026-05-14 UTC): two parallel sessions built on the same
   base commit without pulling. Caused duplicate migration 020 commits and split history.
   Resolved via merge commit 4dd3f06. Both tracks fully reconciled. Push complete.
@@ -1222,10 +1234,10 @@ TIMESTAMP: 2026-05-14 UTC
 
 ## Project State
 
-TIMESTAMP last updated: 2026-05-14 UTC by Claude (claude.ai) -- v2.12.2
+TIMESTAMP last updated: 2026-05-14 UTC by Claude (claude.ai) -- v2.12.3
 
 Build phase: Phase 3 ACTIVE -- 12 of 16 original modules complete + Module 17 Phase 2
-  + person detail page COMPLETE
+  + person detail page COMPLETE AND CLEAN
 
 Genealogical data foundation: COMPLETE and LIVE.
   Migrations 001-020 all run in Supabase.
@@ -1249,37 +1261,32 @@ FTM Bridge Phase 2: COMPLETE and SMOKE TESTED. Commit 291f786.
   Idempotency: FULLY SAFE. SourceLink: WIRED. Alt names: IMPORTED. Smoke test: PASSED.
   Full tree (~1500 persons): READY when synchronized .ftm file is provided.
 
-Person detail page: COMPLETE and LIVE. /persons/[id].
-  9 panels built. Smoke test PASSED on both Chetney C Clark and Aaron Jacob Klein.
-  Research Notes: markdown editor, preview toggle, auto-save, scaffold on first open.
-  Research status: 4 states only (has_conflicts derived, not stored).
-  Icebreaker + scaffold: one combined API call via scaffold route.
-  Dead icebreaker route: flagged for cleanup (see Known Technical Debt).
-  Commits: f28a7c3 (build) + dc3efa6 (column name fixes).
+Person detail page: COMPLETE AND CLEAN. /persons/[id]. List page /persons: 200 confirmed.
+  9 panels. tsc clean. scaffold route wired. Icebreaker route deleted. Status dropdown: 4 states.
+  Scaffold commit ed2402e cherry-picked to main (681fad8). Column name fixes in dc3efa6.
+  Cleanup commits: 4f2f3ea (icebreaker deleted + gitignore), 5d1c423 (rollback of bad add -A).
 
 Connie Knox workflow reference: COMMITTED. docs/research/connie-knox-workflow-reference.md.
   Commit 919b2a7.
 
-git repo: CLEAN. Divergence between two parallel sessions resolved via merge 4dd3f06.
-  All work from both tracks fully reconciled and pushed to origin/main.
+git repo: CLEAN at 4f2f3ea (cleanup pass final state).
 
 What still needs to happen (priority order):
-1. Cleanup: delete dead icebreaker route (src/app/api/persons/[id]/icebreaker/route.ts).
-2. Verify persons list page exists and is reachable so /persons/[id] is navigable from the app.
-3. FTM Bridge Phase 3 UI: /ftm-import page.
-4. Run full synchronized tree when .ftm file is provided.
-5. Deployment: Vercel setup, production environment variables, deployment config.
-6. Supabase backups: point-in-time recovery or periodic export snapshots.
-7. Voice profile discussion (required before Module 9 begins).
-8. Modules 9, 1, 11, 8 (4 original modules remaining).
-9. migration 019 (person_external_ids) after synchronized tree import.
-10. Supabase seed data (Singer/Springer sources from prototype).
+1. FTM Bridge Phase 3 UI: /ftm-import page (trigger import, status, diff view).
+2. Run full synchronized tree when .ftm file is provided.
+3. Deployment: Vercel setup, production environment variables, deployment config.
+4. Supabase backups: point-in-time recovery or periodic export snapshots.
+5. Voice profile discussion (required before Module 9 begins).
+6. Modules 9, 1, 11, 8 (4 original modules remaining).
+7. migration 019 (person_external_ids) after synchronized tree import.
+8. Supabase seed data (Singer/Springer sources from prototype).
 
 Next immediate action:
   TIMESTAMP: 2026-05-14 UTC
-  Cleanup pass via Claude Code: delete dead icebreaker route, git pull, tsc --noEmit,
-  confirm /persons list page is reachable, smoke test /persons/[id] end-to-end.
-  Then FTM Bridge Phase 3 UI (/ftm-import page).
+  Build FTM Bridge Phase 3 UI: /ftm-import page.
+  Design: trigger import button, last import timestamp + record counts,
+  import diff view (what was added vs updated since last run).
+  claude.ai writes the code; Claude Code smoke tests it.
 
 ---
 
@@ -1308,10 +1315,10 @@ FTM BRIDGE FUTURE
 - person_external_ids: migration 019, wire into importer for PersonExternal data.
   Deferred until synchronized tree is imported.
 
-PERSON DETAIL PAGE -- COMPLETE
-  9 panels built and smoke tested. Route: /persons/[id].
-  Migration 020 LIVE. Dead icebreaker route pending cleanup.
-  Remaining: delete dead icebreaker route. Verify persons list page navigation.
+PERSON DETAIL PAGE -- COMPLETE AND CLEAN
+  9 panels. tsc clean. /persons list 200. /persons/[id] smoke tested.
+  Scaffold route live. Dead icebreaker route deleted. Status dropdown: 4 states only.
+  No remaining items.
 
 LUCIDCHART PATTERNS -- FLAGGED FOR FUTURE MODULES
 TIMESTAMP noted: 2026-05-14 UTC.
