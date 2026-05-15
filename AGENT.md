@@ -1,5 +1,5 @@
 Project-G-Live AGENT.md
-Version: 2.12.0
+Version: 2.12.1
 Last updated: 2026-05-14 UTC
 Last updated by: Claude Code (claude-sonnet-4-6)
 
@@ -229,7 +229,7 @@ Semantic versioning: MAJOR.MINOR.PATCH
 
 All timestamps: YYYY-MM-DD HH:MM UTC. Time to the minute required. No date-only stamps.
 
-Current version: 2.12.0
+Current version: 2.12.1
 
 ---
 
@@ -936,12 +936,19 @@ Phase 5: Case Study Builder with PowerPoint export as flagship
 
 TIMESTAMP established: 2026-05-11 10:30 UTC
 
+MANDATORY RE-READ RULE -- TIMESTAMP added: 2026-05-14 UTC
+Before writing any plan or prompt that involves Claude in Chrome or the Supabase
+SQL editor, both claude.ai and Claude Code must re-read this entire section
+explicitly. Do not rely on memory or prior session knowledge. Protocol drift
+has occurred when this section was skipped. No exceptions.
+
 When running SQL migrations via Claude in Chrome against the Supabase SQL editor:
 - DO NOT type long SQL strings into the Monaco editor. The editor's auto-closing
   brackets and autocomplete will corrupt the SQL (doubled parentheses, dropped characters).
 - USE the Monaco editor API instead:
     window.monaco.editor.getModels()[n].setValue(sql)
   This sets the editor content directly, bypassing all autocomplete interference.
+- Determine n at runtime by logging window.monaco.editor.getModels() first to identify the active SQL editor model. Do not assume n=0.
 - After setValue(), use find() to locate the Run button by ref, then click via ref.
   Do NOT rely on coordinate clicks for the Run button -- coordinates shift.
 - The Supabase project reference ID for Project G: slqjooudyfvmnaoetdvi
@@ -1206,12 +1213,16 @@ TIMESTAMP: 2026-05-14 UTC
   base commit without pulling. Caused duplicate migration 020 commits and split history.
   Resolved via merge commit 4dd3f06. Both tracks fully reconciled. Push complete.
   Root cause: sessions must git pull before beginning work.
+- Both AI interfaces (claude.ai and Claude Code) have demonstrated protocol drift
+  when established rules were not explicitly re-read before acting. The mandatory
+  re-read rule in the Claude in Chrome section was added as a direct response.
+  Monitor for recurrence. The user cannot always catch it.
 
 ---
 
 ## Project State
 
-TIMESTAMP last updated: 2026-05-14 UTC by Claude Code (claude-sonnet-4-6) -- v2.12.0
+TIMESTAMP last updated: 2026-05-14 UTC by Claude Code (claude-sonnet-4-6) -- v2.12.1
 
 Build phase: Phase 3 ACTIVE -- 12 of 16 original modules complete + Module 17 Phase 2
   + person detail page COMPLETE
