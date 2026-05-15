@@ -1,7 +1,7 @@
 Project-G-Live AGENT.md
-Version: 2.12.1
+Version: 2.12.2
 Last updated: 2026-05-14 UTC
-Last updated by: Claude Code (claude-sonnet-4-6)
+Last updated by: Claude (claude.ai)
 
 # What This Is
 
@@ -229,7 +229,7 @@ Semantic versioning: MAJOR.MINOR.PATCH
 
 All timestamps: YYYY-MM-DD HH:MM UTC. Time to the minute required. No date-only stamps.
 
-Current version: 2.12.1
+Current version: 2.12.2
 
 ---
 
@@ -1137,7 +1137,7 @@ RULES FOR CLAUDE CODE SESSIONS:
   017-correspondence.sql       -- LIVE in Supabase as of 2026-05-12 (dinner session) UTC
   018-dna-tracker.sql          -- LIVE in Supabase as of 2026-05-13 UTC
   019-person-external-ids.sql  -- NOT YET WRITTEN -- add when synchronized tree ready
-  020-person-research-notes.sql -- NOT YET WRITTEN -- next migration to write
+  020-person-research-notes.sql -- LIVE in Supabase as of 2026-05-14 UTC
 /src/               -- Application source code
   /src/app/         -- Next.js App Router pages and API routes (see module list above)
   /src/lib/
@@ -1222,7 +1222,7 @@ TIMESTAMP: 2026-05-14 UTC
 
 ## Project State
 
-TIMESTAMP last updated: 2026-05-14 UTC by Claude Code (claude-sonnet-4-6) -- v2.12.1
+TIMESTAMP last updated: 2026-05-14 UTC by Claude (claude.ai) -- v2.12.2
 
 Build phase: Phase 3 ACTIVE -- 12 of 16 original modules complete + Module 17 Phase 2
   + person detail page COMPLETE
@@ -1265,23 +1265,21 @@ git repo: CLEAN. Divergence between two parallel sessions resolved via merge 4dd
 
 What still needs to happen (priority order):
 1. Cleanup: delete dead icebreaker route (src/app/api/persons/[id]/icebreaker/route.ts).
-2. Run full synchronized tree when .ftm file is provided.
+2. Verify persons list page exists and is reachable so /persons/[id] is navigable from the app.
 3. FTM Bridge Phase 3 UI: /ftm-import page.
-4. Deployment: Vercel setup, production environment variables, deployment config.
-5. Supabase backups: point-in-time recovery or periodic export snapshots.
-6. Voice profile discussion (required before Module 9 begins).
-7. Modules 9, 1, 11, 8 (4 original modules remaining).
-8. migration 019 (person_external_ids) after synchronized tree import.
-9. Supabase seed data (Singer/Springer sources from prototype).
+4. Run full synchronized tree when .ftm file is provided.
+5. Deployment: Vercel setup, production environment variables, deployment config.
+6. Supabase backups: point-in-time recovery or periodic export snapshots.
+7. Voice profile discussion (required before Module 9 begins).
+8. Modules 9, 1, 11, 8 (4 original modules remaining).
+9. migration 019 (person_external_ids) after synchronized tree import.
+10. Supabase seed data (Singer/Springer sources from prototype).
 
 Next immediate action:
   TIMESTAMP: 2026-05-14 UTC
-  Options (discuss with Dave):
-  a) Cleanup pass -- delete dead icebreaker route, confirm tsc clean, smoke test person
-     detail page end-to-end with the dev server.
-  b) FTM Bridge Phase 3 UI (/ftm-import page).
-  c) Vercel deployment.
-  Session posture: DISCUSS before BUILD.
+  Cleanup pass via Claude Code: delete dead icebreaker route, git pull, tsc --noEmit,
+  confirm /persons list page is reachable, smoke test /persons/[id] end-to-end.
+  Then FTM Bridge Phase 3 UI (/ftm-import page).
 
 ---
 
@@ -1310,9 +1308,10 @@ FTM BRIDGE FUTURE
 - person_external_ids: migration 019, wire into importer for PersonExternal data.
   Deferred until synchronized tree is imported.
 
-PERSON DETAIL PAGE
-See full 7-panel design spec in the FTM Bridge -- Person Detail Page section above.
-Migration 020 runs first. Route: /persons/[id].
+PERSON DETAIL PAGE -- COMPLETE
+  9 panels built and smoke tested. Route: /persons/[id].
+  Migration 020 LIVE. Dead icebreaker route pending cleanup.
+  Remaining: delete dead icebreaker route. Verify persons list page navigation.
 
 LUCIDCHART PATTERNS -- FLAGGED FOR FUTURE MODULES
 TIMESTAMP noted: 2026-05-14 UTC.
