@@ -1,3 +1,70 @@
+## 2026-05-14 UTC -- Session: BUILD (claude.ai -- administrative, housekeeping, v2.12.1)
+
+Posture: BUILD (declared at session open, person detail page was the intended target
+but was already complete from a parallel Claude Code session).
+
+### What was done
+
+Known Technical Debt section added to AGENT.md (v2.11.1):
+- AGENT.md size and OS/app separation: recognized concern, not yet actioned.
+- Added via full file rewrite (GitHub API constraint -- no patch operation).
+
+Migration 020 committed (sql/020-person-research-notes.sql):
+- person_research_notes table: UUID PK, person_id FK with CASCADE delete, unique
+  constraint (one doc per person), content text default empty, timestamps, RLS.
+- research_status column on persons: 4 states (not_started / in_progress / complete /
+  needs_archive_visit). has_conflicts explicitly excluded -- derived at query time.
+- Commit: bda1cdc.
+- Note: migration 020 was also committed independently by a parallel Claude Code
+  session (22:15 UTC). Divergence resolved via merge 4dd3f06.
+
+Git divergence resolved (by Claude Code):
+- Two parallel sessions built on the same base commit (f28a7c3) without pulling.
+- Divergence: 3 local commits + 6 remote commits with no shared history after branch point.
+- Claude Code ran git merge origin/main, resolved CHANGELOG.md and SESSIONS-INDEX.md
+  conflicts manually, auto-merged all other files cleanly, pushed.
+- Both tracks fully reconciled. Merge commit: 4dd3f06.
+- Root cause documented in Known Technical Debt: sessions must git pull before beginning.
+
+Person detail page confirmed COMPLETE (work done in parallel Claude Code session):
+- 9 panels live and smoke tested on Chetney C Clark and Aaron Jacob Klein.
+- has_conflicts confirmed as derived only -- 4 stored states, not 5.
+- Icebreaker + scaffold: one combined API call via scaffold route.
+- Dead icebreaker route flagged for cleanup (not yet deleted).
+
+Mandatory re-read rule restored to AGENT.md (v2.12.1, by Claude Code):
+- Lost during Claude Code's merge (merge used older AGENT.md as base).
+- Claude Code restored via str_replace: mandatory re-read rule in Claude in Chrome
+  section + n=0 assumption warning + protocol drift bullet in Known Technical Debt.
+- Commit: v2.12.1.
+
+Protocol drift incident documented:
+- Both claude.ai and Claude Code skipped re-reading the Claude in Chrome section
+  before writing migration plans. User caught the errors.
+- Mandatory re-read rule added to AGENT.md as direct response.
+- Protocol drift note added to Known Technical Debt.
+
+### Build phase
+
+Phase 3 ACTIVE -- 12 of 16 original modules complete + Module 17 Phase 2
++ person detail page COMPLETE.
+
+Migrations 001-020 all LIVE in Supabase.
+
+### What still needs to happen (priority order)
+
+1. Cleanup: delete dead icebreaker route.
+2. Run full synchronized tree when .ftm file is provided.
+3. FTM Bridge Phase 3 UI (/ftm-import page).
+4. Vercel deployment.
+5. Supabase backups.
+6. Voice profile discussion (required before Module 9).
+7. Modules 9, 1, 11, 8.
+8. Migration 019 after synchronized tree import.
+9. Supabase seed data.
+
+---
+
 ## 2026-05-14 04:00 UTC -- Session: BUILD (v2.11.0 cleanup · migration 020 · person detail page)
 
 ### AGENT.md v2.11.0

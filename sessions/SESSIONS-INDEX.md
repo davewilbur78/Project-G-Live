@@ -4,6 +4,7 @@ Format: TIMESTAMP | Posture | AI | One-sentence summary
 
 ---
 
+2026-05-14 UTC | BUILD | Claude (claude.ai) | Administrative session: Known Technical Debt added, migration 020 committed, person detail page confirmed COMPLETE via Claude Code parallel session, mandatory re-read rule restored after merge loss, v2.12.1.
 2026-05-14 04:00 UTC | BUILD | Claude (claude.ai) | v2.11.0 cleanup; migration 020 live; person detail page 9 panels built and committed
 2026-05-14 01:15 UTC | EXPLORE | Claude (claude.ai) | AI icebreaker and maps added as first-class person detail page features; session close.
 2026-05-14 01:00 UTC | BUILD | Claude Code (claude-sonnet-4-6) | FTM Bridge Phase 2 complete: full idempotency (delete-then-reinsert), SourceLink wiring (1117/1189 events sourced), alternate names with GEDCOM cleaning, IsLiving not importable (no column in schema 20200615).
