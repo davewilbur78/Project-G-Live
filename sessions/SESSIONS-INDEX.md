@@ -7,6 +7,7 @@ Format: TIMESTAMP | Posture | AI | One-sentence summary
 2026-05-14 04:00 UTC | BUILD | Claude (claude.ai) | v2.11.0 cleanup; migration 020 live; person detail page 9 panels built and committed
 2026-05-14 01:15 UTC | EXPLORE | Claude (claude.ai) | AI icebreaker and maps added as first-class person detail page features; session close.
 2026-05-14 01:00 UTC | BUILD | Claude Code (claude-sonnet-4-6) | FTM Bridge Phase 2 complete: full idempotency (delete-then-reinsert), SourceLink wiring (1117/1189 events sourced), alternate names with GEDCOM cleaning, IsLiving not importable (no column in schema 20200615).
+2026-05-13 22:15 UTC | EXPLORE->BUILD | Claude (claude.ai) + Claude Code | Research Notes panel: migration 020, scaffold, preview toggle, has_conflicts fix; smoke test passed on Aaron Jacob Klein; v2.12.0.
 2026-05-13 22:12 UTC | BUILD | Claude Code (claude-opus-4-7) | FTM SQLite import pipeline complete: SEE encryption cracked, scripts/ftm-extractor.c + scripts/import-ftm.mjs built and run; 143 persons, 96 families, 1189 timeline events live in Supabase.
 2026-05-13 UTC | BUILD | Claude Code (claude-sonnet-4-6) | AGENT.md v2.8.6 complete: Modules 12+14+13 smoke tests PASSED, 12/16 modules done, 4 remaining; session snapshot written and committed.
 2026-05-11 14:30 UTC | BUILD | Claude (claude-sonnet-4-6) | Module 14 (DNA Evidence Tracker) complete: sql/018 live, 2 API routes, 3 pages, GPS note enforced; dashboard fixed (Module 12 now shows COMPLETE); AGENT.md v2.8.5.

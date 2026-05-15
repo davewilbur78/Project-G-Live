@@ -28,6 +28,65 @@
 
 ---
 
+## 2026-05-13 22:15 UTC -- Session: EXPLORE->BUILD (Research Notes panel complete)
+
+Posture: EXPLORE -> BUILD. Design locked in EXPLORE; Claude Code executed the build.
+
+### What was done
+
+Migration 020 committed and run in Supabase:
+- sql/020-person-research-notes.sql: person_research_notes table (id, person_id FK
+  cascade delete, content text, created_at, updated_at). Unique index on person_id
+  (one document per person). RLS enabled.
+- ALTER TABLE persons ADD COLUMN research_status text NOT NULL DEFAULT 'not_started'
+  CHECK (not_started | in_progress | complete | needs_archive_visit).
+  has_conflicts explicitly excluded -- derived at query time from source_conflicts.
+
+Design decisions locked this session:
+- Markdown textarea + preview toggle (not Tiptap). Portable, no dependency, upgradeable.
+- 4 manual research_status states only. has_conflicts is derived, never stored.
+- AI scaffold optional on first open. "Start blank" or "Start with AI scaffold."
+- Scaffold sections ARE the prompts -- headers with one-line observations under each.
+- Icebreaker (Panel 2) and scaffold (Panel 3) share one API call. One call returns
+  { icebreaker, scaffold } together. Cannot contradict each other.
+- Research Notes are freeform. No GPS enforcement on content.
+- Voice profile conversation not yet had. Scaffold language neutral for now.
+
+Claude Code gaps found and fixed (four gaps between design and prior implementation):
+1. has_conflicts removed from STATUS_CONFIG and STATUS_ORDER in page.tsx.
+   Also corrected in sql/020-person-research-notes.sql for documentation accuracy.
+2. Markdown preview toggle added to Research Notes panel header. Write/Preview tabs.
+   renderMarkdown() inline function -- no library. Handles headers, bold/italic,
+   bullets, paragraphs. Toggle appears only once notes are started.
+3. Combined scaffold API route: src/app/api/persons/[id]/scaffold/route.ts.
+   One AI call via callWithEngine('gra', ...) returns { icebreaker, scaffold } as JSON.
+   Old /icebreaker route is dead code (not deleted -- flagged for cleanup pass).
+4. First-open choice UI in Panel 3. Blank notes show "Start blank" / "Start with
+   AI scaffold" instead of a textarea. Scaffold button populates textarea and
+   auto-saves. "Start blank" opens clean empty textarea.
+
+Smoke test: PASSED on Aaron Jacob Klein (commit ed2402e by Claude Code).
+- Panel 2 icebreaker: specific, data-driven, pointed to WWI service angle.
+- Panel 3 scaffold: consistent with icebreaker (same API call). Populated with
+  real timeline observations under structured section headers.
+- Write/Preview toggle working. Rendered markdown correct.
+- Status dropdown shows exactly 4 options. has_conflicts gone.
+- Auto-save confirmed ("Saved at" timestamp visible).
+
+### Build phase
+
+Phase 3 ACTIVE -- 12 of 16 original modules complete + Module 17 Phase 2 + person detail page.
+Person detail page: all panels live, Research Notes complete, icebreaker + scaffold working.
+
+### Open for next session
+
+- Delete dead icebreaker route (cleanup).
+- Voice profile conversation (required before Module 9).
+- Connie Knox Ancestry playlist review (Dave will provide summary).
+- FTM Bridge Phase 3 UI (/ftm-import page) or Vercel deployment -- next BUILD target.
+
+---
+
 ## 2026-05-11 14:30 UTC -- Session: BUILD (Module 14 DNA Evidence Tracker)
 
 Posture: BUILD. Module 14 built complete while user stepped away.
