@@ -4,6 +4,7 @@ Format: FILENAME | TIMESTAMP | Posture | AI | one-sentence summary
 
 ---
 
+SESSION-2026-05-16-0450-UTC.md | 2026-05-16 04:50 UTC | BUILD | Claude Code (claude-sonnet-4-6) | PersonExternal initiative complete and merged to main: migration 019 LIVE, person_external_ids = 1,576 ancestry rows, importer Phase 7 wired, pagination fix landed, orphan families cleaned -- final state persons=1,577, pei=1,576, events=5,983, families=625.
 SESSION-2026-05-16-0446-UTC.md | 2026-05-16 04:46 UTC | BUILD | Claude Code (claude-sonnet-4-6) | Pagination fix landed (commit 9886492); cleanup SQL run by claude.ai; clean re-import verified -- persons=1,577, person_external_ids=1,576, timeline_events=5,983, all idempotent; one collateral finding: 1,088 orphan families (NULL partners) need follow-up DELETE.
 SESSION-2026-05-16-0428-UTC.md | 2026-05-16 04:28 UTC | BUILD | Claude Code (claude-sonnet-4-6) | Migration 019 live; importer Phase 7 wired; person_external_ids = 1,576 ancestry rows (idempotency confirmed); BUT exposed pre-existing 1000-row select cap bug in persons-dedup -- 1,152 duplicate persons created across two runs; persons table needs cleanup before any further re-import.
 SESSION-2026-05-16-0354-UTC.md | 2026-05-16 03:54 UTC | BUILD | Claude Code (claude-sonnet-4-6) | ftm-extractor.c updated with PersonExternal + Sync_Person; schema confirmed; Ancestry IDs (AmtId) present for all 1,576 persons in Sync_Person; FSIDs absent; PersonExternal empty; fresh extract complete.
