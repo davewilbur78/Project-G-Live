@@ -402,12 +402,20 @@ async function main() {
   const personIdMap = new Map();
 
   if (!DRY_RUN) {
-    // Fetch existing FTM persons by ancestry_id (manual upsert since no unique constraint exists)
-    const { data: existing, error: fetchErr } = await sb.from('persons')
-      .select('id, ancestry_id')
-      .like('ancestry_id', 'ftm:%');
-    if (fetchErr) throw new Error(`Fetch persons: ${fetchErr.message}`);
-    const existingIds = new Map((existing ?? []).map(p => [p.ancestry_id, p.id]));
+    // Fetch existing FTM persons by ancestry_id (manual upsert since no unique constraint exists).
+    // PostgREST caps single .select() responses at 1000 rows. Trees larger than 1000 persons
+    // need pagination, otherwise the tail is silently missed and inserted as duplicates on every run.
+    const existingIds = new Map();
+    const PAGE = 1000;
+    for (let offset = 0; ; offset += PAGE) {
+      const { data: page, error: fetchErr } = await sb.from('persons')
+        .select('id, ancestry_id')
+        .like('ancestry_id', 'ftm:%')
+        .range(offset, offset + PAGE - 1);
+      if (fetchErr) throw new Error(`Fetch persons: ${fetchErr.message}`);
+      for (const p of page ?? []) existingIds.set(p.ancestry_id, p.id);
+      if (!page || page.length < PAGE) break;
+    }
 
     let inserted = 0, updated = 0;
     for (const [i, row] of personRows.entries()) {
