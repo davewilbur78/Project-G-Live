@@ -1,6 +1,6 @@
 Project-G-Live AGENT.md
-Version: 2.16.0
-Last updated: 2026-05-16 UTC
+Version: 2.17.0
+Last updated: 2026-05-16 19:30 UTC
 Last updated by: Claude (claude.ai)
 
 # What This Is
@@ -232,7 +232,7 @@ Semantic versioning: MAJOR.MINOR.PATCH
 
 All timestamps: YYYY-MM-DD HH:MM UTC. Time to the minute required. No date-only stamps.
 
-Current version: 2.16.0
+Current version: 2.17.0
 
 ---
 
@@ -471,7 +471,8 @@ PHASE 3 BUILD ORDER:
 13. FTM Bridge (Module 17) -- COMPLETE (all phases)
     Phase 1+2 commit: 291f786. Phase 3 UI: dc15d06 + a4b1fca. TIMESTAMP: 2026-05-14 UTC.
     Full synchronized tree import: COMPLETE 2026-05-16 UTC.
-    1,576 persons, 5,983 timeline events, 87.6% source-wired.
+    1,576 persons, 5,980 timeline events, 44 notes live in Supabase.
+    Fact-type normalizer: COMPLETE 2026-05-16 UTC.
 
 14. Research Report Writer (Module 9) -- NOT STARTED
     Requires voice profile discussion first.
@@ -503,12 +504,14 @@ Reverse-engineered by Claude Code (claude-opus-4-7) in a single session.
   Framework path: DYLD_FRAMEWORK_PATH=/Applications/Family Tree Maker 2024.app/Contents/Frameworks
   Compile:        clang -arch arm64 -o scripts/ftm-extractor scripts/ftm-extractor.c
 
-### Current Import State (Phase 2 -- synced tree)
+### Current Import State
 
-  Persons: 1,576 | Families: 625 | Timeline events: 5,983
-  Source-wired: 5,237 (87.6%) | Sources: 1,930 | Repositories: 4
+  Persons: 1,576 | Families: 625 | Timeline events: 5,980 | Notes: 44
+  Source-wired: 5,236 (87.6%) | Sources: 1,930 | Repositories: 5
   Tree: KLEIN-SINGER and WILBUR-DALIMORE 2025
   Idempotency: FULLY SAFE. SourceLink: WIRED. Alt names: IMPORTED.
+  Fact-type normalizer: LIVE. New event types active in database.
+  Migrations 001-022 all live in Supabase.
 
 ### Phase 3 Extractor Scope -- DECIDED 2026-05-16 UTC
 
@@ -528,21 +531,24 @@ Reverse-engineered by Claude Code (claude-opus-4-7) in a single session.
   Importer Phase 8: filters LinkTableID=5, strips RTF, upserts in batches of 200.
     Schema cache warmup poll built into Phase 8 before the upsert (canonical reference).
   "Send to Source Conflict Resolver" action on Research Notes panel: future.
-  To activate on a fresh machine: run migration 021 in Supabase,
+  To activate on a fresh machine: run migrations 021 + 022 in Supabase,
     then node scripts/import-ftm.mjs --skip-extract.
 
-### Fact-Type Normalizer -- DECIDED 2026-05-16 UTC
+### Fact-Type Normalizer -- COMPLETE 2026-05-16 UTC
 
-  Category A (standard tags): add to TAG_TO_EVENT.
-    ARVL -> arrival, DPRT -> departure (keep distinct, not folded into immigration).
-    Naturalization sub-tags: kept granular (petition, declaration, oath, certificate,
-      deposition -- each is a distinct legal document).
-    _MILT, ADDR, CHR, PROB, DIVF also added.
-    .trim() on all factTypeTag and factTypeName fields -- mandatory.
-  Category B (narrative custom facts): regex normalizer.
-    Collapse ~140 unique types to: obituary, marriage_announcement, marriage_license,
-    birth_announcement, wedding_announcement, newspaper_mention, other.
-    Original fact name preserved in description field.
+  Category A (standard tags): added to TAG_TO_EVENT.
+    ARVL -> arrival, DPRT -> departure (kept distinct from immigration/emigration).
+    CHR -> christening, ADDR -> address, PROB -> probate, DIVF -> divorce_filed.
+    _MILT -> military_service. .trim() on all factTypeTag/factTypeName fields.
+  Category B (narrative custom facts): regex normalizer (normalizeCustomEventType).
+    Collapses ~140 unique types. Naturalization sub-events kept granular:
+    naturalization_petition, naturalization_declaration, naturalization_oath,
+    naturalization_certificate, naturalization_deposition.
+    Media/newspaper types: obituary, marriage_announcement, marriage_license,
+    birth_announcement, wedding_announcement, newspaper_mention.
+    All others: other. Original fact name preserved in description field.
+  Migration 022: timeline_events check constraint expanded to include all new types.
+    LIVE in Supabase as of 2026-05-16 UTC.
 
 ### Known FTM Data Quality Issues
 
@@ -687,18 +693,25 @@ internal state and ignores textarea value changes injected by automation tools.
 Do not attempt CodeMirror interaction for migrations.
 
 Use the Supabase Management API from any browser tab that is already logged in
-to supabase.com. Execute via javascript_tool:
+to supabase.com. Execute via javascript_tool wrapped in an async IIFE:
 
-  const token = JSON.parse(localStorage.getItem('supabase.dashboard.auth.token')).access_token;
-  const res = await fetch(
-    'https://api.supabase.com/v1/projects/slqjooudyfvmnaoetdvi/database/query',
-    {
-      method: 'POST',
-      headers: { 'Authorization': `Bearer ${token}`, 'Content-Type': 'application/json' },
-      body: JSON.stringify({ query: sql })
-    }
-  );
-  console.log(await res.json());
+  (async () => {
+    const sql = `YOUR SQL HERE`;
+    const token = JSON.parse(localStorage.getItem('supabase.dashboard.auth.token')).access_token;
+    const res = await fetch(
+      'https://api.supabase.com/v1/projects/slqjooudyfvmnaoetdvi/database/query',
+      {
+        method: 'POST',
+        headers: { 'Authorization': `Bearer ${token}`, 'Content-Type': 'application/json' },
+        body: JSON.stringify({ query: sql })
+      }
+    );
+    window._result = JSON.stringify(await res.json());
+    return window._result;
+  })();
+
+IMPORTANT: javascript_tool does not support top-level await. Always wrap in an
+async IIFE as shown above. A response of [] means DDL succeeded.
 
 This is the first approach for all migrations -- not a fallback. It is faster,
 more reliable, and requires no UI interaction.
@@ -777,10 +790,10 @@ One true local path: /Users/dave/Project-G-Live/
 - STALE CACHE: pkill -f "next dev" then rm -rf .next then npm run dev
 - After GitHub connector push: git pull before assuming files are current
 - SESSIONS-INDEX.md git conflicts: always resolve as "keep both sides, most-recent-first".
-  On git pull --rebase, if SESSIONS-INDEX.md conflicts: open the file, keep all entries
-  from both sides, ensure the most-recent session is the first line, then
-  git add sessions/SESSIONS-INDEX.md and git rebase --continue.
-  Never abort the rebase for this file -- the conflict is always a trivial text merge.
+  Use git merge, not git rebase, when parallel sessions have diverged.
+  Rebase tangles old commits on this repo -- confirmed multiple times.
+  On merge conflict in SESSIONS-INDEX.md: keep all entries from both sides,
+  most-recent session first, then git add and complete the merge.
 - NEVER use git add -A. Always stage specific paths.
 
 ---
@@ -796,7 +809,7 @@ One true local path: /Users/dave/Project-G-Live/
 /docs/modules/      -- Module design documents
 /docs/architecture/ -- Architecture decision records
 /prompts/           -- AI engine library
-/sql/               -- SQL migration files (001-021, all live)
+/sql/               -- SQL migration files (001-022, all live)
 /src/               -- Application source
   /src/app/         -- Next.js pages and API routes
   /src/lib/ai.ts    -- callWithEngine() -- 15 engines
@@ -835,13 +848,7 @@ TIMESTAMP: 2026-05-16 UTC
   package-lock.json, prototypes/dashboard-mockup-v1.html,
   scripts/import-gedcom.js, sessions/SESSION-2026-05-14-REVIEW-CLAUDECODE-UTC.md
 - AGENT.md size: recognized concern, not yet actioned.
-- stats query .in() chunking: RESOLVED 2026-05-16 UTC (commit e4e064c).
-- Dry-run source wiring report: RESOLVED 2026-05-16 UTC (commit e4e064c).
 - alt_names primary-name dedup: 22 persons. Fix in next importer session.
-- git add -A staging incident: RESOLVED 2026-05-14 UTC.
-- git divergence: RESOLVED 2026-05-14 UTC.
-- Existing-persons fetch capped at 1000 rows: RESOLVED 2026-05-15 UTC (commit 9886492).
-  Pagination loop added to import-ftm.mjs.
 - families.partner1_id / partner2_id use ON DELETE SET NULL, not CASCADE.
   Caused 1,088 orphan families during persons cleanup 2026-05-15 UTC.
   Orphans deleted manually. Schema behavior now documented.
@@ -851,22 +858,18 @@ TIMESTAMP: 2026-05-16 UTC
 
 ## Project State
 
-TIMESTAMP last updated: 2026-05-16 UTC by Claude (claude.ai) -- v2.16.0
+TIMESTAMP last updated: 2026-05-16 19:30 UTC by Claude (claude.ai) -- v2.17.0
 
 Build phase: Phase 3 ACTIVE -- 13 of 17 modules complete + person detail page COMPLETE
 
 Genealogical data foundation: COMPLETE and LIVE.
-  Migrations 001-021 all committed. Migrations 001-019 confirmed live in Supabase.
-  Migration 021 (ftm_notes): committed 2026-05-16 UTC, ready to run.
+  Migrations 001-022 all committed and live in Supabase.
   1,576 persons from full synchronized tree live in Supabase.
-  5,237 of 5,983 timeline events have source_id wired (87.6%).
+  5,236 of 5,980 timeline events have source_id wired (87.6%).
+  44 FTM notes imported. Fact-type normalizer live.
   Importer fully idempotent. Safe to re-run.
 
-person_external_ids: LIVE. 1,576 rows, all provider='ancestry'. Idempotent. 2026-05-15 UTC.
-
-Notes pipeline: COMPLETE 2026-05-16 UTC.
-  Migration 021 committed. Importer Phase 8 committed with PostgREST warmup.
-  Run migration 021 in Supabase to activate.
+person_external_ids: LIVE. 1,576 rows, all provider='ancestry'. 2026-05-15 UTC.
 
 src/lib/ai.ts: COMPLETE. 15 engines registered and live.
 src/types/index.ts: COMPLETE. tsc clean.
@@ -877,20 +880,17 @@ FTM Bridge: COMPLETE AND SMOKE TESTED (all phases).
 
 Person detail page: COMPLETE AND CLEAN. 9 panels.
 
-git repo: CLEAN at session close commit (this commit).
+git repo: CLEAN. Last push: 2026-05-16 19:30 UTC.
 
 What still needs to happen (priority order):
-1. Run migration 021 in Supabase (ftm_notes -- migration file is committed and ready).
-2. Fact-type normalizer: TAG_TO_EVENT additions + Category B regex pass.
-3. Vercel deployment.
-4. Supabase backups.
-5. Voice profile discussion (gates Module 9).
-6. Modules 9, 1, 11, 8.
+1. Vercel deployment.
+2. Supabase backups.
+3. Voice profile discussion (gates Module 9).
+4. Modules 9, 1, 11, 8.
 
 Next immediate action:
-  TIMESTAMP: 2026-05-16 UTC
-  Fact-type normalizer: Category A TAG_TO_EVENT additions + Category B regex pass.
-  Decisions are locked in AGENT.md. Build is ready.
+  TIMESTAMP: 2026-05-16 19:30 UTC
+  Vercel deployment or voice profile discussion. Both are unblocked.
 
 ---
 
@@ -899,15 +899,13 @@ Next immediate action:
 FTM BRIDGE FUTURE
 - PersonExternal: COMPLETE 2026-05-15 UTC (migration 019, importer Phase 7, pagination fix).
 - Notes pipeline: COMPLETE 2026-05-16 UTC (migration 021, importer Phase 8, PostgREST warmup).
-- Fact-type normalizer: Category A TAG_TO_EVENT additions + Category B regex pass
+- Fact-type normalizer: COMPLETE 2026-05-16 UTC (commit 6c522882, migration 022).
 - alt_names primary-name dedup: fix in next importer session
 - Living flag: compute heuristically from death date + birth year
 - Media import: selective on-demand pipeline (future Module 18)
   Architecture: pull file -> Document Analysis pipeline -> assertions
   Storage: R2/B2 when the time comes. Not Supabase Storage for bulk.
 - MediaLink relationships: needs extractor update
-- stats query chunking: RESOLVED (e4e064c)
-- Dry-run reporting: RESOLVED (e4e064c)
 
 DEPLOYMENT AND INFRASTRUCTURE
 - Vercel deployment: not yet done
