@@ -77,14 +77,17 @@ should be a first-class navigation destination.
 The person page should be versatile: both a reading/review surface
 and an active workspace where you can trigger investigations, add
 sources, and do real work. The full design of this is not yet decided
-and should wait until after the Connie Knox Ancestry workflow review
-(see Open Threads below).
+and should wait until the Connie Knox Ancestry workflow review is
+complete (see Open Threads below). The Research Companion proposal
+below is directly relevant to this question.
 
 ---
 
 ## Proposed Navigation Structure (draft, not final)
 
 This is a starting frame for discussion, not a build spec.
+NOTE: the Research Companion proposal below may argue for revisions
+to this structure. Hold this loosely until that proposal is resolved.
 
 - **People** -- search/browse tree, land on person pages (the hub)
 - **Research Workbench** -- Case Study Builder, Research Investigation,
@@ -120,6 +123,117 @@ When those conditions are met, deployment is the next move. Not before.
 
 ---
 
+## PROPOSAL: The Research Companion Model
+
+TIMESTAMP raised: 2026-05-16 UTC
+Status: UNDER CONSIDERATION -- not a decision, not canon
+Source: Emerged from Connie Knox Ancestry workflow session (batches 1-2)
+Mental flexibility required: more batches pending; this proposal should
+be tested against remaining material before anything is finalized.
+
+### The Observation That Prompted This
+
+Connie Knox runs three monitors. One screen holds her Ancestry tree.
+One screen holds her active search and records. A third holds notes
+and reference material. Her research session is not a sequence of
+destinations -- it is a set of parallel surfaces, all open at once.
+
+This is not unusual. It is how serious genealogical researchers work.
+The multi-monitor setup appeared in Connie's top-10 most-watched tip
+video -- meaning her audience recognized it immediately as describing
+their own workflow.
+
+This observation reframes a question that has not been explicitly asked
+before in this project: what kind of thing is this app?
+
+### The Proposal
+
+**Current implicit model: research destination.**
+The researcher navigates to this app, does a task within a module,
+navigates away. The app is one destination among many -- better than
+Ancestry for GPS-compliant work, but structurally similar in how it
+is used.
+
+**Proposed alternative model: research companion.**
+The app is always open. It is the persistent context for everything
+happening on the other screens. When something surfaces on Ancestry,
+the researcher looks at this app to understand what it means. When
+a DNA match cluster resolves, the researcher looks here to see which
+branch it belongs to. When a name appears in a census neighborhood,
+the researcher looks here to see if that person is already tracked.
+
+The companion is not a destination you visit. It is a presence you
+keep open.
+
+### What This Model Would Require (If Adopted)
+
+These are not build decisions. They are design constraints the
+companion model would impose if we decide to embrace it.
+
+**Speed as a primary design value.**
+Getting to any person's record should be near-instant from anywhere
+in the app. Global search visible on every page, not just the People
+hub. Person page loads and shows critical information before the
+researcher has time to scroll.
+
+**Information density over breathing room.**
+The researcher glancing at monitor two while Ancestry is on monitor
+one needs facts, not visual space. Critical information -- status, key
+dates, sourcing health, open threads -- visible without scrolling.
+
+**A persistent anchor zone on the person page.**
+A compact header area that never scrolls off screen: name and dates,
+research status, sourcing health indicator, direct ancestor flag, open
+investigation link. This zone is the constant reference. The panels
+below are the workspace.
+
+**Lateral navigation, not only hierarchical.**
+Family context -- parents, spouse, children, close associates -- present
+and directly clickable on the person page. The researcher following a
+lead moves person-to-person in one click, not by returning to the hub.
+
+**Person-first information architecture.**
+Modules are tools reached from person context, not top-level
+destinations visited independently. The researcher is looking at a
+person and opens a case study about that person. The person is the
+anchor; the module is the action. This may argue for revisions to the
+proposed navigation structure above.
+
+**The companion as a nudge, not just a record.**
+A companion paying attention to what the researcher is doing might
+offer contextual prompts -- for example, when a researcher is working
+on someone from a new location: "Have you checked what records exist
+for Wayne County, WV in this era?" That is a future capability, but
+the architecture should not foreclose it.
+
+### What This Proposal Does Not Change (Regardless of Outcome)
+
+- The People hub is still the required next build. Companion model or
+  not, 1,576 people need a front door.
+- Navigation restructure is still required. Infrastructure out of
+  main nav.
+- The person page still needs a compact, persistent anchor zone. Even
+  if the full companion model is not adopted, this is good design.
+- Vercel deployment is still gated. Nothing here changes that.
+
+### Open Questions This Proposal Raises
+
+- Does person-first architecture change the proposed navigation
+  structure in a meaningful way, or is it compatible with it?
+- What does a "sourcing health indicator" look like without being
+  misleading? (Given the 87.6% source-wiring figure may be overstated
+  -- see Open Threads.)
+- If modules are reached from person context, does the dashboard still
+  serve a useful purpose? Or does it become a status overview rather
+  than a navigation surface?
+- Does this model argue for a different visual design language -- more
+  information-dense and less editorial-magazine in feel?
+
+These questions should remain open until all Connie Knox batches are
+reviewed and the full synthesis is written.
+
+---
+
 ## Open Threads
 
 These are real issues flagged during exploration. They are parked
@@ -139,6 +253,9 @@ Not now. Flagged and tracked.
 
 ### Connie Knox -- Ancestry workflow deep dive
 TIMESTAMP flagged: 2026-05-16 UTC
+Status: IN PROGRESS -- batches 1 and 2 received and committed to
+  docs/architecture/connie-knox-workflow-notes.md. Batches 3+ pending.
+  Enhanced batch 2 re-run also in progress.
 
 Connie Knox has a full YouTube playlist teaching high-level Ancestry
 usage. The premise: if Claude understands how a power user uses Ancestry
@@ -146,13 +263,14 @@ end-to-end -- the workflows, search strategies, features most researchers
 never find -- Claude can identify the gaps that this app should fill,
 rather than designing against an abstract notion of what Ancestry can't do.
 
-Action required: before significant navigation and person-page design
-work, conduct a Connie Knox Ancestry workflow session. Review
-docs/research/connie-knox-workflow-reference.md as a starting point.
-The output of that session should feed directly into People hub design
-and person page design.
+Output so far: Research Companion model proposal (above). Research
+status field concept. People hub three-view structure. FAN Club Mapper
+as native replacement for census-extraction-to-Excel workflow. Module 8
+reframing as structured network data layer + map visualization output.
+Person page anchor zone. Lateral navigation requirement.
 
-This is the next major EXPLORE session after this document is committed.
+Synthesis step (writing implications into this doc as decisions) held
+until all batches are complete.
 
 ---
 
@@ -166,12 +284,14 @@ Not yet formally discussed. Known:
 
 Dedicated future session topic. Should follow the Connie Knox session
 so that design decisions are informed by workflow understanding.
+Note: the Research Companion proposal above may have implications for
+visual design language that should be considered in that session.
 
 ---
 
 ## Build Priority Order (current understanding)
 
-1. Connie Knox Ancestry workflow session (EXPLORE -- gates everything below)
+1. Connie Knox Ancestry workflow session (EXPLORE -- IN PROGRESS)
 2. Navigation restructure -- move infrastructure out of main nav
 3. People hub -- search, browse, person page as first-class destination
 4. Person page design -- informed by Connie Knox session output
@@ -181,6 +301,11 @@ so that design decisions are informed by workflow understanding.
 8. GEDCOM Bridge (Module 1)
 9. Family Group Sheet Builder (Module 11)
 10. FAN Club Mapper (Module 8)
+
+Note: FAN Club Mapper (Module 8) moved up in practical importance
+by Connie Knox session findings -- it is the native replacement for
+the census-extraction-to-Excel workflow. Build order position may
+change after synthesis is complete.
 
 ---
 
@@ -196,8 +321,12 @@ TIMESTAMP: 2026-05-16 UTC -- Person Detail Page identified as a
 
 TIMESTAMP: 2026-05-16 UTC -- Connie Knox Ancestry playlist established
   as a required input before person-page and navigation design is
-  finalized. This is the next EXPLORE session.
+  finalized. This is the active EXPLORE session.
 
 TIMESTAMP: 2026-05-16 UTC -- Vercel deployment gated on navigation
   restructure and People hub completion. Not a current build priority.
   Deploy when the app is coherent enough to use daily.
+
+TIMESTAMP: 2026-05-16 UTC -- Research Companion model raised as a
+  proposal. Not a decision. Under consideration pending remaining
+  Connie Knox batches. See proposal section above.
