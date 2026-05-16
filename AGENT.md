@@ -1,6 +1,6 @@
 Project-G-Live AGENT.md
-Version: 2.13.1
-Last updated: 2026-05-15 UTC
+Version: 2.16.0
+Last updated: 2026-05-16 UTC
 Last updated by: Claude (claude.ai)
 
 # What This Is
@@ -232,7 +232,7 @@ Semantic versioning: MAJOR.MINOR.PATCH
 
 All timestamps: YYYY-MM-DD HH:MM UTC. Time to the minute required. No date-only stamps.
 
-Current version: 2.13.1
+Current version: 2.16.0
 
 ---
 
@@ -309,6 +309,27 @@ Protocol:
 
 The Steve Little Chat Conversation Abstractor engine is designed for this.
 Wire it into Module 16 (Research Investigation) as a first-class feature.
+
+## Media-as-Unanalyzed-Evidence
+
+TIMESTAMP established: 2026-05-16 UTC
+
+Every media file attached to a person in FTM is a document that has never been
+seen by the AI pipeline. The 3,752 files in the synchronized tree are not a
+storage problem -- they are unanalyzed evidence. Census images, ship manifests,
+draft cards, death certificates, naturalization documents, photographs -- each
+one is a candidate for the Document Analysis Worksheet pipeline.
+
+The import run inventory is the basis for deciding which files to run through
+the pipeline first. Selective on-demand import is the architecture: pull a file,
+analyze it via Deep Look v2 + OCR-HTR + Fact Extractor, write extracted facts
+into assertions with source_id attached. The file does not need to live in
+Supabase permanently for this to work.
+
+This principle connects directly to the Brick Wall Reframe: a census image
+sitting inert in Ancestry has a ceiling. The same image run through the AI
+pipeline surfaces every name on the page, every neighbor, every address
+discrepancy -- and that is address-search territory.
 
 ## The Macro Vision: Research-to-Family Flywheel
 
@@ -428,351 +449,132 @@ PHASE 3 BUILD ORDER:
 
 6.  Research Plan Builder (Module 2) -- COMPLETE
     Committed: 2026-05-10 17:00 UTC.
-    research_plans + research_plan_items tables. AI strategy generation
-    (Research Agent Assignment v2.1 pattern). research_plan_id FK added to
-    research_sessions. Dashboard breadcrumb navigation on all three pages.
-    SQL migration: sql/006-add-research-plans.sql.
 
 7.  Source Conflict Resolver (Module 6) -- COMPLETE
     Committed: 2026-05-10 20:30 UTC.
-    source_conflicts table (standalone -- NOT the case-study-scoped conflicts table).
-    References global sources directly. GPS-aware AI analysis via /analyze route.
-    Fact types: birth_date, birth_place, name, age, death_date, death_place,
-    residence, immigration, marriage, occupation, other.
-    SQL migration: sql/007-add-source-conflicts.sql.
-    Pages: list, new, detail (with side-by-side source comparison + AI Analyze).
 
 8.  Timeline Builder (Module 7) -- COMPLETE
     Committed: 2026-05-11 00:25 UTC.
-    addresses (first-class table) + timeline_events.
-    4 API routes: /api/timeline (GET+POST), /api/timeline/[id] (GET+PATCH+DELETE),
-    /api/timeline/addresses (GET+POST), /api/timeline/normalize-address (POST AI).
-    3 pages: list (person selector, filter tabs, timeline dot visual),
-    new (address section expands for residence, AI Normalize button),
-    detail (read-only + edit toggle, two-step delete).
-    Address-as-Evidence is the spine-level principle driving this module.
-    SQL migration: sql/008-add-timeline-addresses.sql.
 
 9.  Research Investigation (Module 16) -- COMPLETE
     TIMESTAMP: 2026-05-11 22:00 UTC.
-    Persistent AI-collaborative workspace for open-ended research problems.
-    Sits upstream of Case Study Builder. Entry: conversation, not a form.
-    SQL migrations run in Supabase: 2026-05-12 00:10 UTC.
-    Dev server verified clean: 2026-05-12 01:10 UTC (Claude Code cache-fix session).
-    Functional smoke test passed: 2026-05-12 (dinner session) by Dave.
-    Bug fix 2026-05-13 UTC: persons join used wrong column names (name_given/name_surname)
-    instead of actual schema (given_name/surname). List page silently showed empty.
-    Fixed in 5 files. Commit: v2.9.1.
-    5 tables: investigations, investigation_messages, investigation_evidence,
-    investigation_candidates, investigation_matrix_cells.
-    7 API routes: /api/investigation (list+create), /api/investigation/[id]
-    (GET+PATCH), /api/investigation/[id]/messages (GET+POST with AI context
-    pre-loading), /api/investigation/[id]/evidence (GET+POST),
-    /api/investigation/[id]/candidates (GET+POST),
-    /api/investigation/[id]/candidates/[candidateId] (PATCH),
-    /api/investigation/[id]/matrix (GET+POST upsert).
-    3 pages: catalog (list), new investigation, workbench (4 tabs:
-    Conversation | Evidence | People & Matrix | Conclusions).
-    AI context pre-loading: every conversation turn loads full investigation
-    state (problem statement, evidence, candidates, orientation) into the
-    system prompt so the AI partner is fully oriented on every response.
 
 10. Correspondence Log (Module 12) -- COMPLETE
     TIMESTAMP: 2026-05-12 (dinner session) UTC.
-    Tracks all outgoing research inquiries and responses. GPS element 1
-    (reasonably exhaustive search). No AI calls in v1.
-    correspondence table: recipient_type check constraint, outcome_status check
-    constraint, follow_up_needed boolean, FKs to repositories/persons/sources.
-    SQL migration: sql/017-correspondence.sql -- LIVE in Supabase.
-    2 API routes: /api/correspondence (GET+POST), /api/correspondence/[id]
-    (GET+PATCH+DELETE).
-    3 pages: list (summary bar, status filter tabs), new, detail (edit toggle,
-    two-step delete).
-    Smoke test: PASSED 2026-05-13 UTC by Claude Code. All pages 200. API confirmed live.
 
 11. DNA Evidence Tracker (Module 14) -- COMPLETE
-    sql/018-dna-tracker.sql LIVE in Supabase.
-    2 API routes: /api/dna-matches (GET list, POST create),
-                  /api/dna-matches/[id] (GET detail, PATCH update, DELETE).
-    3 pages: /dna-matches (list), /dna-matches/new (create), /dna-matches/[id] (detail/edit).
-    GPS note enforced: DNA is always corroborating indirect evidence, never standalone proof.
-    Designed for Ashkenazi Jewish endogamy context. cM + segments + largest segment tracked.
-    Smoke test: PASSED 2026-05-13 UTC by Claude Code.
+    TIMESTAMP: 2026-05-13 UTC.
 
 12. File Naming System (Module 13) -- COMPLETE
-    Generator page at /file-naming. No DB (stateless utility).
-    1 page: generates GPS-compliant filenames from source metadata fields.
-    Smoke test: PASSED 2026-05-13 UTC by Claude Code.
+    TIMESTAMP: 2026-05-13 UTC.
 
-13. FTM Bridge (Module 17) -- COMPLETE (Phases 1 + 2 + 3 UI)
-    Phase 1 commit: f0e3708. Phase 2 commit: 291f786. TIMESTAMP: 2026-05-13 UTC.
-    Phase 3 UI commits: dc15d06 (build) + a4b1fca (bug fix). TIMESTAMP: 2026-05-14 UTC.
-    Smoke test Phase 2: PASSED 2026-05-13 UTC by Claude Code.
-      144 persons clean, 0 raw ftm: in visible fields, 0 pipes/slashes in names.
-      Aaron Jacob Klein: 19/20 events sourced. Stanley Samuel Kwass: 13/13 sourced.
-      Source citations human-readable ("1900 United States Federal Census", etc.).
-      Known data quality notes (FTM source artifacts, not code issues):
-        "Avraham" -- one person has literal quote characters in display name.
-          Source: FTM data-entry artifact. Not a code bug.
-        *igdor Gr?er -- one person has mangled name with * and ? characters.
-          Source: character encoding artifact for non-ASCII (Yiddish) name in FTM.
-          Not a code bug.
-        Alt names include primary name -- FTM stores a NAME fact matching the primary.
-          Functionally harmless. Not a code bug.
-    Smoke test Phase 3 UI: PASSED 2026-05-14 UTC by Claude Code. tsc clean. 4/4 pass.
-    Direct import pipeline from Family Tree Maker .ftm files into Supabase.
-    No GEDCOM intermediate. Uses FTM's own SQLite SEE library to read the
-    encrypted database directly.
-    Scripts: scripts/ftm-extractor.c (C extractor), scripts/import-ftm.mjs (Node importer).
-    UI: /ftm-import page -- trigger import, live log, stat tiles, last-imported timestamp.
-    New shared lib: src/lib/ftm-import.ts (lock/log constants, isImportRunning helper).
-    Phase 2 live in Supabase: 144 persons, 96 families, 1189 timeline events
-    (1117 sourced = 93.8%), 371 sources, 5 repositories.
-    Idempotency: FULLY SAFE. Delete-then-reinsert. Zero duplicates on re-run confirmed.
-    SourceLink: WIRED. LinkTableID=2 confirmed. GPS evidence chain active in timeline UI.
-    Alternate names: IMPORTED. GEDCOM slashes stripped, duplicates removed.
-    IsLiving: does NOT exist in FTM 2024 schema (20200615). living=false correct.
-    Full tree (~1500 persons): READY TO RUN when synchronized .ftm file is provided.
-    Full tree run protocol: Claude Code handles execution. Brief in claude.ai first.
-    Use Opus model for Claude Code on full tree extraction and analysis. See Static Rules.
+13. FTM Bridge (Module 17) -- COMPLETE (all phases)
+    Phase 1+2 commit: 291f786. Phase 3 UI: dc15d06 + a4b1fca. TIMESTAMP: 2026-05-14 UTC.
+    Full synchronized tree import: COMPLETE 2026-05-16 UTC.
+    1,576 persons, 5,983 timeline events, 87.6% source-wired.
 
 14. Research Report Writer (Module 9) -- NOT STARTED
-    Requires: most modules above. Will use Narrative Assistant v3 + Linguistic
-    Profiler v3 + voice profile system. Voice profile discussion scheduled.
+    Requires voice profile discussion first.
 
 15. GEDCOM Bridge (Module 1) -- NOT STARTED
-    Kept distinct from FTM Bridge (Module 17). Use case: client-provided GEDCOM
-    files, data sharing with other researchers, import from tools other than FTM.
-    GEDCOM is lossy compared to direct FTM access but remains essential for
-    interoperability with clients and external researchers.
-    Build after FTM Bridge Phase 2 is stable.
 
 16. Family Group Sheet Builder (Module 11) -- NOT STARTED
 
 17. FAN Club Mapper (Module 8) -- NOT STARTED
-    NOTE: Should eventually be redesigned as a spatial FAN map using the
-    addresses table as its primary data source. See Address-as-Evidence
-    principle and Module 7 design doc.
 
 ---
 
 ## FTM Bridge -- Encryption, Import Pipeline, and Roadmap
 
 TIMESTAMP established: 2026-05-13 UTC
-Reverse-engineered by: Claude Code (claude-opus-4-7)
-Session snapshot: sessions/SESSION-2026-05-13-2212-UTC.md
+TIMESTAMP Phase 3 extractor scope decided: 2026-05-16 UTC
 
 ### The Breakthrough
 
 FTM .ftm files use SQLite SEE (SQLite Encryption Extension), NOT SQLCipher.
-This is why every prior community attempt to open .ftm files with SQLCipher
-tools failed. The encryption was fully reverse-engineered from the
-FTMDatabaseFoundation ARM64 binary in a single Claude Code session.
+Reverse-engineered by Claude Code (claude-opus-4-7) in a single session.
 
 ### Encryption Details
 
   File format:    SQLite SEE (not SQLCipher)
   Activation key: 7bb07b8d471d642e
-                  (passed to sqlite3_activate_see() before opening)
   DB password:    aes256:ViDfwQnOAX8IGG5T5xs3yyBOryIqfPu6
-                  (39 chars; derived from schema version "20200615" via
-                   XOR decode of FTMDataModel binary)
   Schema version: 20200615 (FTM 2024 current schema)
-  SQLite source:  Must use FTMDatabaseFoundation.framework's own SQLite/SEE.
-                  System sqlite3 and sqlcipher both fail -- wrong engine.
   Framework path: DYLD_FRAMEWORK_PATH=/Applications/Family Tree Maker 2024.app/Contents/Frameworks
   Compile:        clang -arch arm64 -o scripts/ftm-extractor scripts/ftm-extractor.c
 
-  Password is tied to SCHEMA VERSION, not app version. Any file created or
-  last saved with FTM 2024 uses the 20200615 password. Older schemas differ:
-    Schema >= 20200615: aes256:ViDfwQnOAX8IGG5T5xs3yyBOryIqfPu6  (current)
-    Schema >= 20160500: aes256:Ud1lo0OtDABLU63tRhUlLuzAJA8hNZAE
-    Schema >= 20160317: aes128:DScnaANSEN6uvDLr3HNN+0VfrPK6YODJ
-    Older schemas: offsets documented in SESSION-2026-05-13-2212-UTC.md
+### Current Import State (Phase 2 -- synced tree)
 
-### FTM Internal Schema (key tables, 109 total)
+  Persons: 1,576 | Families: 625 | Timeline events: 5,983
+  Source-wired: 5,237 (87.6%) | Sources: 1,930 | Repositories: 4
+  Tree: KLEIN-SINGER and WILBUR-DALIMORE 2025
+  Idempotency: FULLY SAFE. SourceLink: WIRED. Alt names: IMPORTED.
 
-  Person, Relationship, ChildRelationship -- core genealogy data
-  Fact, FactType -- all events and attributes (polymorphic via LinkTableID)
-  Place -- place names in two formats (pipe-delimited and slash-hierarchy)
-  MasterSource -- source records (title, author, publisher, repository)
-  SourceLink -- GPS evidence chain: connects each Fact to its MasterSource
-                with citation detail (page, comment, footnote). WIRED in Phase 2.
-                LinkTableID=2 is FTM's internal Fact table ID (confirmed empirically).
-  Repository -- repositories
-  Note -- RTF-formatted notes linked polymorphically
-  MediaFile, MediaLink -- media references (not yet imported)
-  PersonExternal -- Ancestry and FamilySearch person IDs (empty in unsync'd trees)
+### Phase 3 Extractor Scope -- DECIDED 2026-05-16 UTC
 
-  Date encoding: JDN * 512 + precision_flags. Fully decoded.
-  FTM stores attributes (name, sex, cause of death, etc.) as FactClass=257.
-  Standard events (birth, death, residence, etc.) are FactClass=263.
+  Priority 1: PersonExternal -- COMPLETE 2026-05-15 UTC.
+    PersonExternal table in .ftm is empty. Ancestry IDs live in Sync_Person.AmtId.
+    All 1,576 persons have AmtId populated. FSIDs universally NULL (not FamilySearch-linked).
+    Extractor updated (commit 97d1f36). Migration 019 live. Importer Phase 7 live.
+    person_external_ids: 1,576 rows, all provider='ancestry', idempotent.
+    Pagination fix applied (commit 9886492): fetch was silently capped at 1000 rows. Fixed.
+  Priority 2: MediaFile + MediaLink -- after storage bucket decision.
+  Priority 3: Marker (places) -- after PersonExternal is complete.
 
-### What Is Imported (Phase 2 -- current state)
+### Notes Pipeline -- COMPLETE 2026-05-16 UTC
 
-  Repositories, Persons (with notes, dates, alternate names), Sources (MasterSources),
-  Families (with marriage dates/places), Family members (children + partners),
-  Timeline events (person facts: birth, death, residence, immigration, etc.)
-    with source_id wired via SourceLink (93.8% coverage on test file -- the 6.2%
-    without source_id had no SourceLink in FTM itself, not an import gap).
+  sql/021-ftm-notes.sql: ftm_notes table. UNIQUE(person_id, ftm_note_id) for idempotent upsert.
+    Cascade delete on persons. source_id nullable (future source linking).
+  Importer Phase 8: filters LinkTableID=5, strips RTF, upserts in batches of 200.
+    Schema cache warmup poll built into Phase 8 before the upsert (canonical reference).
+  "Send to Source Conflict Resolver" action on Research Notes panel: future.
+  To activate on a fresh machine: run migration 021 in Supabase,
+    then node scripts/import-ftm.mjs --skip-extract.
 
-### What Is NOT Imported -- Future Work
+### Fact-Type Normalizer -- DECIDED 2026-05-16 UTC
 
-  Living flag -- IsLiving column does not exist in FTM 2024 schema (20200615).
-    FTM computes it at runtime from death date and birth year. Cannot import directly.
-    Future: compute heuristically (no death date + birth year within living range).
-  Cause of death (_DCAUSE) -- not yet imported.
-  Media files -- needs Supabase storage bucket first.
-  PersonExternal (Ancestry/FamilySearch IDs) -- empty in test file (unsynchronized tree).
-    Will populate when full synchronized tree is imported. Requires migration 019.
+  Category A (standard tags): add to TAG_TO_EVENT.
+    ARVL -> arrival, DPRT -> departure (keep distinct, not folded into immigration).
+    Naturalization sub-tags: kept granular (petition, declaration, oath, certificate,
+      deposition -- each is a distinct legal document).
+    _MILT, ADDR, CHR, PROB, DIVF also added.
+    .trim() on all factTypeTag and factTypeName fields -- mandatory.
+  Category B (narrative custom facts): regex normalizer.
+    Collapse ~140 unique types to: obituary, marriage_announcement, marriage_license,
+    birth_announcement, wedding_announcement, newspaper_mention, other.
+    Original fact name preserved in description field.
 
-### Known FTM Data Quality Issues (source artifacts, not code bugs)
+### Known FTM Data Quality Issues
 
-  TIMESTAMP confirmed: 2026-05-13 UTC (Phase 2 smoke test).
-  These exist in the FTM source data and will be present in the full tree import too.
+  Quote characters in display names -- FTM data-entry artifact. Not a code bug.
+  Non-ASCII character corruption -- encoding mismatch for Yiddish names. Not a code bug.
+  Alt names include primary name -- 22 persons. Fix in next importer session.
+  Smart/curly quotes in 2 names -- present in synced tree, not test file.
+  36 persons missing FamilyName -- pre-emancipation Ashkenazi naming. Not a bug.
+  12 persons missing GivenName -- placeholder entries. Not a bug.
 
-  Quote characters in display names -- e.g., "Avraham" with literal quotes.
-    Cause: FTM data-entry artifact. The quotes were typed into FTM directly.
-    Impact: cosmetic only. Not a code bug. Do not attempt to strip in importer
-    without explicit instruction (could corrupt legitimate data).
-
-  Non-ASCII character corruption -- e.g., *igdor Gr?er.
-    Cause: Yiddish or other non-ASCII name stored in FTM with encoding mismatch.
-    Impact: cosmetic only. Not a code bug.
-
-  Alt names include primary name -- FTM stores a NAME fact matching the primary name.
-    Cause: FTM structure. Harmless. Not a code bug.
-
-### Idempotency Status -- FULLY SAFE AS OF PHASE 2
-
-  Strategy: delete-then-reinsert for FTM-sourced families and timeline_events.
-  FTM is always authoritative. Persons use upsert (keyed on ancestry_id).
+### Idempotency Status -- FULLY SAFE
 
   Persons:          SAFE (upsert by ancestry_id = "ftm:[ID]")
   Repositories:     SAFE (upsert by name)
   Sources:          SAFE (skips if "FTM Import" marker exists)
-  Families:         SAFE (delete-then-reinsert for FTM persons' families)
-  Timeline events:  SAFE (delete-then-reinsert for FTM persons' events)
-
-  Acceptance test passed 2026-05-13 UTC: Run 1 and Run 2 produce identical counts.
-  96 families, 238 members, 1189 events, 1117 sourced -- identical both runs.
+  Families:         SAFE (delete-then-reinsert)
+  Timeline events:  SAFE (delete-then-reinsert)
+  FTM Notes:        SAFE (upsert on person_id, ftm_note_id)
 
 ### Running the Importer
 
-  Prerequisites:
-    1. Compile: clang -arch arm64 -o scripts/ftm-extractor scripts/ftm-extractor.c
-    2. .env.local must have NEXT_PUBLIC_SUPABASE_URL and SUPABASE_SERVICE_ROLE_KEY
-
-  Standard run:
-    node scripts/import-ftm.mjs [path-to-ftm-file]
-    Default path if omitted: /Users/dave/ftm playground /Mom plus 1 generation.ftm
-
-  Dry run (no writes):    node scripts/import-ftm.mjs --dry-run [path]
-  Reuse cached JSON:      node scripts/import-ftm.mjs --skip-extract
-
-  NOTE: Do NOT use --skip-extract after recompiling ftm-extractor.c.
-  Always do a fresh extract after any C source change.
-
-  UI trigger: /ftm-import page. Run Import button fires POST /api/ftm-import.
-  Requires compiled binary and .ftm file on Dave's Mac. Will not run on Vercel.
-
-### External IDs -- Future Schema (migration 019)
-
-  PersonExternal in FTM stores Ancestry and FamilySearch person IDs for
-  synchronized trees. First-class identifiers:
-    Ancestry person ID: direct URL into ancestry.com tree profile
-    FamilySearch person ID (FSID): short alphanumeric like XXXX-XXX,
-      permanent globally unique ID on the FamilySearch world family tree.
-      Direct URL: https://www.familysearch.org/tree/person/details/XXXX-XXX
-
-  These will be present when the full synchronized tree is imported.
-  Do not confuse FamilySearch ARK IDs (record/document level) with FSIDs
-  (person level on the world tree). Both are valuable; they are different things.
-
-  Schema to add when ready (migration 019):
-    CREATE TABLE person_external_ids (
-      id          uuid PRIMARY KEY DEFAULT gen_random_uuid(),
-      person_id   uuid NOT NULL REFERENCES persons(id) ON DELETE CASCADE,
-      provider    text NOT NULL,  -- 'ancestry', 'familysearch', etc.
-      external_id text NOT NULL,
-      profile_url text,
-      created_at  timestamptz DEFAULT now()
-    );
-    CREATE UNIQUE INDEX ON person_external_ids (person_id, provider);
-
-  Do not add this migration until the full synchronized tree is available.
-
-### Bidirectional Sync -- Long-Range Vision
-
-  TIMESTAMP noted: 2026-05-13 UTC. Status: named, approach TBD. Not near-term.
-
-  The vision: research discoveries made in this platform (document analysis,
-  AI fact extraction, case study work) flow back into FTM and ultimately into
-  the Ancestry tree. The full loop: FTM in -> research + AI -> discoveries
-  -> back into FTM -> sync to Ancestry.
-
-  CRITICAL CONSTRAINT: Do NOT attempt direct writes to .ftm files without
-  complete mapping of all 109 internal tables and FTM's integrity constraints.
-  Writing behind FTM's back risks corrupting the TreeSync/Ancestry sync state.
-  A write that looks correct at the row level could silently break sync.
-
-  Safer paths to explore first:
-    1. FTM GEDCOM import -- export changes as GEDCOM, import via FTM's own UI.
-       Lossy but safe. Works now. Good for structured data.
-    2. FTM media import -- add documents and images via FTM's own interface.
-    3. MacKiev API -- MacKiev has worked with partners before (RootsMagic).
-       A formal API is not impossible. Monitor.
-    4. Full schema mapping -- map all 109 FTM tables before writing anything.
-
-  Key insight: every field imported clean is a field that could potentially
-  be written back clean. Preserve FTM field names and values where possible.
-  GEDCOM pruning/grafting is known to be lossy -- approach with caution.
+  Compile:  clang -arch arm64 -o scripts/ftm-extractor scripts/ftm-extractor.c
+  Run:      node scripts/import-ftm.mjs [path-to-ftm-file]
+  Dry run:  node scripts/import-ftm.mjs --dry-run [path]
+  Default path: /Users/dave/ftm playground/Mom plus 1 generation.ftm
+  Do NOT use --skip-extract after recompiling.
+  Do NOT use git add -A.
 
 ### Person Detail Page
 
-  TIMESTAMP noted: 2026-05-13 UTC.
-  TIMESTAMP design finalized: 2026-05-14 UTC.
-  TIMESTAMP built and LIVE: 2026-05-14 UTC.
-  TIMESTAMP cleanup pass completed: 2026-05-14 UTC.
-  Status: COMPLETE AND CLEAN. 9 panels live. All routes verified. tsc clean.
-
-  9-panel design (built 2026-05-14 UTC):
-    1. Header anchor -- preferred name, birth/death dates and places, research
-       status badge (4 states: not_started / in_progress / complete /
-       needs_archive_visit). has_conflicts is DERIVED at query time from
-       source_conflicts -- never stored. Links to Ancestry and FamilySearch
-       profiles when available via person_external_ids.
-    2. AI Icebreaker -- platform-generated research prompt on page load.
-       Not a summary -- a single observation derived from what the data actually
-       shows. Engine: GRA + research-assistant-v8. Cacheable.
-       NOTE: Any example icebreaker shown in design discussion is ILLUSTRATIVE
-       ONLY -- not drawn from actual Supabase data. Never fabricate.
-       Route: src/app/api/persons/[id]/scaffold/route.ts
-       Returns { icebreaker, scaffold } together. One combined API call.
-       Old /icebreaker route deleted in cleanup pass (commit 4f2f3ea).
-    3. Research Notes -- markdown textarea + preview toggle. One living document
-       per person. Auto-saves with 1.5s debounce (PATCH to person_research_notes).
-       NOT the Research Log (Module 3). Research Log tracks what you searched for
-       and when. Research Notes is a living chronological narrative per person:
-       hypotheses, negative evidence findings, red-flagged gaps, embedded reasoning.
-       Connie Knox builds these in Word; this platform is that home.
-       First-open UI: "Start blank" or "Start with AI scaffold." Scaffold populates
-       textarea and auto-saves. Preview toggle appears once notes are started.
-       Migration 020 (person_research_notes table): LIVE in Supabase.
-    4. Timeline -- chronological events, each with a source badge.
-       Green dot = sourced, yellow = unsourced, red = has conflict.
-    5. Map -- geographic life story. Pins for every place in the record,
-       connected in chronological order. Address-as-Evidence made visible.
-       v1: show places where lat/lng is already populated. Geocoding deferred.
-       The addresses table lat/lng fields were designed for exactly this.
-    6. Family connections -- parents, spouse(s), children. Each links to
-       their own person page.
-    7. Sources -- all sources attached to this person, Three-Layer quality.
-    8. Open to-dos -- pulled from Module 15, filtered to this person.
-    9. FAN Club -- people from the associations table. Lightweight list in v1.
-
-  Route: /persons/[id]. List page: /persons (200, confirmed).
-  Not a numbered module -- a core platform UI component.
+  Status: COMPLETE AND CLEAN. 9 panels. tsc clean. /persons/[id] live.
+  See Project State section for full detail.
 
 ---
 
@@ -780,140 +582,69 @@ FTMDatabaseFoundation ARM64 binary in a single Claude Code session.
 
 TIMESTAMP established: 2026-05-11 19:15 UTC
 TIMESTAMP last updated: 2026-05-12 00:35 UTC
-Sync tracking: prompts/UPSTREAM-SYNC.md (authoritative -- read this before
-any prompt-related work; it tracks versions, download dates, and sync protocol)
 
-Steve Little's Open-Genealogy (github.com/DigitalArchivst/Open-Genealogy) prompts
-are committed to /prompts/ under CC BY-NC-SA 4.0. Project-G-Live is personal and
-non-commercial. All Steve Little prompts are used in strict accordance with license terms.
-
-Steve Little is the AI Program Director at the National Genealogical Society, co-host
-of The Family History AI Show, and author of the Vibe Genealogy Substack (2000+
-subscribers). Background: computational linguistics, NLP, information systems, pastor.
-
-His repo contains 120+ files / 16,500+ lines of prompt engineering. His January 2026
-PRD (genealogy-record-analysis-prd.md) specifies GPS-grade AI record analysis and
-names assertion atomization as the core architectural move -- the same insight that
-drives the assertions table design in Project-G-Live.
-
-Steve's prompts are the AI engine layer. Project-G-Live is the application and
-persistence layer. The assertions table is where they meet.
+All 15 engines committed and live. No files remaining to fetch from upstream.
+See /prompts/UPSTREAM-SYNC.md for version tracking and sync protocol.
 
 Engine Registry Pattern:
   All AI calls use callWithEngine(engine, message, context) in src/lib/ai.ts.
   callWithEngineAndHistory(engine, history, context) for conversation threads.
   No engine prompt is hardcoded inline in any API route.
-  The GRA is the base GPS enforcement layer -- composed into all research-facing routes.
-  Prompts load from /prompts/ directory via filesystem read at runtime.
 
-Current engine inventory (/prompts/) -- ALL 15 COMMITTED AND LIVE as of 2026-05-12:
-  research/gra-v8.5.2c.md                    GPS enforcement base layer
-  research/research-agent-assignment-v2.1.md  Research Plan Builder
-  research/research-assistant-v8.md           700-line comprehensive GPS research assistant
-  transcription/ocr-htr-v08.md               General diplomatic transcription
-  transcription/jewish-transcription-v2.md    Jewish document transcription (critical for Ashkenazi research)
-  image-analysis/deep-look-v2.md              9-layer forensic image analysis
-  image-analysis/hebrew-headstone-helper-v9.md 10-phase headstone analysis with gematria dating
-  writing/fact-extractor-v4.md               LABEL: Value extraction from documents
-  writing/fact-narrator-v4.md                Assertions to narrative prose
-  writing/narrative-assistant-v3.md          GPS-informed narrative (3 modes: new/revision/edit)
-  writing/linguistic-profiler-v3.md          Writer voice fingerprinting (powers Layer 2 flywheel)
-  writing/lingua-maven-v9.md                 AHD-style language advisor (writing quality)
-  writing/conversation-abstractor-v2.md      Session/interview summarization
-  writing/document-distiller-v2.md           Document summarization and action extraction
-  writing/image-citation-builder-v2.md       Image provenance citation (layered model)
-
-No prompts remain to fetch from upstream. Library is complete.
-
-Module-Engine Mapping:
-  Module 2 Research Plan Builder      research-agent-assignment-v2.1, gra
-  Module 3 Research Log               conversation-abstractor-v2, gra
-  Module 4 Citation Builder           image-citation-builder-v2, gra
-  Module 5 Document Analysis          ocr-htr-v08, jewish-transcription-v2, deep-look-v2,
-                                      hebrew-headstone-v9, fact-extractor-v4, gra
-  Module 6 Source Conflict Resolver   gra
-  Module 7 Timeline Builder           gra
-  Module 9 Research Report Writer     narrative-assistant-v3, linguistic-profiler-v3,
-                                      fact-narrator-v4, document-distiller-v2, gra
-  Module 10 Case Study Builder        gra
-  Module 16 Research Investigation    gra, conversation-abstractor-v2
-  Module 17 FTM Bridge                no AI engine (pure data pipeline)
-  Person Detail Page icebreaker       gra, research-assistant-v8
-
-Photo Restoration (future, last priority):
-  Claude's own vision and image capabilities for photo restoration should be
-  evaluated FIRST before committing to any third-party API. Strong restoration
-  results have been achieved using Claude directly with good prompts. Do not
-  undersell Claude here. To be discussed at appropriate time.
-
-Steve Little collaboration:
-  Held, not closed. Dave has interfaced with Steve online and is interested
-  in eventual collaboration. Not ready to approach formally. Revisit when
-  the platform is further along and there is more to show.
+Current engine inventory -- ALL 15 COMMITTED AND LIVE:
+  research/gra-v8.5.2c.md
+  research/research-agent-assignment-v2.1.md
+  research/research-assistant-v8.md
+  transcription/ocr-htr-v08.md
+  transcription/jewish-transcription-v2.md
+  image-analysis/deep-look-v2.md
+  image-analysis/hebrew-headstone-helper-v9.md
+  writing/fact-extractor-v4.md
+  writing/fact-narrator-v4.md
+  writing/narrative-assistant-v3.md
+  writing/linguistic-profiler-v3.md
+  writing/lingua-maven-v9.md
+  writing/conversation-abstractor-v2.md
+  writing/document-distiller-v2.md
+  writing/image-citation-builder-v2.md
 
 ---
 
 ## Assertions Table
 
 TIMESTAMP established: 2026-05-11 18:50 UTC
-TIMESTAMP migrations run in Supabase: 2026-05-12 00:10 UTC
+SQL migration: sql/015-assertions.sql -- LIVE in Supabase.
 Design spec: docs/architecture/assertions-table.md
-SQL migration: sql/015-assertions.sql -- LIVE in Supabase as of 2026-05-12 00:10 UTC.
 
-The assertions table is the connective tissue between sources and conclusions.
-Every GPS-classified, source-located atomic fact extracted from any document
-produces an assertion record.
-
-Three tables (all live):
-- assertions (core: person_id, source_id, predicate, value_as_stated,
-  value_normalized, where_within, information_type, evidence_type,
-  confidence_score, extraction_method, engine_version)
-- assertion_case_study_links (evidence_type override per case study)
-- assertion_conflict_links (assertion-level conflict precision)
-
-Design decisions:
-- Forward-only: no retrofitting existing data
-- Evidence type stored as default on assertion; overridable per case study
-- extraction_method + engine_version track AI vs. human provenance
-- Predicate controlled vocabulary (born_in, died_in, resided_at, married, etc.)
-
-Note: assertions table is live but has no upstream writers yet.
-FTM Bridge Phase 2 (SourceLink wiring) and Document Analysis v2 (AI extraction)
-are the intended first writers. When Claude analyzes a scanned document and
-extracts facts, those facts should flow into assertions with source_id,
-predicate, and extraction_method set.
+Live but no upstream writers yet. Planned first writers:
+- FTM Bridge (SourceLink -> assertion per fact-source connection)
+- Document Analysis Worksheet v2 (AI extraction -> assertion per extracted fact)
+- Research Investigation (evidence confirmed -> assertion)
 
 ---
 
 ## Tech Stack
 
 - Frontend: Next.js 15 with React 19, App Router, Tailwind CSS
-- Backend: Next.js API route handlers (routes live at src/app/api/, not src/api/)
+- Backend: Next.js API route handlers (routes live at src/app/api/)
 - Database: Supabase (PostgreSQL)
 - AI: Anthropic Claude API (claude-sonnet-4-6 -- update when newer model available)
-- File storage: Supabase storage bucket
+- File storage: Supabase storage bucket (not yet provisioned)
 - PowerPoint export: python-pptx via lightweight Python endpoint
-- Deployment: Vercel (not yet deployed -- local only as of 2026-05-14)
+- Deployment: Vercel (not yet deployed -- local only)
 - FTM import: C extractor + Node.js importer running locally on Dave's Mac
-  (ARM64 binary using FTM's own SQLite/SEE -- cannot run on Vercel)
 
 ---
 
 ## Build Path
 
 Phase 1: Documentation and architecture -- COMPLETE
-Phase 2: Prototype artifacts to test interview logic -- COMPLETE
+Phase 2: Prototype artifacts -- COMPLETE
 Phase 3: Full web app built module by module -- ACTIVE
-  13 of 17 modules complete:
-  Module 4 (Citation Builder), Module 10 (Case Study Builder),
-  Module 5 (Document Analysis Worksheet), Module 3 (Research Log),
-  Module 15 (Research To-Do Tracker), Module 2 (Research Plan Builder),
-  Module 6 (Source Conflict Resolver), Module 7 (Timeline Builder),
-  Module 16 (Research Investigation), Module 12 (Correspondence Log),
-  Module 14 (DNA Evidence Tracker), Module 13 (File Naming System),
-  Module 17 FTM Bridge (all phases complete: data pipeline + Phase 3 UI, smoke tested)
-Phase 4: GEDCOM Bridge built as onboarding layer (Module 1)
-Phase 5: Case Study Builder with PowerPoint export as flagship
+  13 of 17 modules complete + person detail page COMPLETE
+  Full synchronized tree live in Supabase as of 2026-05-16 UTC
+Phase 4: GEDCOM Bridge (Module 1)
+Phase 5: Case Study Builder PowerPoint export as flagship
 
 ---
 
@@ -929,43 +660,77 @@ Phase 5: Case Study Builder with PowerPoint export as flagship
 - Supabase is the single source of truth for all person and source data
 - All citations follow Evidence Explained (EE) format
 - Every source carries both a full citation and a short footnote form
-- Every factual claim in a proof argument carries an inline footnote. No naked claims.
+- Every factual claim in a proof argument carries an inline footnote
 - The prototype design system is the visual standard. Match it.
-- API routes live at src/app/api/ -- never src/api/ (wrong for Next.js App Router)
+- API routes live at src/app/api/ -- never src/api/
 - All new module pages include a back-to-dashboard breadcrumb link
 - Next.js 15 / React 19: params in [id] pages are a Promise.
-  In React client components (use client): import { use } from 'react'; const { id } = use(params)
-  In API route handlers (async functions): const { id } = await params
-  Never access params.id directly. Never use the React use() hook in API route handlers.
+  Client components: import { use } from 'react'; const { id } = use(params)
+  API route handlers: const { id } = await params
+  Never access params.id directly.
 - No engine prompt is hardcoded inline in any API route. Use callWithEngine().
-- NEVER use `git add -A` when the intent is to stage a single file deletion or small change.
-  Always use `git add <specific-path>`. `git add -A` will stage all untracked files
-  including .claude/worktrees/, package-lock.json, and other items that must not enter the repo.
-  This caused an incident on 2026-05-14 that required an immediate rollback commit.
+- NEVER use `git add -A`. Always use `git add <specific-path>`.
 
 ---
 
-## Claude in Chrome -- SQL Editor Notes
+## Claude in Chrome -- SQL Editor and Supabase DDL
 
 TIMESTAMP established: 2026-05-11 10:30 UTC
+TIMESTAMP updated: 2026-05-16 UTC
+MANDATORY RE-READ RULE: Before writing any plan involving Claude in Chrome or the
+Supabase SQL editor, re-read this entire section. No exceptions.
 
-MANDATORY RE-READ RULE -- TIMESTAMP added: 2026-05-14 UTC
-Before writing any plan or prompt that involves Claude in Chrome or the Supabase
-SQL editor, both claude.ai and Claude Code must re-read this entire section
-explicitly. Do not rely on memory or prior session knowledge. Protocol drift
-has occurred when this section was skipped. No exceptions.
+### Primary approach: Supabase Management API
 
-When running SQL migrations via Claude in Chrome against the Supabase SQL editor:
-- DO NOT type long SQL strings into the Monaco editor. The editor's auto-closing
-  brackets and autocomplete will corrupt the SQL (doubled parentheses, dropped characters).
-- USE the Monaco editor API instead:
-    window.monaco.editor.getModels()[n].setValue(sql)
-  This sets the editor content directly, bypassing all autocomplete interference.
-- Determine n at runtime by logging window.monaco.editor.getModels() first to identify the active SQL editor model. Do not assume n=0.
-- After setValue(), use find() to locate the Run button by ref, then click via ref.
-  Do NOT rely on coordinate clicks for the Run button -- coordinates shift.
-- The Supabase project reference ID for Project G: slqjooudyfvmnaoetdvi
-  SQL editor direct URL: https://supabase.com/dashboard/project/slqjooudyfvmnaoetdvi/sql/new
+form_input into CodeMirror never works reliably. CodeMirror maintains its own
+internal state and ignores textarea value changes injected by automation tools.
+Do not attempt CodeMirror interaction for migrations.
+
+Use the Supabase Management API from any browser tab that is already logged in
+to supabase.com. Execute via javascript_tool:
+
+  const token = JSON.parse(localStorage.getItem('supabase.dashboard.auth.token')).access_token;
+  const res = await fetch(
+    'https://api.supabase.com/v1/projects/slqjooudyfvmnaoetdvi/database/query',
+    {
+      method: 'POST',
+      headers: { 'Authorization': `Bearer ${token}`, 'Content-Type': 'application/json' },
+      body: JSON.stringify({ query: sql })
+    }
+  );
+  console.log(await res.json());
+
+This is the first approach for all migrations -- not a fallback. It is faster,
+more reliable, and requires no UI interaction.
+
+### Fallback: Monaco editor API
+
+Only use if the Management API is unavailable:
+  window.monaco.editor.getModels()[n].setValue(sql)
+  Determine n at runtime -- do not assume n=0.
+
+### PostgREST schema cache lag
+
+After any DDL (CREATE TABLE, ALTER TABLE), PostgREST may lag several seconds
+before its schema cache refreshes. Any import phase writing to a freshly-created
+table must poll before inserting:
+
+  1. Try SELECT id FROM <new_table> LIMIT 0
+  2. If error (PGRST205 or table-not-found): wait 2 seconds, retry
+  3. Repeat up to 10 attempts (20 seconds total -- more than enough)
+  4. After 10 failures: throw a clear error telling the user to run the migration first
+
+The canonical implementation of this pattern is the warmup block in importer Phase 8.
+Copy it verbatim for any future phase that writes to a newly-created table.
+
+### Tab group hygiene
+
+Create a fresh tab group at the start of each Claude in Chrome session
+(tabs_context_mcp with createIfEmpty: true) and navigate to the target URL.
+Do not reuse stale tabs from prior sessions -- they end up in the wrong window.
+
+- Supabase project ref: slqjooudyfvmnaoetdvi
+- SQL editor URL: https://supabase.com/dashboard/project/slqjooudyfvmnaoetdvi/sql/new
 
 ---
 
@@ -973,36 +738,9 @@ When running SQL migrations via Claude in Chrome against the Supabase SQL editor
 
 RESEARCHER / PROFESSIONAL OUTPUT
 GPS-compliant language, EE citations, full footnotes, Three-Layer analysis visible.
-For BCG submissions, peer review, and professional correspondence.
 
 CLIENT OUTPUT
-Plain English narrative. Methodology invisible. No GPS or EE terminology.
-Warm and readable. For family members and paying clients.
-
-Both outputs are generated from the same underlying data.
-
----
-
-## Source and Citation Rules
-
-GEDCOM FILES are infrastructure only. Never cited. Never appear in researcher-facing
-output. GEDCOM IDs are internal plumbing. Never surface them in any output.
-
-ANCESTRY TREE LINKS are not sources. Must be flagged and replaced with the
-underlying original source. Never cite them as evidence.
-
-FAMILYSEARCH ARK IDENTIFIERS are record/document-level identifiers.
-Preserve in all citations alongside the full record description.
-Do not confuse with FamilySearch Person IDs (see below).
-
-FAMILYSEARCH PERSON IDs (FSID) are person-level identifiers on the FamilySearch
-world family tree -- short alphanumeric like XXXX-XXX. Permanent and globally unique.
-Surface as direct profile links when available via person_external_ids table.
-
-ANCESTRY PERSON IDs are person-level identifiers within a specific Ancestry tree.
-Surface as direct profile links when available via person_external_ids table.
-
-INTERNAL PLATFORM IDs are plumbing. Never surface in researcher-facing output.
+Plain English narrative. Methodology invisible. Warm and readable.
 
 ---
 
@@ -1010,453 +748,214 @@ INTERNAL PLATFORM IDs are plumbing. Never surface in researcher-facing output.
 
 TIMESTAMP established: 2026-05-12 (post-dinner) UTC
 
-Two AI interfaces are active on this project. They share the repo as the
-single source of truth. AGENT.md and /sessions/ are the handoff layer.
+CLAUDE.AI -- Architecture, design, GitHub connector, session memory, SQL migrations
+CLAUDE CODE -- Local execution, smoke tests, debugging, FTM import runs
 
-CLAUDE.AI (this interface)
-- Architecture, design decisions, writing new modules
-- GitHub connector: reads and writes repo directly
-- Session memory system: AGENT.md + /sessions/ snapshots
-- Supabase SQL migrations via Claude in Chrome
-- Any task requiring cross-session project state
-
-CLAUDE CODE
-- Local execution: git pull, npm, TypeScript checks, dev server
-- Smoke tests and debugging in the running app
-- Diagnosing local environment issues (stale cache, port conflicts, etc.)
-- Anything requiring bash or direct filesystem access
-- FTM extractor compilation and import runs (local Mac only)
-- Reads AGENT.md and /sessions/ at session start for full orientation
-- Writes session snapshots to /sessions/ for handoff back to claude.ai
-
-DIVISION OF LABOR IN PRACTICE:
-- When a build is complete here, hand smoke test to Claude Code -- do NOT
-  give Dave a list of terminal commands to run himself.
-- When Claude Code finds a local issue, it documents it in /sessions/ and
-  claude.ai picks it up at next session start.
-- Neither interface duplicates the other's work.
-- Claude Code is fully aware of the project via AGENT.md. No re-briefing needed.
+Division of labor:
+- When build is complete here, hand smoke test to Claude Code
+- When Claude Code finds a local issue, it documents in /sessions/ and claude.ai picks up
+- Neither interface duplicates the other's work
+- Claude Code reads AGENT.md at session start. No re-briefing needed.
 
 ---
 
 ## MCP Infrastructure
 
-TIMESTAMP established: 2026-05-12 (post-dinner) UTC
-Migrated by: Claude Code (happy accident session)
-
-GitHub MCP now runs via NPX (Node.js directly). No Docker. No GitHub Copilot
-subscription required. First run downloads a small package; subsequent runs
-use the cache. This replaced the Docker container that was going to sleep
-and killing the connector mid-session.
-
-Manager script: ~/.claude/mcp-manager.py
-  python3 ~/.claude/mcp-manager.py use npx     -- current mode (recommended)
-  python3 ~/.claude/mcp-manager.py use docker  -- original Docker setup (still available)
-  python3 ~/.claude/mcp-manager.py use http    -- GitHub HTTP endpoint (not usable, no subscription)
-  python3 ~/.claude/mcp-manager.py status      -- check what is active
-
-Config files controlled by the manager:
-  ~/Library/Application Support/Claude/claude_desktop_config.json  (claude.ai desktop)
-  ~/.claude/settings.json                                           (Claude Code)
-
-The PAT is read from the original Docker backup -- the manager never needs to
-ask for it again.
-
-Backup and restore:
-  Backup: claude_desktop_config.BACKUP.json (same folder as config)
-  To restore: python3 ~/.claude/mcp-manager.py use docker
-
-Full migration plan: ~/.claude/projects/-Users-dave-Project-G-Live/memory/mcp_migration_plan.md
-
-After any mode switch: quit and reopen Claude Desktop for config to take effect.
-
-If the connector goes down: run status check first, then verify the desktop
-app was restarted after the last mode switch. No Docker process should be
-required for NPX mode.
+NPX mode active. Manager: ~/.claude/mcp-manager.py
+  python3 ~/.claude/mcp-manager.py use npx     -- current mode
+  python3 ~/.claude/mcp-manager.py status      -- check active mode
+After any mode switch: quit and reopen Claude Desktop.
 
 ---
 
 ## Local Environment Rules
 
-TIMESTAMP established: 2026-05-10 21:30 UTC
-TIMESTAMP stale-cache rule added: 2026-05-12 01:10 UTC
-
-The one true local path is `/Users/dave/Project-G-Live/`.
-The dev server must always run from this directory.
-
-RULES FOR CLAUDE CODE SESSIONS:
-- Never run `git clone` inside a Claude Code session. The repo already exists
-  at `/Users/dave/Project-G-Live/`. Running clone creates a second copy that
-  causes the dev server to run from the wrong directory.
-- Before running the dev server, confirm the current directory is
-  `/Users/dave/Project-G-Live/` with `pwd`.
-- If the app looks wrong at localhost:3000 (wrong module status, missing pages,
-  routes returning 404), run `pwd` before anything else. If the path is not
-  `/Users/dave/Project-G-Live/`, that is the problem -- not a code bug.
-- Check for a stale dev server before starting one: `lsof -iTCP:3000`
-  If port 3000 is occupied, kill the old process first: `pkill -f "next dev"`
-  then restart from `/Users/dave/Project-G-Live/`.
-- STALE CACHE RULE: A long-running dev server will serve stale CSS asset hashes
-  after new routes, styles, or prompts are added in a separate session. Symptom:
-  UI renders as unstyled text or raw HTML; GET on CSS asset returns 404.
-  Before assuming a code regression, curl the CSS asset URL from the HTML source.
-  If it 404s, the cache is stale -- not a code bug.
-  Fix: `pkill -f "next dev"` then `rm -rf .next` then `npm run dev`.
-- All repo reads and writes use the GitHub connector directly.
-  Claude Code handles local execution only (npm, running the app, git operations).
-- After any GitHub connector push, pull locally before assuming files are current:
-  `cd /Users/dave/Project-G-Live && git pull`
-- NEVER use `git add -A`. Always stage specific paths: `git add src/path/to/file`
-  `git add -A` will pull in .claude/worktrees/ embedded git repos and other
-  untracked junk. This caused a bad commit on 2026-05-14 that required rollback.
+One true local path: /Users/dave/Project-G-Live/
+- Never run git clone inside a Claude Code session
+- Confirm pwd before running dev server
+- Check for stale dev server: lsof -iTCP:3000
+- STALE CACHE: pkill -f "next dev" then rm -rf .next then npm run dev
+- After GitHub connector push: git pull before assuming files are current
+- SESSIONS-INDEX.md git conflicts: always resolve as "keep both sides, most-recent-first".
+  On git pull --rebase, if SESSIONS-INDEX.md conflicts: open the file, keep all entries
+  from both sides, ensure the most-recent session is the first line, then
+  git add sessions/SESSIONS-INDEX.md and git rebase --continue.
+  Never abort the rebase for this file -- the conflict is always a trivial text merge.
+- NEVER use git add -A. Always stage specific paths.
 
 ---
 
 ## Repository Structure
 
-/sessions/          -- Session snapshots and index. Never deleted.
+/sessions/          -- Session snapshots and index
 /prototypes/        -- HTML prototype files
 /scripts/           -- Utility scripts
-  ftm-extractor.c   -- C source for FTM SQLite SEE extractor (ARM64; compile before use)
-  ftm-extractor     -- Compiled binary (gitignored; rebuild from .c)
-  import-ftm.mjs    -- Node.js FTM -> Supabase importer (recurring sync tool, fully idempotent)
+  ftm-extractor.c   -- C source (ARM64; compile before use)
+  import-ftm.mjs    -- Node.js FTM -> Supabase importer
 /docs/research/     -- Research output files
-  connie-knox-workflow-reference.md -- Connie Knox methodology reference (committed 919b2a7)
-/docs/modules/      -- Module design documents (16 files, one per module)
+/docs/modules/      -- Module design documents
 /docs/architecture/ -- Architecture decision records
-  architecture.md              -- Supabase schema reference (through migration 014)
-  assertions-table.md          -- Assertions table design spec (migration 015)
-/prompts/           -- AI engine library (Steve Little CC BY-NC-SA 4.0 + future originals)
-  README.md                    -- Engine registry overview, module-engine mapping
-  UPSTREAM-SYNC.md             -- Steve Little sync tracking, version history, fetch protocol
-  /research/                   -- GPS research prompts
-  /transcription/              -- Document transcription prompts
-  /image-analysis/             -- Image and headstone analysis prompts
-  /writing/                    -- Writing and fact extraction prompts
-/sql/               -- SQL migration files. Run in Supabase SQL Editor in order.
-  001-create-tables.sql        -- Full schema: all 9 tables + RLS policies
-  002-add-res-checklist.sql    -- RES checklist table
-  003-add-documents.sql        -- documents + document_facts
-  004-add-research-log.sql     -- research_sessions + session_sources
-  005-add-todos.sql            -- todos table
-  006-add-research-plans.sql   -- research_plans + research_plan_items
-  007-add-source-conflicts.sql -- source_conflicts table (Module 6)
-  008-add-timeline-addresses.sql -- addresses + timeline_events (Module 7)
-  009-persons-foundation.sql   -- ALTER persons: name components, sex, flags, dual-date sort
-  010-families.sql             -- families + family_members
-  011-repositories.sql         -- repositories + repository_id FK on sources
-  012-associations.sql         -- associations (FAN Club data model)
-  013-event-types.sql          -- event_types lookup + FK on timeline_events
-  014-dual-date-audit.sql      -- dual-date pattern audit (no DDL)
-  015-assertions.sql           -- LIVE in Supabase as of 2026-05-12 00:10 UTC
-  016-investigations.sql       -- LIVE in Supabase as of 2026-05-12 00:15 UTC
-  017-correspondence.sql       -- LIVE in Supabase as of 2026-05-12 (dinner session) UTC
-  018-dna-tracker.sql          -- LIVE in Supabase as of 2026-05-13 UTC
-  019-person-external-ids.sql  -- NOT YET WRITTEN -- add when synchronized tree ready
-  020-person-research-notes.sql -- LIVE in Supabase as of 2026-05-14 UTC
-/src/               -- Application source code
-  /src/app/         -- Next.js App Router pages and API routes (see module list above)
-  /src/lib/
-    ai.ts                       -- callWithEngine() + callWithEngineAndHistory() -- 15 engines
-    supabase.ts
-    ftm-import.ts               -- FTM lock/log constants + isImportRunning() helper
-  /src/types/
-    index.ts                    -- COMPLETE as of 2026-05-12 (Claude Code session, commit 25693a7)
-                                   Investigation (5 types), Correspondence, DnaMatch all added.
-                                   tsc --noEmit clean. tsconfig.json also committed same session.
-wip/ branch         -- Partially built work, committed even if broken
-
-Claude Code local path: /Users/dave/Project-G-Live/
-Use Claude Code only for tasks requiring local execution (running the app, npm, etc.).
-All repo reads and writes use the GitHub connector directly.
+/prompts/           -- AI engine library
+/sql/               -- SQL migration files (001-021, all live)
+/src/               -- Application source
+  /src/app/         -- Next.js pages and API routes
+  /src/lib/ai.ts    -- callWithEngine() -- 15 engines
+  /src/lib/supabase.ts
+  /src/lib/ftm-import.ts
+  /src/types/index.ts
+wip/                -- Partially built work scratch space
 
 ---
 
 ## Static Rules
 
-These do not change session to session. No AI may revise them without explicit
-instruction from the user.
-
 - The Greene/Greenspun family line is an active unsolved research project.
   Do not use it as a test case. Do not make assumptions about its data.
-
-- Ancestry.com stays the tree. This platform is the working layer on top of it.
-  Do not attempt to replace or replicate the Ancestry tree.
-
+- Ancestry.com stays the tree. This platform is the working layer on top.
 - GEDCOM files are infrastructure. Never cite them. Never surface GEDCOM IDs.
-
 - Ancestry tree links are not sources. Flag them. Replace with original source.
-
 - The platform integrates with an existing Ashkenazi Jewish DNA genealogy workflow.
-
-- The user has years of existing research in Ancestry.com and FamilyTreeMaker.
-  This platform sits on top of that work; it does not replace it.
-
-- Do NOT attempt direct writes to .ftm files without explicit decision and full
-  mapping of all 109 internal FTM tables. Risk of corrupting TreeSync. See
-  FTM Bridge -- Bidirectional Sync section above.
-
-- Connie Knox is a standing workflow reference for this project.
-  TIMESTAMP locked in: 2026-05-14 UTC.
-  Connie Knox is a professional genealogist whose research methodology videos
-  have been reviewed and incorporated into the platform's design decisions.
-  Every time a workflow feature is being designed -- person pages, FAN Club,
-  notes, research plans, case studies -- ask whether there is a Connie Knox
-  video worth reviewing first. Reference doc: docs/research/connie-knox-workflow-reference.md.
-  Key methodology insight locked in: negative evidence (failed searches) is
-  GPS-valid evidence and must be documentable in Research Notes with source,
-  date, and record set searched.
-
+- Do NOT attempt direct writes to .ftm files without full mapping of all 109 tables.
+- Connie Knox is a standing workflow reference. Ask whether there is a Connie Knox
+  video worth reviewing before designing workflow features.
+  Reference doc: docs/research/connie-knox-workflow-reference.md.
 - Research Notes are NOT the Research Log (Module 3).
-  TIMESTAMP locked in: 2026-05-14 UTC.
-  Module 3 (Research Log) tracks what was searched for and when -- a log of
-  research sessions and sources consulted.
-  Research Notes (person_research_notes table, migration 020) is a living
-  chronological narrative per person: hypotheses, observations, negative
-  evidence findings, red-flagged gaps, embedded reasoning. One document per
-  person. The researcher writes into it; the platform gives it a home with
-  GPS-sourced data alongside it. Do not conflate these two things.
-
-- Full tree import protocol -- TIMESTAMP locked in: 2026-05-14 UTC.
-  When the synchronized .ftm file is ready, the full tree run is Claude Code's
-  job, not claude.ai's. Claude Code handles execution, extraction accounting,
-  and post-import verification. Brief in claude.ai first to set scope and
-  questions to answer. Use Opus model for Claude Code on the full tree
-  extraction and analysis session -- it will surface PersonExternal data
-  (Ancestry person IDs, FamilySearch FSIDs), custom facts, media links,
-  RTF notes, and anything else not present in the test file. This deserves
-  a dedicated deep-analysis session with the right model, not a quick run.
-  Dave committed this protocol on 2026-05-14.
+  Research Notes (person_research_notes): living narrative per person.
+  Research Log (Module 3): log of research sessions and sources consulted.
+- Full tree import protocol: Claude Code + Opus. Brief in claude.ai first.
+  COMPLETE as of 2026-05-16 UTC.
 
 ---
 
 ## Known Technical Debt
 
-TIMESTAMP: 2026-05-14 UTC
+TIMESTAMP: 2026-05-16 UTC
 
-- AGENT.md size and OS/app separation -- recognized concern, not yet actioned.
-- Dead icebreaker route: RESOLVED 2026-05-14 UTC. Deleted in cleanup pass commit 4f2f3ea.
-  Scaffold commit ed2402e was stranded on worktree branch claude/affectionate-mahavira-e858dd
-  and had never been merged to main. Cherry-picked to main (commit 681fad8) before deletion.
-  The cherry-pick resolved a single conflict in sql/020 -- HEAD structure preserved,
-  ed2402e's IF NOT EXISTS guard and corrected 4-state constraint incorporated.
-- git add -A staging incident: RESOLVED 2026-05-14 UTC. Running `git add -A` when deleting
-  a single file caused .claude/worktrees/ embedded git repos and other untracked files to
-  be staged. Caught immediately, rollback committed (5d1c423). .claude/ added to .gitignore.
-  Rule added to both Coding Standards and Local Environment Rules: never use `git add -A`.
-- git divergence (RESOLVED 2026-05-14 UTC): two parallel sessions built on the same
-  base commit without pulling. Caused duplicate migration 020 commits and split history.
-  Resolved via merge commit 4dd3f06. Both tracks fully reconciled. Push complete.
-  Root cause: sessions must git pull before beginning work.
-- Both AI interfaces (claude.ai and Claude Code) have demonstrated protocol drift
-  when established rules were not explicitly re-read before acting. The mandatory
-  re-read rule in the Claude in Chrome section was added as a direct response.
-  Monitor for recurrence. The user cannot always catch it.
-- Claude Code worktree branch (claude/suspicious-elion-5e5663): stale as of 2026-05-14.
-  Contains Code's session snapshot and SESSIONS-INDEX update from the Phase 3 UI review.
-  The actual bug fix (a4b1fca) was committed to main by claude.ai directly. The worktree
-  branch can be deleted; its content is captured in SESSION-2026-05-14-FTMUI-CLAUDEAI-UTC.md.
-  A stub file (SESSION-2026-05-14-CCREVIEW-UTC.md) was created on main during the
-  2026-05-15 UTC index migration to preserve the SESSIONS-INDEX filename reference.
-- stats query .in() with large UUID lists: GET /api/ftm-import uses .in('person_id', ftmPersonIds).
-  With 144 persons this is fine. For the full ~1500-person tree, chunking may be needed.
-  Flag for attention when full tree import runs.
+- Untracked files on main (left untouched, Dave to decide):
+  package-lock.json, prototypes/dashboard-mockup-v1.html,
+  scripts/import-gedcom.js, sessions/SESSION-2026-05-14-REVIEW-CLAUDECODE-UTC.md
+- AGENT.md size: recognized concern, not yet actioned.
+- stats query .in() chunking: RESOLVED 2026-05-16 UTC (commit e4e064c).
+- Dry-run source wiring report: RESOLVED 2026-05-16 UTC (commit e4e064c).
+- alt_names primary-name dedup: 22 persons. Fix in next importer session.
+- git add -A staging incident: RESOLVED 2026-05-14 UTC.
+- git divergence: RESOLVED 2026-05-14 UTC.
+- Existing-persons fetch capped at 1000 rows: RESOLVED 2026-05-15 UTC (commit 9886492).
+  Pagination loop added to import-ftm.mjs.
+- families.partner1_id / partner2_id use ON DELETE SET NULL, not CASCADE.
+  Caused 1,088 orphan families during persons cleanup 2026-05-15 UTC.
+  Orphans deleted manually. Schema behavior now documented.
+  Consider changing to CASCADE in a future migration.
 
 ---
 
 ## Project State
 
-TIMESTAMP last updated: 2026-05-15 UTC by Claude (claude.ai) -- v2.13.1
+TIMESTAMP last updated: 2026-05-16 UTC by Claude (claude.ai) -- v2.16.0
 
-Build phase: Phase 3 ACTIVE -- 13 of 17 modules complete
-  + person detail page COMPLETE AND CLEAN
+Build phase: Phase 3 ACTIVE -- 13 of 17 modules complete + person detail page COMPLETE
 
 Genealogical data foundation: COMPLETE and LIVE.
-  Migrations 001-020 all run in Supabase.
-  144 real persons from Dave's family tree live in Supabase (FTM import, smoke tested).
-  1117 of 1189 timeline events have source_id wired (GPS evidence chain live, confirmed).
-  Importer is fully idempotent. Safe to re-run against any .ftm file.
+  Migrations 001-021 all committed. Migrations 001-019 confirmed live in Supabase.
+  Migration 021 (ftm_notes): committed 2026-05-16 UTC, ready to run.
+  1,576 persons from full synchronized tree live in Supabase.
+  5,237 of 5,983 timeline events have source_id wired (87.6%).
+  Importer fully idempotent. Safe to re-run.
+
+person_external_ids: LIVE. 1,576 rows, all provider='ancestry'. Idempotent. 2026-05-15 UTC.
+
+Notes pipeline: COMPLETE 2026-05-16 UTC.
+  Migration 021 committed. Importer Phase 8 committed with PostgREST warmup.
+  Run migration 021 in Supabase to activate.
 
 src/lib/ai.ts: COMPLETE. 15 engines registered and live.
-
-src/types/index.ts: COMPLETE. Investigation (5 types), Correspondence, DnaMatch added.
-  tsc --noEmit clean. tsconfig.json committed. All in commit 25693a7.
-
-Prompt engine library: COMPLETE. No files remaining to fetch from upstream.
-
-Module 16 smoke test: PASSED by Dave, 2026-05-12 (dinner session).
-
-MCP infrastructure: NPX mode active. Manager script at ~/.claude/mcp-manager.py.
-  Docker removed from active config. Connector stable.
+src/types/index.ts: COMPLETE. tsc clean.
+Prompt engine library: COMPLETE.
 
 FTM Bridge: COMPLETE AND SMOKE TESTED (all phases).
-  Phase 2 commit: 291f786. Phase 3 UI commits: dc15d06 + a4b1fca.
-  Idempotency: FULLY SAFE. SourceLink: WIRED. Alt names: IMPORTED. UI: LIVE.
-  Smoke test Phase 3: PASSED 2026-05-14 UTC by Claude Code. tsc clean. 4/4 routes.
-  Full tree (~1500 persons): READY when synchronized .ftm file is provided.
+  Full synchronized tree import: COMPLETE 2026-05-16 UTC.
 
-Person detail page: COMPLETE AND CLEAN. /persons/[id]. List page /persons: 200 confirmed.
-  9 panels. tsc clean. scaffold route wired. Icebreaker route deleted. Status dropdown: 4 states.
-  Scaffold commit ed2402e cherry-picked to main (681fad8). Column name fixes in dc3efa6.
-  Cleanup commits: 4f2f3ea (icebreaker deleted + gitignore), 5d1c423 (rollback of bad add -A).
+Person detail page: COMPLETE AND CLEAN. 9 panels.
 
-Connie Knox workflow reference: COMMITTED. docs/research/connie-knox-workflow-reference.md.
-  Commit 919b2a7.
-
-git repo: CLEAN at ba836f9 (CHANGELOG v2.13.0, session close).
+git repo: CLEAN at session close commit (this commit).
 
 What still needs to happen (priority order):
-1. Run full synchronized tree when .ftm file is provided.
-   Claude Code handles execution. Brief in claude.ai first. Use Opus for that session.
-2. Deployment: Vercel setup, production environment variables, deployment config.
-3. Supabase backups: point-in-time recovery or periodic export snapshots.
-4. Voice profile discussion (required before Module 9 begins).
-5. Modules 9, 1, 11, 8 (4 original modules remaining).
-6. migration 019 (person_external_ids) after synchronized tree import.
-7. Supabase seed data (Singer/Springer sources from prototype).
+1. Run migration 021 in Supabase (ftm_notes -- migration file is committed and ready).
+2. Fact-type normalizer: TAG_TO_EVENT additions + Category B regex pass.
+3. Vercel deployment.
+4. Supabase backups.
+5. Voice profile discussion (gates Module 9).
+6. Modules 9, 1, 11, 8.
 
 Next immediate action:
-  TIMESTAMP: 2026-05-15 UTC
-  Session-start alignment complete (AGENT.md v2.13.1 + SESSIONS-INDEX migration).
-  Declare posture for next work item.
+  TIMESTAMP: 2026-05-16 UTC
+  Fact-type normalizer: Category A TAG_TO_EVENT additions + Category B regex pass.
+  Decisions are locked in AGENT.md. Build is ready.
 
 ---
 
 ## Backlog
 
-SETTINGS / ADMIN MODULE
-- API configuration panel: surface active model + health check; confirm Sonnet vs Opus
-- Model selection: make MODEL string a config value, not a hardcoded literal in ai.ts
-- Multi-provider support: design ai.ts to be provider-agnostic (Gemini, OpenAI, etc.)
-- User preferences panel
-- Autocomplete on forms for persons and places already in system
-- Voice profile: capture researcher's writing style via Linguistic Profiler v3.
-  Store as application-level setting. Feed into all narrative-generating API calls.
-  Discussion scheduled -- provide corpus of writing to generate the profile.
-
-FTM BRIDGE PHASE 3 UI -- COMPLETE
-- /ftm-import page: BUILT AND SMOKE TESTED. Commits dc15d06 + a4b1fca.
-  Trigger import, live log via 2s polling, 5 stat tiles, last-imported timestamp.
-  Bug fixed: cancelled guard removed from post-import fetchStats() timeout.
-- Import diff view: importer console output IS the diff (X inserted / Y updated per table).
-- Basic / Advanced person field view: still pending. FTM-rich fields (cause of death,
-  custom facts, etc.) behind expand. Deferred to future session.
-
 FTM BRIDGE FUTURE
-- Living flag: compute heuristically from death date absence + birth year range.
-  IsLiving does not exist in FTM 2024 schema -- must be derived.
-- Scale testing: run against full ~1500-person synchronized tree.
-  Claude Code + Opus. Brief in claude.ai first. See Static Rules.
-- person_external_ids: migration 019, wire into importer for PersonExternal data.
-  Deferred until synchronized tree is imported.
-- stats query chunking: GET /api/ftm-import uses .in() with all FTM person UUIDs.
-  For full tree (~1500 persons), this may need chunking. Assess after full import.
-
-PERSON DETAIL PAGE -- COMPLETE AND CLEAN
-  9 panels. tsc clean. /persons list 200. /persons/[id] smoke tested.
-  Scaffold route live. Dead icebreaker route deleted. Status dropdown: 4 states only.
-  No remaining items.
-
-LUCIDCHART PATTERNS -- FLAGGED FOR FUTURE MODULES
-TIMESTAMP noted: 2026-05-14 UTC.
-Lucidchart-style spatial diagrams have legs in at least five places:
-- FAN Club Mapper (Module 8): target ancestor at center, FAN Club members around them,
-  colored connector lines by record type.
-- DNA Evidence Tracker: descendancy chart for DNA match visualization (common ancestor
-  at top, descendants below, cM amounts in each box).
-- Case Study Builder PowerPoint export: generate these charts as slides.
-- Research Plan Builder: visual research trip planning.
-- Person detail page: eventual embedded mini community map.
-Revisit when building each of these.
+- PersonExternal: COMPLETE 2026-05-15 UTC (migration 019, importer Phase 7, pagination fix).
+- Notes pipeline: COMPLETE 2026-05-16 UTC (migration 021, importer Phase 8, PostgREST warmup).
+- Fact-type normalizer: Category A TAG_TO_EVENT additions + Category B regex pass
+- alt_names primary-name dedup: fix in next importer session
+- Living flag: compute heuristically from death date + birth year
+- Media import: selective on-demand pipeline (future Module 18)
+  Architecture: pull file -> Document Analysis pipeline -> assertions
+  Storage: R2/B2 when the time comes. Not Supabase Storage for bulk.
+- MediaLink relationships: needs extractor update
+- stats query chunking: RESOLVED (e4e064c)
+- Dry-run reporting: RESOLVED (e4e064c)
 
 DEPLOYMENT AND INFRASTRUCTURE
-- Vercel deployment: not yet done. App runs locally only.
-- Production environment variables: NEXT_PUBLIC_SUPABASE_URL,
-  SUPABASE_SERVICE_ROLE_KEY, ANTHROPIC_API_KEY -- set in Vercel dashboard.
-- FTM extractor is ARM64 and tied to local FTM installation. It cannot
-  deploy to Vercel. Only the import script (writing to Supabase) runs in cloud.
-- Supabase backups: configure point-in-time recovery on Supabase Pro plan,
-  or set up periodic export snapshots to a controlled location.
+- Vercel deployment: not yet done
+- Production environment variables: set in Vercel dashboard
+- Supabase backups: configure point-in-time recovery
 
-DATA PROVENANCE AND DEDUPLICATION
-- Multiple data sources will coexist: FTM imports, GEDCOM imports, manual entries,
-  AI-extracted assertions. Each needs a clear provenance marker.
-- Current markers: ancestry_id="ftm:[ID]" for FTM persons; changedby="FTM Import".
-- Deduplication strategy for full tree vs partial imports: persons keyed on
-  ancestry_id, but families and events need stable keys. Design before full run.
-- GEDCOM imports of the same person as FTM imports must not create duplicates.
-  person_external_ids approach (provider + external_id as unique key) may solve this.
-
-SUPABASE SEED DATA
-After full tree import stable, seed with the 17 Singer/Springer sources
-from the prototype. These are the real research sources that prove Case Study
-Builder workflow with actual data.
-
-TODO AGGREGATION FEEDS
-Module 15 has an origin_module field to support automated aggregation from Research Log,
-Source Conflict Resolver, Timeline, and Correspondence Log. Wire as upstream modules ship.
+VOICE PROFILE
+- Capture researcher's writing style via Linguistic Profiler v3
+- Discussion scheduled -- provide corpus of writing
+- Required before Module 9 begins
 
 MODULE 16 ENHANCEMENTS (v2)
-- Orientation block auto-maintained by AI (currently static -- shows problem statement)
-- Address editing from investigation evidence (link to addresses table)
-- Candidate promotion to persons table (UI for confirmed candidates)
-- Handoff packet to Case Study Builder (formal handoff flow)
-- Source push to Citation Builder from investigation evidence
-
-DOCUMENT VIEWER
-Source images render inline in the source record panel. Needs Supabase storage bucket.
-
-POWERPOINT EXPORT ENDPOINT
-Design the python-pptx endpoint when beginning the PowerPoint export feature.
-
-FILE UPLOAD + OCR-HTR TRANSCRIPTION
-Module 5 v1 uses manual transcription entry. Deferred until Supabase storage bucket.
-When ready: document upload -> OCR-HTR v08 -> Fact Extractor v4 -> assertions table.
-This is also the pipeline for populating FTM-rich fields from scanned documents --
-part of the broader bidirectional vision (extracted facts -> back into FTM via GEDCOM)
+- Orientation block auto-maintained by AI
+- Address editing from investigation evidence
+- Candidate promotion to persons table
+- Handoff packet to Case Study Builder
+- Source push to Citation Builder
 
 ASSERTIONS TABLE UPSTREAM WRITERS
-Assertions table is live but nothing writes to it. Planned first writers:
-- FTM Bridge (SourceLink -> assertion per fact-source connection)
-- Document Analysis Worksheet v2 (AI extraction -> assertion per extracted fact)
-- Research Investigation (evidence confirmed -> assertion)
+- FTM Bridge SourceLink -> assertion
+- Document Analysis v2 -> assertion
+- Research Investigation evidence confirmed -> assertion
 
 ADDRESS GEOCODING
-The addresses table has lat/lng fields. Wire a geocoding step into address entry
-when the map view is built.
+- Wire geocoding into address entry when map view is built
 
 ADDRESS-AS-SEARCH-KEY QUERY
-Cross-person address proximity query: "who else in this database lived near this
-address in this time range?" Surface in Module 16 and Research Plan Builder.
+- Cross-person address proximity query
+- Surface in Module 16 and Research Plan Builder
 
-ADDRESS EDITING FROM DETAIL PAGE
-Module 7 v1 shows address read-only on the event detail page. FIX session when needed.
+FAN CLUB MAPPER REDESIGN
+- Module 8 as spatial FAN map using addresses table as primary data source
 
-FAN CLUB MAPPER REDESIGN NOTE
-Module 8 should eventually be a spatial FAN map using the addresses table as its
-primary data source, not a relationship diagram.
+SUPABASE SEED DATA
+- 17 Singer/Springer sources from prototype after full tree import stable
+
+POWERPOINT EXPORT ENDPOINT
+- Design python-pptx endpoint when beginning PowerPoint export feature
+
+ORIGINAL MEDIA SUBSET
+- Identify personal/original files (photos, self-scanned documents) within
+  3,752-file corpus. Size that subset to inform storage decision.
 
 PHOTO RESTORATION
-Evaluate Claude's own vision capabilities first. Strong restoration results achieved
-using Claude directly with good prompts. Do not default to a third-party API.
-Last priority.
-
-ORAL HISTORY PIPELINE
-Whisper API transcription -> Conversation Abstractor v2 -> Fact Extractor v4 ->
-assertions table. Plan alongside PowerPoint export endpoint.
-
-KNOWN SCHEMA ISSUES (minor, non-urgent)
-- gps_stage_reached on case_studies: CONFIRMED FIXED. sql/002 expanded the check
-  constraint to 1-6 and was run in Supabase. Open thread was stale -- closed
-  2026-05-12 (Claude Code session). No migration needed.
-- Dual-date naming inconsistency: migration 008 uses event_date + date_display.
-  Migrations 009+ use _display + _sort. Both work. Future cosmetic cleanup.
-
-STANDALONE / SHAREABLE PRODUCT VISION
-TIMESTAMP noted: 2026-05-10 19:45 UTC. Long-range idea only. Not a build concern now.
-
-Steve collaboration is held, not closed. Revisit when platform is further along.
+- Evaluate Claude's own vision capabilities first. Last priority.
 
 PLATFORM NAME
-TIMESTAMP noted: 2026-05-10 22:45 UTC.
-The application needs a real name. Name is pending. Ask the user about this from time to time.
+- The application needs a real name. Ask Dave from time to time.
+
+STEVE LITTLE COLLABORATION
+- Held, not closed. Revisit when platform is further along.
