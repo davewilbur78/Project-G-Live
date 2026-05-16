@@ -4,6 +4,7 @@ Format: FILENAME | TIMESTAMP | Posture | AI | one-sentence summary
 
 ---
 
+SESSION-2026-05-16-0428-UTC.md | 2026-05-16 04:28 UTC | BUILD | Claude Code (claude-sonnet-4-6) | Migration 019 live; importer Phase 7 wired; person_external_ids = 1,576 ancestry rows (idempotency confirmed); BUT exposed pre-existing 1000-row select cap bug in persons-dedup -- 1,152 duplicate persons created across two runs; persons table needs cleanup before any further re-import.
 SESSION-2026-05-16-0354-UTC.md | 2026-05-16 03:54 UTC | BUILD | Claude Code (claude-sonnet-4-6) | ftm-extractor.c updated with PersonExternal + Sync_Person; schema confirmed; Ancestry IDs (AmtId) present for all 1,576 persons in Sync_Person; FSIDs absent; PersonExternal empty; fresh extract complete.
 SESSION-2026-05-16-0053-UTC.md | 2026-05-16 00:53 UTC | BUILD | Claude Code (claude-opus-4-7) | Full synced FTM tree imported (1,576 persons, 5,983 timeline events, 87.6% sourced); 10 analytical questions answered; PersonExternal & MediaFile not yet extracted; 44 research notes not imported; dry-run source-wiring report flagged as misleading.
 SESSION-2026-05-15-2240-UTC.md | 2026-05-15 22:40 UTC | BUILD | Claude (claude.ai) | Session-start alignment complete: AGENT.md v2.13.1, SESSIONS-INDEX.md migrated (45 entries with filename field), stub file created for orphaned Claude Code review entry.
