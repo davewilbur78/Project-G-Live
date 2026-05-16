@@ -4,6 +4,7 @@ Format: FILENAME | TIMESTAMP | Posture | AI | one-sentence summary
 
 ---
 
+SESSION-2026-05-15-CLAUDEAI-UTC.md | 2026-05-15 UTC | BUILD | Claude (claude.ai) | PersonExternal initiative complete: migration 019 live, importer Phase 7, pagination fix, families cleanup, main at 24b0a0b; v2.15.0.
 SESSION-2026-05-16-CLAUDEAI-UTC.md | 2026-05-16 UTC | BUILD | Claude (claude.ai) | Full tree import supervised and analyzed; all FTM Phase 3 decisions locked (extractor scope, notes pipeline, fact-type normalizer, media architecture); repo merged clean at 529d708; v2.14.0.
 SESSION-2026-05-16-0053-UTC.md | 2026-05-16 00:53 UTC | BUILD | Claude Code (claude-opus-4-7) | Full synced FTM tree imported (1,576 persons, 5,983 timeline events, 87.6% sourced); 10 analytical questions answered; PersonExternal & MediaFile not yet extracted; 44 research notes not imported; dry-run source-wiring report flagged as misleading.
 SESSION-2026-05-15-2240-UTC.md | 2026-05-15 22:40 UTC | BUILD | Claude (claude.ai) | Session-start alignment complete: AGENT.md v2.13.1, SESSIONS-INDEX.md migrated (45 entries with filename field), stub file created for orphaned Claude Code review entry.

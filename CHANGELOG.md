@@ -1,5 +1,27 @@
 # Changelog
 
+## v2.15.0 -- 2026-05-15 UTC
+
+### PersonExternal initiative -- COMPLETE
+- Discovered PersonExternal table in .ftm is empty. Ancestry IDs live in
+  Sync_Person.AmtId. All 1,576 persons have AmtId populated. FSIDs universally
+  NULL (tree not linked to FamilySearch).
+- Migration 019 live: person_external_ids join table with UNIQUE(provider, external_id)
+  and two indexes. Option B (join table) chosen over flat column per existing AGENT.md
+  spec. claude.ai initially proposed Option A; Claude Code correctly pushed back.
+- Importer Phase 7 live: writes Ancestry IDs into person_external_ids, idempotent
+  via ON CONFLICT DO NOTHING. FamilySearch slot wired but currently zero rows.
+- Pagination fix (commit 9886492): existing-persons fetch in import-ftm.mjs was
+  silently capped at 1000 rows. Now loops range() calls until all persons retrieved.
+  Pre-existing latent bug; first triggered on 2nd+ run of a >1000-person tree.
+- Families orphan cleanup: 1,088 double-NULL rows deleted. Root cause: partner1_id
+  and partner2_id use ON DELETE SET NULL. 89 single-NULL families left intact.
+- Final database state: 1,577 persons / 1,576 person_external_ids / 5,983
+  timeline_events / 625 families / 2,204 family_members. All idempotent.
+- Main branch at 24b0a0b (7 commits from Claude Code + migration + cleanup from claude.ai).
+
+---
+
 ## v2.14.0 -- 2026-05-16 UTC
 
 ### Full synchronized FTM tree import -- COMPLETE

@@ -1,6 +1,6 @@
 Project-G-Live AGENT.md
-Version: 2.14.0
-Last updated: 2026-05-16 UTC
+Version: 2.15.0
+Last updated: 2026-05-15 UTC
 Last updated by: Claude (claude.ai)
 
 # What This Is
@@ -232,7 +232,7 @@ Semantic versioning: MAJOR.MINOR.PATCH
 
 All timestamps: YYYY-MM-DD HH:MM UTC. Time to the minute required. No date-only stamps.
 
-Current version: 2.14.0
+Current version: 2.15.0
 
 ---
 
@@ -512,10 +512,12 @@ Reverse-engineered by Claude Code (claude-opus-4-7) in a single session.
 
 ### Phase 3 Extractor Scope -- DECIDED 2026-05-16 UTC
 
-  Priority 1: PersonExternal -- Ancestry person IDs + FamilySearch FSIDs.
-    Currently NOT extracted. Gate for migration 019.
-    Next action: update ftm-extractor.c, recompile, run against synced .ftm,
-    confirm IDs present, then design migration 019 in claude.ai.
+  Priority 1: PersonExternal -- COMPLETE 2026-05-15 UTC.
+    PersonExternal table in .ftm is empty. Ancestry IDs live in Sync_Person.AmtId.
+    All 1,576 persons have AmtId populated. FSIDs universally NULL (not FamilySearch-linked).
+    Extractor updated (commit 97d1f36). Migration 019 live. Importer Phase 7 live.
+    person_external_ids: 1,576 rows, all provider='ancestry', idempotent.
+    Pagination fix applied (commit 9886492): fetch was silently capped at 1000 rows. Fixed.
   Priority 2: MediaFile + MediaLink -- after storage bucket decision.
   Priority 3: Marker (places) -- after PersonExternal is complete.
 
@@ -739,7 +741,7 @@ One true local path: /Users/dave/Project-G-Live/
 /docs/modules/      -- Module design documents
 /docs/architecture/ -- Architecture decision records
 /prompts/           -- AI engine library
-/sql/               -- SQL migration files (001-020, all live except 019)
+/sql/               -- SQL migration files (001-019, all live)
 /src/               -- Application source
   /src/app/         -- Next.js pages and API routes
   /src/lib/ai.ts    -- callWithEngine() -- 15 engines
@@ -772,7 +774,7 @@ wip/                -- Partially built work scratch space
 
 ## Known Technical Debt
 
-TIMESTAMP: 2026-05-16 UTC
+TIMESTAMP: 2026-05-15 UTC
 
 - Untracked files on main (left untouched, Dave to decide):
   package-lock.json, prototypes/dashboard-mockup-v1.html,
@@ -783,20 +785,28 @@ TIMESTAMP: 2026-05-16 UTC
 - alt_names primary-name dedup: 22 persons. Fix in next importer session.
 - git add -A staging incident: RESOLVED 2026-05-14 UTC.
 - git divergence: RESOLVED 2026-05-14 UTC.
+- Existing-persons fetch capped at 1000 rows: RESOLVED 2026-05-15 UTC (commit 9886492).
+  Pagination loop added to import-ftm.mjs.
+- families.partner1_id / partner2_id use ON DELETE SET NULL, not CASCADE.
+  Caused 1,088 orphan families during persons cleanup 2026-05-15 UTC.
+  Orphans deleted manually. Schema behavior now documented.
+  Consider changing to CASCADE in a future migration.
 
 ---
 
 ## Project State
 
-TIMESTAMP last updated: 2026-05-16 UTC by Claude (claude.ai) -- v2.14.0
+TIMESTAMP last updated: 2026-05-15 UTC by Claude (claude.ai) -- v2.15.0
 
 Build phase: Phase 3 ACTIVE -- 13 of 17 modules complete + person detail page COMPLETE
 
 Genealogical data foundation: COMPLETE and LIVE.
-  Migrations 001-020 all run in Supabase (019 not yet written -- gated on extractor).
+  Migrations 001-019 all run in Supabase. Migration 019 live 2026-05-15 UTC.
   1,576 persons from full synchronized tree live in Supabase.
   5,237 of 5,983 timeline events have source_id wired (87.6%).
   Importer fully idempotent. Safe to re-run.
+
+person_external_ids: LIVE. 1,576 rows, all provider='ancestry'. Idempotent. 2026-05-15 UTC.
 
 src/lib/ai.ts: COMPLETE. 15 engines registered and live.
 src/types/index.ts: COMPLETE. tsc clean.
@@ -810,26 +820,24 @@ Person detail page: COMPLETE AND CLEAN. 9 panels.
 git repo: CLEAN at session close commit (this commit).
 
 What still needs to happen (priority order):
-1. Extractor update: PersonExternal. Claude Code. Then migration 019.
-2. Notes pipeline: ftm_notes table + importer extension.
-3. Fact-type normalizer: TAG_TO_EVENT additions + Category B regex pass.
-4. Vercel deployment.
-5. Supabase backups.
-6. Voice profile discussion (gates Module 9).
-7. Modules 9, 1, 11, 8.
+1. Notes pipeline: ftm_notes table + importer extension.
+2. Fact-type normalizer: TAG_TO_EVENT additions + Category B regex pass.
+3. Vercel deployment.
+4. Supabase backups.
+5. Voice profile discussion (gates Module 9).
+6. Modules 9, 1, 11, 8.
 
 Next immediate action:
-  TIMESTAMP: 2026-05-16 UTC
-  Claude Code: update ftm-extractor.c to pull PersonExternal.
-  Recompile, run against synced .ftm, confirm Ancestry IDs and FSIDs present.
-  Report findings to claude.ai. Then design migration 019 together.
+  TIMESTAMP: 2026-05-15 UTC
+  Notes pipeline: design ftm_notes table migration and importer extension.
+  Decisions are locked in AGENT.md. Claude Code or claude.ai.
 
 ---
 
 ## Backlog
 
 FTM BRIDGE FUTURE
-- PersonExternal: extractor update -> migration 019 -> importer extension
+- PersonExternal: COMPLETE 2026-05-15 UTC (migration 019, importer Phase 7, pagination fix).
 - Notes pipeline: ftm_notes table, RTF stripping, importer extension
 - Fact-type normalizer: Category A TAG_TO_EVENT additions + Category B regex pass
 - alt_names primary-name dedup: fix in next importer session
