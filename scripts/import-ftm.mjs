@@ -214,15 +214,48 @@ function ftmNature(n) {
 /* ------------------------------------------------------------------ */
 
 const TAG_TO_EVENT = {
-  BIRT: 'birth',   DEAT: 'death',   MARR: 'marriage', DIV:  'divorce',
-  RESI: 'residence', IMMI: 'immigration', EMIG: 'emigration',
+  BIRT: 'birth',      DEAT: 'death',      MARR: 'marriage',    DIV:  'divorce',
+  RESI: 'residence',  IMMI: 'immigration', EMIG: 'emigration',
   NATU: 'naturalization', MILI: 'military_service',
   OCCU: 'occupation', LAND: 'land_record', CENS: 'census',
-  BAPM: 'baptism', BURI: 'burial', EDUC: 'education',
+  BAPM: 'baptism',    BURI: 'burial',      EDUC: 'education',
+  // Category A additions -- TIMESTAMP: 2026-05-16 UTC
+  ARVL: 'arrival',    DPRT: 'departure',
+  CHR:  'christening', ADDR: 'address',    PROB: 'probate',
+  DIVF: 'divorce_filed', _MILT: 'military_service',
 };
 
 function tagToEventType(tag) {
   return TAG_TO_EVENT[tag] ?? 'other';
+}
+
+/**
+ * Category B regex normalizer -- TIMESTAMP: 2026-05-16 UTC
+ *
+ * Collapses ~140 FTM custom fact names into structured event types.
+ * Called only when a fact's tag is not found in TAG_TO_EVENT (isCustom === true).
+ * The original factTypeName is always preserved in the description field regardless.
+ *
+ * Naturalization sub-events are kept granular -- each is a distinct legal document.
+ * All other unmapped types fall through to 'other'.
+ */
+function normalizeCustomEventType(factTypeName) {
+  if (!factTypeName) return 'other';
+  const n = factTypeName;
+  // Naturalization sub-events -- kept granular per AGENT.md decision
+  if (/petition.*natural|natural.*petition|first\s+papers?/i.test(n))        return 'naturalization_petition';
+  if (/declaration.*intention|intention.*natural|second\s+papers?/i.test(n)) return 'naturalization_declaration';
+  if (/oath.*allegian|allegian.*oath|natural.*oath/i.test(n))                 return 'naturalization_oath';
+  if (/natural.*certif|certif.*natural/i.test(n))                             return 'naturalization_certificate';
+  if (/\bdeposition\b/i.test(n))                                              return 'naturalization_deposition';
+  // Newspaper / media mentions
+  if (/obituar/i.test(n))                                                     return 'obituary';
+  if (/marriage\s*announce/i.test(n))                                         return 'marriage_announcement';
+  if (/marriage\s*licens/i.test(n))                                           return 'marriage_license';
+  if (/birth\s*announce/i.test(n))                                            return 'birth_announcement';
+  if (/wedding\s*announce/i.test(n))                                          return 'wedding_announcement';
+  if (/newspaper|clipping|news\s*article/i.test(n))                           return 'newspaper_mention';
+  return 'other';
 }
 
 /* ------------------------------------------------------------------ */
@@ -351,7 +384,8 @@ async function main() {
   const altNamesMap = new Map();  // ftm person ID → deduplicated string[]
   for (const f of data.facts) {
     if (f.LinkTableID !== 5) continue;
-    if (f.factTypeTag !== 'NAME' && f.factTypeTag !== 'ALIA') continue;
+    const altTag = f.factTypeTag?.trim();
+    if (altTag !== 'NAME' && altTag !== 'ALIA') continue;
     const cleaned = cleanGedcomName(f.Text);
     if (!cleaned) continue;
     const set = altNamesMap.get(f.LinkID) ?? new Set();
@@ -575,7 +609,7 @@ async function main() {
   // Get marriage facts for each relationship (LinkTableID=7)
   const relMarriageFacts = new Map();  // relId → best marriage fact
   for (const f of data.facts) {
-    if (f.LinkTableID === 7 && (f.factTypeTag === 'MARR' || f.factTypeName?.includes('Marriage'))) {
+    if (f.LinkTableID === 7 && (f.factTypeTag?.trim() === 'MARR' || f.factTypeName?.trim()?.includes('Marriage'))) {
       const existing = relMarriageFacts.get(f.LinkID);
       if (!existing || (f.Preferred && !existing.Preferred)) {
         relMarriageFacts.set(f.LinkID, f);
@@ -687,12 +721,17 @@ async function main() {
   const eventRows = [];
   for (const f of data.facts) {
     if (f.LinkTableID !== 5) continue;  // only person facts
-    if (SKIP_TAGS.has(f.factTypeTag)) continue;
+
+    // Normalize tag strings -- FTM data can carry leading/trailing whitespace
+    const tag     = f.factTypeTag?.trim() ?? '';
+    const tagName = f.factTypeName?.trim() ?? null;
+
+    if (SKIP_TAGS.has(tag)) continue;
     if (f.factTypeClass === 257) continue;  // skip all attribute facts
 
     // For single-instance event types, only import the preferred fact
-    if (SINGLE_PREFERRED_TAGS.has(f.factTypeTag)) {
-      const key = `${f.LinkID}:${f.factTypeTag}`;
+    if (SINGLE_PREFERRED_TAGS.has(tag)) {
+      const key = `${f.LinkID}:${tag}`;
       if (f.Preferred !== 1 && f.Preferred !== '1') {
         if (addedPreferred.has(key)) continue;  // skip non-preferred if preferred exists
       } else {
@@ -705,7 +744,13 @@ async function main() {
 
     const decoded = decodeFTMDate(f.DateSort1, f.DateModifier1);
     const place   = parseFTMPlace(f.placeName);
-    const etype   = tagToEventType(f.factTypeTag);
+
+    // Category A: standard GEDCOM tags resolved via TAG_TO_EVENT
+    // Category B: custom fact names collapsed via normalizeCustomEventType regex
+    // Original factTypeName always preserved in description field for custom events.
+    const isCustom    = !TAG_TO_EVENT[tag];
+    const etype       = isCustom ? normalizeCustomEventType(tagName) : (TAG_TO_EVENT[tag] ?? 'other');
+    const description = isCustom ? tagName : null;
 
     // For date ranges (between), also decode end date
     let endDate = null;
@@ -713,10 +758,6 @@ async function main() {
       const endDecoded = decodeFTMDate(f.DateSort2, 0);
       endDate = endDecoded.sort;
     }
-
-    // description: custom event type name when it's not a standard GEDCOM tag
-    const isCustom = !TAG_TO_EVENT[f.factTypeTag];
-    const description = isCustom ? f.factTypeName : null;
 
     eventRows.push({
       person_id:      personUuid,
