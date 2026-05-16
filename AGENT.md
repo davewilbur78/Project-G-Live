@@ -1,6 +1,6 @@
 Project-G-Live AGENT.md
-Version: 2.15.0
-Last updated: 2026-05-15 UTC
+Version: 2.16.0
+Last updated: 2026-05-16 UTC
 Last updated by: Claude (claude.ai)
 
 # What This Is
@@ -232,7 +232,7 @@ Semantic versioning: MAJOR.MINOR.PATCH
 
 All timestamps: YYYY-MM-DD HH:MM UTC. Time to the minute required. No date-only stamps.
 
-Current version: 2.15.0
+Current version: 2.16.0
 
 ---
 
@@ -521,14 +521,15 @@ Reverse-engineered by Claude Code (claude-opus-4-7) in a single session.
   Priority 2: MediaFile + MediaLink -- after storage bucket decision.
   Priority 3: Marker (places) -- after PersonExternal is complete.
 
-### Notes Pipeline -- DECIDED 2026-05-16 UTC
+### Notes Pipeline -- COMPLETE 2026-05-16 UTC
 
-  44 substantive RTF research notes in synced tree currently thrown away by importer.
-  New table: ftm_notes (id, person_id FK, source_id FK nullable, ftm_note_id int,
-    content text [RTF stripped], imported_at timestamptz).
-  RTF stripped to plain text at import time. URLs preserved. Unicode preserved.
-  Discrete entries -- not merged into person_research_notes.
-  "Send to Source Conflict Resolver" action on Research Notes panel (future).
+  sql/021-ftm-notes.sql: ftm_notes table. UNIQUE(person_id, ftm_note_id) for idempotent upsert.
+    Cascade delete on persons. source_id nullable (future source linking).
+  Importer Phase 8: filters LinkTableID=5, strips RTF, upserts in batches of 200.
+    Schema cache warmup poll built into Phase 8 before the upsert (canonical reference).
+  "Send to Source Conflict Resolver" action on Research Notes panel: future.
+  To activate on a fresh machine: run migration 021 in Supabase,
+    then node scripts/import-ftm.mjs --skip-extract.
 
 ### Fact-Type Normalizer -- DECIDED 2026-05-16 UTC
 
@@ -554,11 +555,12 @@ Reverse-engineered by Claude Code (claude-opus-4-7) in a single session.
 
 ### Idempotency Status -- FULLY SAFE
 
-  Persons: SAFE (upsert by ancestry_id = "ftm:[ID]")
-  Repositories: SAFE (upsert by name)
-  Sources: SAFE (skips if "FTM Import" marker exists)
-  Families: SAFE (delete-then-reinsert)
-  Timeline events: SAFE (delete-then-reinsert)
+  Persons:          SAFE (upsert by ancestry_id = "ftm:[ID]")
+  Repositories:     SAFE (upsert by name)
+  Sources:          SAFE (skips if "FTM Import" marker exists)
+  Families:         SAFE (delete-then-reinsert)
+  Timeline events:  SAFE (delete-then-reinsert)
+  FTM Notes:        SAFE (upsert on person_id, ftm_note_id)
 
 ### Running the Importer
 
@@ -671,14 +673,62 @@ Phase 5: Case Study Builder PowerPoint export as flagship
 
 ---
 
-## Claude in Chrome -- SQL Editor Notes
+## Claude in Chrome -- SQL Editor and Supabase DDL
 
 TIMESTAMP established: 2026-05-11 10:30 UTC
+TIMESTAMP updated: 2026-05-16 UTC
 MANDATORY RE-READ RULE: Before writing any plan involving Claude in Chrome or the
 Supabase SQL editor, re-read this entire section. No exceptions.
 
-- Use Monaco editor API: window.monaco.editor.getModels()[n].setValue(sql)
-- Determine n at runtime -- do not assume n=0
+### Primary approach: Supabase Management API
+
+form_input into CodeMirror never works reliably. CodeMirror maintains its own
+internal state and ignores textarea value changes injected by automation tools.
+Do not attempt CodeMirror interaction for migrations.
+
+Use the Supabase Management API from any browser tab that is already logged in
+to supabase.com. Execute via javascript_tool:
+
+  const token = JSON.parse(localStorage.getItem('supabase.dashboard.auth.token')).access_token;
+  const res = await fetch(
+    'https://api.supabase.com/v1/projects/slqjooudyfvmnaoetdvi/database/query',
+    {
+      method: 'POST',
+      headers: { 'Authorization': `Bearer ${token}`, 'Content-Type': 'application/json' },
+      body: JSON.stringify({ query: sql })
+    }
+  );
+  console.log(await res.json());
+
+This is the first approach for all migrations -- not a fallback. It is faster,
+more reliable, and requires no UI interaction.
+
+### Fallback: Monaco editor API
+
+Only use if the Management API is unavailable:
+  window.monaco.editor.getModels()[n].setValue(sql)
+  Determine n at runtime -- do not assume n=0.
+
+### PostgREST schema cache lag
+
+After any DDL (CREATE TABLE, ALTER TABLE), PostgREST may lag several seconds
+before its schema cache refreshes. Any import phase writing to a freshly-created
+table must poll before inserting:
+
+  1. Try SELECT id FROM <new_table> LIMIT 0
+  2. If error (PGRST205 or table-not-found): wait 2 seconds, retry
+  3. Repeat up to 10 attempts (20 seconds total -- more than enough)
+  4. After 10 failures: throw a clear error telling the user to run the migration first
+
+The canonical implementation of this pattern is the warmup block in importer Phase 8.
+Copy it verbatim for any future phase that writes to a newly-created table.
+
+### Tab group hygiene
+
+Create a fresh tab group at the start of each Claude in Chrome session
+(tabs_context_mcp with createIfEmpty: true) and navigate to the target URL.
+Do not reuse stale tabs from prior sessions -- they end up in the wrong window.
+
 - Supabase project ref: slqjooudyfvmnaoetdvi
 - SQL editor URL: https://supabase.com/dashboard/project/slqjooudyfvmnaoetdvi/sql/new
 
@@ -726,6 +776,11 @@ One true local path: /Users/dave/Project-G-Live/
 - Check for stale dev server: lsof -iTCP:3000
 - STALE CACHE: pkill -f "next dev" then rm -rf .next then npm run dev
 - After GitHub connector push: git pull before assuming files are current
+- SESSIONS-INDEX.md git conflicts: always resolve as "keep both sides, most-recent-first".
+  On git pull --rebase, if SESSIONS-INDEX.md conflicts: open the file, keep all entries
+  from both sides, ensure the most-recent session is the first line, then
+  git add sessions/SESSIONS-INDEX.md and git rebase --continue.
+  Never abort the rebase for this file -- the conflict is always a trivial text merge.
 - NEVER use git add -A. Always stage specific paths.
 
 ---
@@ -741,7 +796,7 @@ One true local path: /Users/dave/Project-G-Live/
 /docs/modules/      -- Module design documents
 /docs/architecture/ -- Architecture decision records
 /prompts/           -- AI engine library
-/sql/               -- SQL migration files (001-019, all live)
+/sql/               -- SQL migration files (001-021, all live)
 /src/               -- Application source
   /src/app/         -- Next.js pages and API routes
   /src/lib/ai.ts    -- callWithEngine() -- 15 engines
@@ -774,7 +829,7 @@ wip/                -- Partially built work scratch space
 
 ## Known Technical Debt
 
-TIMESTAMP: 2026-05-15 UTC
+TIMESTAMP: 2026-05-16 UTC
 
 - Untracked files on main (left untouched, Dave to decide):
   package-lock.json, prototypes/dashboard-mockup-v1.html,
@@ -796,17 +851,22 @@ TIMESTAMP: 2026-05-15 UTC
 
 ## Project State
 
-TIMESTAMP last updated: 2026-05-15 UTC by Claude (claude.ai) -- v2.15.0
+TIMESTAMP last updated: 2026-05-16 UTC by Claude (claude.ai) -- v2.16.0
 
 Build phase: Phase 3 ACTIVE -- 13 of 17 modules complete + person detail page COMPLETE
 
 Genealogical data foundation: COMPLETE and LIVE.
-  Migrations 001-019 all run in Supabase. Migration 019 live 2026-05-15 UTC.
+  Migrations 001-021 all committed. Migrations 001-019 confirmed live in Supabase.
+  Migration 021 (ftm_notes): committed 2026-05-16 UTC, ready to run.
   1,576 persons from full synchronized tree live in Supabase.
   5,237 of 5,983 timeline events have source_id wired (87.6%).
   Importer fully idempotent. Safe to re-run.
 
 person_external_ids: LIVE. 1,576 rows, all provider='ancestry'. Idempotent. 2026-05-15 UTC.
+
+Notes pipeline: COMPLETE 2026-05-16 UTC.
+  Migration 021 committed. Importer Phase 8 committed with PostgREST warmup.
+  Run migration 021 in Supabase to activate.
 
 src/lib/ai.ts: COMPLETE. 15 engines registered and live.
 src/types/index.ts: COMPLETE. tsc clean.
@@ -820,7 +880,7 @@ Person detail page: COMPLETE AND CLEAN. 9 panels.
 git repo: CLEAN at session close commit (this commit).
 
 What still needs to happen (priority order):
-1. Notes pipeline: ftm_notes table + importer extension.
+1. Run migration 021 in Supabase (ftm_notes -- migration file is committed and ready).
 2. Fact-type normalizer: TAG_TO_EVENT additions + Category B regex pass.
 3. Vercel deployment.
 4. Supabase backups.
@@ -828,9 +888,9 @@ What still needs to happen (priority order):
 6. Modules 9, 1, 11, 8.
 
 Next immediate action:
-  TIMESTAMP: 2026-05-15 UTC
-  Notes pipeline: design ftm_notes table migration and importer extension.
-  Decisions are locked in AGENT.md. Claude Code or claude.ai.
+  TIMESTAMP: 2026-05-16 UTC
+  Fact-type normalizer: Category A TAG_TO_EVENT additions + Category B regex pass.
+  Decisions are locked in AGENT.md. Build is ready.
 
 ---
 
@@ -838,7 +898,7 @@ Next immediate action:
 
 FTM BRIDGE FUTURE
 - PersonExternal: COMPLETE 2026-05-15 UTC (migration 019, importer Phase 7, pagination fix).
-- Notes pipeline: ftm_notes table, RTF stripping, importer extension
+- Notes pipeline: COMPLETE 2026-05-16 UTC (migration 021, importer Phase 8, PostgREST warmup).
 - Fact-type normalizer: Category A TAG_TO_EVENT additions + Category B regex pass
 - alt_names primary-name dedup: fix in next importer session
 - Living flag: compute heuristically from death date + birth year
