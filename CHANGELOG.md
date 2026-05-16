@@ -1,5 +1,32 @@
 # Changelog
 
+## v2.16.0 -- 2026-05-16 UTC
+
+### Notes pipeline -- COMPLETE
+- Migration 021 (sql/021-ftm-notes.sql): ftm_notes table with UNIQUE(person_id, ftm_note_id),
+  cascade delete on persons, nullable source_id for future source linking.
+- Importer Phase 8: filters LinkTableID=5 (person notes only), strips RTF via existing
+  stripRTF(), upserts in batches of 200 on UNIQUE constraint. Idempotent across re-runs.
+- persons.notes (concatenated blob) preserved for backward compatibility alongside discrete rows.
+- Migration 021 committed and ready; must be run in Supabase before Phase 8 activates.
+
+### PostgREST schema cache warmup -- canonical pattern established
+- Phase 8 polls up to 10 x 2 seconds before upsert into ftm_notes. If table is not
+  visible after 10 attempts, throws a clear error directing user to run migration 021.
+- Pattern documented in AGENT.md as the reference implementation for all future phases
+  that write to freshly-migrated tables.
+
+### Operational platform knowledge added to AGENT.md
+- Supabase Management API (localStorage token + /v1/projects/.../database/query) adopted
+  as the primary DDL mechanism for Claude Code. CodeMirror form_input deprecated permanently.
+  CodeMirror maintains its own internal state and ignores injected textarea values.
+- PostgREST cache lag pattern: poll 10 x 2s, throw clear error. Phase 8 is canonical ref.
+- SESSIONS-INDEX.md git rebase conflicts: always keep-both-sides, most-recent-first.
+  Never abort the rebase for this file -- the conflict is always trivially resolvable.
+- Tab group hygiene: create fresh tab group at start of each Claude in Chrome session.
+
+---
+
 ## v2.15.0 -- 2026-05-15 UTC
 
 ### PersonExternal initiative -- COMPLETE
