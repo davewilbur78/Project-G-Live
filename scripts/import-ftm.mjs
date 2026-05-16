@@ -753,6 +753,28 @@ async function main() {
   // source_id is NULL at import time; future enhancement to link notes to sources.
   console.log('\n[8/8] FTM Notes...');
 
+  // Schema cache warmup: PostgREST may lag several seconds after a fresh migration.
+  // Poll until ftm_notes is visible before attempting the upsert.
+  // See AGENT.md "PostgREST schema cache lag" for the canonical pattern.
+  if (!DRY_RUN) {
+    const WARMUP_TRIES = 10;
+    const WARMUP_DELAY_MS = 2000;
+    for (let attempt = 1; attempt <= WARMUP_TRIES; attempt++) {
+      const { error } = await sb.from('ftm_notes').select('id').limit(0);
+      if (!error) break;
+      if (attempt === WARMUP_TRIES) {
+        throw new Error(
+          `ftm_notes not visible in PostgREST after ${WARMUP_TRIES} attempts. `
+          + `Run migration 021 (sql/021-ftm-notes.sql) in Supabase first, then retry. `
+          + `Last error: ${error.message}`
+        );
+      }
+      console.log(`  PostgREST schema cache warming up `
+        + `(attempt ${attempt}/${WARMUP_TRIES}, waiting ${WARMUP_DELAY_MS}ms)...`);
+      await new Promise(r => setTimeout(r, WARMUP_DELAY_MS));
+    }
+  }
+
   const noteRows = [];
   for (const n of (data.notes ?? [])) {
     if (n.LinkTableID !== 5) continue;  // only person notes for now
