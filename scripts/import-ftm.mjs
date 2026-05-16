@@ -29,6 +29,7 @@
  *   4. families (FK → persons)
  *   5. family_members (FK → persons + families)
  *   6. timeline_events (FK → persons, sources)
+ *   7. person_external_ids  (FK → persons; Ancestry/FamilySearch person IDs)
  */
 
 import { createClient } from '@supabase/supabase-js';
@@ -739,6 +740,59 @@ async function main() {
     const byType = {};
     for (const e of eventRows) byType[e.event_type] = (byType[e.event_type] ?? 0) + 1;
     console.log('  By type:', byType);
+  }
+
+  /* ---- Phase 7: Person external IDs (Sync_Person → person_external_ids) ---- */
+  // FTM's Sync_Person table holds the Ancestry Member Tree person ID (AmtId)
+  // for every person in a synced tree. FamilySearchId is also present in the
+  // schema and gets imported when populated (it is NULL across the board on
+  // the current synced tree, since FamilySearch link has not been established).
+  console.log('\n[7/7] Person external IDs...');
+
+  const syncPersons = data.syncPersons ?? [];
+  const externalIdRows = [];
+  let skippedNoPerson = 0;
+
+  for (const sp of syncPersons) {
+    const personUuid = personIdMap.get(sp.FtmId);
+    if (!personUuid) { skippedNoPerson++; continue; }
+
+    if (sp.AmtId != null && String(sp.AmtId) !== '') {
+      externalIdRows.push({
+        person_id:   personUuid,
+        provider:    'ancestry',
+        external_id: String(sp.AmtId),
+      });
+    }
+    if (sp.FamilySearchId != null && String(sp.FamilySearchId) !== '') {
+      externalIdRows.push({
+        person_id:   personUuid,
+        provider:    'familysearch',
+        external_id: String(sp.FamilySearchId),
+      });
+    }
+  }
+
+  const ancestryCount = externalIdRows.filter(r => r.provider === 'ancestry').length;
+  const fsCount       = externalIdRows.filter(r => r.provider === 'familysearch').length;
+
+  if (!DRY_RUN) {
+    if (externalIdRows.length === 0) {
+      console.log('  No external IDs to write (syncPersons section missing or empty).');
+    } else {
+      // ON CONFLICT DO NOTHING: existing (provider, external_id) rows are kept as-is.
+      for (let i = 0; i < externalIdRows.length; i += 200) {
+        const chunk = externalIdRows.slice(i, i + 200);
+        const { error } = await sb.from('person_external_ids')
+          .upsert(chunk, { onConflict: 'provider,external_id', ignoreDuplicates: true });
+        if (error) throw new Error(`person_external_ids upsert: ${error.message}`);
+      }
+      console.log(`  ${externalIdRows.length} external_id rows processed (${ancestryCount} ancestry, ${fsCount} familysearch)`);
+      if (skippedNoPerson > 0) console.log(`  ${skippedNoPerson} syncPersons rows skipped (no matching person in personIdMap)`);
+    }
+  } else {
+    console.log(`  Would upsert ${externalIdRows.length} external_id rows (${ancestryCount} ancestry, ${fsCount} familysearch)`);
+    if (skippedNoPerson > 0) console.log(`  ${skippedNoPerson} syncPersons rows would be skipped (no matching person)`);
   }
 
   /* ---- Summary ---- */
