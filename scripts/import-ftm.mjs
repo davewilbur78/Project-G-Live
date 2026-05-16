@@ -15,6 +15,7 @@
  * Re-import is fully idempotent — no manual cleanup required.
  * Families and timeline_events are deleted and re-inserted on each run.
  * Persons, repositories, and sources are upserted in-place.
+ * ftm_notes are upserted on (person_id, ftm_note_id).
  *
  * Requirements:
  *   - scripts/ftm-extractor must be compiled (see scripts/ftm-extractor.c)
@@ -29,6 +30,7 @@
  *   4. families (FK → persons)
  *   5. family_members (FK → persons + families)
  *   6. timeline_events (FK → persons, sources)
+ *   8. ftm_notes (FK → persons) [Phase 7 = person_external_ids, handled separately]
  */
 
 import { createClient } from '@supabase/supabase-js';
@@ -271,7 +273,8 @@ function extractFTMData() {
   writeFileSync(JSON_DUMP, json);  // cache for --skip-extract
   const data = JSON.parse(json);
   console.log(`Extracted: ${data.persons.length} persons, ${data.facts.length} facts, `
-    + `${data.masterSources.length} sources, ${data.relationships.length} families`);
+    + `${data.masterSources.length} sources, ${data.relationships.length} families, `
+    + `${data.notes?.length ?? 0} notes`);
   return data;
 }
 
@@ -313,7 +316,7 @@ async function main() {
   const sb = createClient(SUPABASE_URL, SUPABASE_KEY, { auth: { persistSession: false } });
 
   /* ---- Phase 1: Repositories ---- */
-  console.log('\n[1/6] Repositories...');
+  console.log('\n[1/8] Repositories...');
   const repoRows = data.repositories.map(r => ({
     name:         r.Name,
     type:         guessRepoType(r.Name),
@@ -359,11 +362,12 @@ async function main() {
   for (const [id, set] of altNamesMap) altNamesMap.set(id, [...set]);
 
   /* ---- Phase 2: Persons ---- */
-  console.log('\n[2/6] Persons...');
+  console.log('\n[2/8] Persons...');
 
-  // Build notes map: ftm person id → combined note text
+  // Build notes map: ftm person id → combined note text (for persons.notes field)
+  // Individual note rows are imported separately in Phase 8 (ftm_notes table).
   const personNotes = new Map();
-  for (const n of data.notes) {
+  for (const n of (data.notes ?? [])) {
     if (n.LinkTableID === 5) {
       const stripped = stripRTF(n.NoteText);
       if (stripped) {
@@ -434,7 +438,7 @@ async function main() {
   }
 
   /* ---- Phase 3: Sources ---- */
-  console.log('\n[3/6] Sources (MasterSources)...');
+  console.log('\n[3/8] Sources (MasterSources)...');
 
   // ftm master_source_id → supabase source uuid
   const sourceIdMap = new Map();
@@ -522,6 +526,7 @@ async function main() {
   /* ---- Phase 3.5: Clean prior FTM families + timeline_events ---- */
   // Delete-then-reinsert ensures idempotency without unique constraints.
   // FTM is authoritative for these records; persons are preserved (upserted above).
+  // ftm_notes use upsert (Phase 8) and do not need cleanup here.
   if (!DRY_RUN) {
     console.log('\n[3.5] Cleaning prior FTM import data...');
     const ftmPersonUuids = [...personIdMap.values()];
@@ -565,7 +570,7 @@ async function main() {
   }
 
   /* ---- Phase 4: Families ---- */
-  console.log('\n[4/6] Families...');
+  console.log('\n[4/8] Families...');
 
   // Get marriage facts for each relationship (LinkTableID=7)
   const relMarriageFacts = new Map();  // relId → best marriage fact
@@ -615,7 +620,7 @@ async function main() {
   }
 
   /* ---- Phase 5: Family Members ---- */
-  console.log('\n[5/6] Family members...');
+  console.log('\n[5/8] Family members...');
 
   const memberRows = [];
 
@@ -667,7 +672,7 @@ async function main() {
   }
 
   /* ---- Phase 6: Timeline Events ---- */
-  console.log('\n[6/6] Timeline events...');
+  console.log('\n[6/8] Timeline events...');
 
   // Only import events (FactClass=263) and custom events (FactClass=259)
   // Skip attribute facts (FactClass=257): Name, Sex, Refn, etc.
@@ -739,6 +744,39 @@ async function main() {
     const byType = {};
     for (const e of eventRows) byType[e.event_type] = (byType[e.event_type] ?? 0) + 1;
     console.log('  By type:', byType);
+  }
+
+  /* ---- Phase 8: FTM Notes (discrete rows in ftm_notes) ---- */
+  // Phase 7 = person_external_ids (handled separately via migration 019).
+  // LinkTableID=5 = person notes. Family notes (LinkTableID=7) not yet imported.
+  // Idempotency: upsert on UNIQUE(person_id, ftm_note_id). No cleanup needed.
+  // source_id is NULL at import time; future enhancement to link notes to sources.
+  console.log('\n[8/8] FTM Notes...');
+
+  const noteRows = [];
+  for (const n of (data.notes ?? [])) {
+    if (n.LinkTableID !== 5) continue;  // only person notes for now
+    const personUuid = personIdMap.get(n.LinkID);
+    if (!personUuid) continue;
+    const content = stripRTF(n.NoteText);
+    if (!content) continue;  // skip blank after RTF stripping
+    noteRows.push({
+      person_id:   personUuid,
+      source_id:   null,
+      ftm_note_id: n.ID,
+      content,
+    });
+  }
+
+  if (!DRY_RUN) {
+    const total = await batchUpsert(sb, 'ftm_notes', noteRows, 'person_id,ftm_note_id');
+    console.log(`  ${total} notes imported (${noteRows.length} substantive after RTF stripping)`);
+  } else {
+    const uniquePersons = new Set(noteRows.map(n => n.person_id)).size;
+    console.log(`  Would import ${noteRows.length} notes across ${uniquePersons} persons`);
+    if (noteRows.length > 0) {
+      console.log('  Sample note (first 120 chars):', noteRows[0].content.slice(0, 120));
+    }
   }
 
   /* ---- Summary ---- */
