@@ -4,6 +4,7 @@ Format: FILENAME | TIMESTAMP | Posture | AI | one-sentence summary
 
 ---
 
+SESSION-2026-05-16-1930-CLAUDEAI-UTC.md | 2026-05-16 19:30 UTC | BUILD | Claude (claude.ai) | Fact-type normalizer live (Category A + B); migrations 021 + 022 run via Management API; full import complete (1,576 persons, 5,980 events, 44 notes); repo clean at 9e0eacc; v2.17.0.
 SESSION-2026-05-16-1745-CLAUDEAI-UTC.md | 2026-05-16 17:45 UTC | BUILD | Claude (claude.ai) | Notes pipeline complete (migration 021, importer Phase 8, PostgREST warmup); AGENT.md v2.16.0 with Management API DDL pattern, cache lag protocol, and git rebase guidance.
 SESSION-2026-05-16-0450-UTC.md | 2026-05-16 04:50 UTC | BUILD | Claude Code (claude-sonnet-4-6) | PersonExternal initiative complete and merged to main: migration 019 LIVE, person_external_ids = 1,576 ancestry rows, importer Phase 7 wired, pagination fix landed, orphan families cleaned -- final state persons=1,577, pei=1,576, events=5,983, families=625.
 SESSION-2026-05-16-0446-UTC.md | 2026-05-16 04:46 UTC | BUILD | Claude Code (claude-sonnet-4-6) | Pagination fix landed (commit 9886492); cleanup SQL run by claude.ai; clean re-import verified -- persons=1,577, person_external_ids=1,576, timeline_events=5,983, all idempotent; one collateral finding: 1,088 orphan families (NULL partners) need follow-up DELETE.
