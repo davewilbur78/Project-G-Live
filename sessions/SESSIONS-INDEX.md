@@ -4,6 +4,7 @@ Format: FILENAME | TIMESTAMP | Posture | AI | one-sentence summary
 
 ---
 
+SESSION-2026-05-16-0053-UTC.md | 2026-05-16 00:53 UTC | BUILD | Claude Code (claude-opus-4-7) | Full synced FTM tree imported (1,576 persons, 5,983 timeline events, 87.6% sourced); 10 analytical questions answered; PersonExternal & MediaFile not yet extracted; 44 research notes not imported; dry-run source-wiring report flagged as misleading.
 SESSION-2026-05-15-2240-UTC.md | 2026-05-15 22:40 UTC | BUILD | Claude (claude.ai) | Session-start alignment complete: AGENT.md v2.13.1, SESSIONS-INDEX.md migrated (45 entries with filename field), stub file created for orphaned Claude Code review entry.
 SESSION-2026-05-14-FTMUI-CLAUDEAI-UTC.md | 2026-05-14 15:00 UTC | BUILD | Claude (claude.ai) | FTM Bridge Phase 3 UI complete: /ftm-import page built, bug fixed, smoke tested -- Module 17 all phases done, AGENT.md v2.13.0.
 SESSION-2026-05-14-CCREVIEW-UTC.md | 2026-05-14 UTC | BUILD | Claude Code (claude-sonnet-4-6) | FTM Bridge Phase 3 UI design review: architecture confirmed sound, one bug found and fixed, tsc clean, 4/4 smoke tests pass.
