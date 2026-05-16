@@ -95,8 +95,11 @@ export default function FtmImportPage() {
         if (!data.running) {
           setRunning(false)
           clearInterval(poll)
-          // Refresh stats after a short pause to let Supabase settle
-          setTimeout(() => { if (!cancelled) fetchStats() }, 800)
+          // Refresh stats after a short pause to let Supabase settle.
+          // No cancelled guard — cleanup sets cancelled before this fires,
+          // which would silently block the refresh. React 18+ handles state
+          // updates after effect cleanup safely.
+          setTimeout(() => fetchStats(), 800)
         }
       } catch { /* ignore transient polling errors */ }
     }, 2000)
