@@ -21,129 +21,49 @@ Raw notes only. No design decisions yet. Synthesis happens after all batches are
 
 ## Batch 1 -- Videos 1-8
 
-Source file: genealogy_tv_batch1.md
-Data quality: 4 of 8 videos have full YouTube transcripts (high confidence); 4 have article/partial metadata only.
-
 ---
 
 ### Video 1: Hidden Tools on Ancestry
-
-**Ancestry workflows covered:**
-- Private member tree search; Card Catalog filtered by location + era; All Hints aggregated view; "who saved this record" reversal; DNA animated ethnicity timeline
-
-**Design signals:**
-- People hub filtered/browsed by surname family group = All Hints filtered-by-surname equivalent.
-- Research Plan Builder should support "what records exist for this location and era" as a planning question.
-
----
+**Key signals:** People hub by surname family group = All Hints filtered-by-surname. Research Plan Builder needs "what records exist for this location/era" field.
 
 ### Video 2: Card Catalog -- 5 Pro Tricks
-
-**Ancestry workflows covered:**
-- Location filter to county level; era filter; category filter; keyword search on collection titles; "Learn More" before searching
-
-**Design signals:**
-- Research Plan Builder needs a "what collections are available for this location/era" field.
-- Source records could carry a "collection notes" field for known coverage limitations.
-
----
+**Key signals:** Research Plan Builder needs a collections-available field. Source records could carry a "collection notes" field for coverage limitations.
 
 ### Video 3: Fixing Mistakes on Ancestry Trees
-
-**Ancestry workflows covered:**
-- Identifying errors; editing facts with source + note; detaching records; separating merged identities; dismissing hints; correction trail
-
-**Design signals:**
-- Correction note = assertion. Not just "X is true" but "X is true because of Y, here is the reasoning."
-- UI language distinction: "remove this source from this person" vs. "delete this source entirely."
-
----
+**Key signals:** Correction note = assertion. UI language: "remove this source from this person" vs. "delete this source entirely."
 
 ### Videos 4 and 5: Floating Trees and Connecting Them
-
-**Design signals:**
-- Floating tree = Module 16 candidate person concept. Status field should make this visible at a glance.
-- Naming convention hacks ([RESEARCH], [UNVERIFIED]) are a missing-status-field workaround. This app has the real field.
-
----
+**Key signals:** Floating tree = Module 16 candidate person concept. Status field replaces naming convention hacks.
 
 ### Video 6: Emoji Markers
-
-**Design signals:**
-- Clearest signal Ancestry lacks a research status system. This app's research_status field replaces all hacks.
-- Status vocabulary: Confirmed, In Progress, Brick Wall, Uncertain, Candidate, DNA Linked.
-- Visible on person page AND filterable in People hub.
-
----
+**Key signals:** Ancestry lacks a research status system. This app's research_status field replaces all hacks. Status vocabulary: Confirmed, In Progress, Brick Wall, Uncertain, Candidate, DNA Linked. Visible on person page AND filterable in People hub.
 
 ### Video 7: Ancestry Profile Makeover
-
-**Design signals:**
-- person_research_notes framing: "write for a family history book" not "notes dump."
-- Fact-level sourcing health not yet surfaced on person detail page.
-- Media gallery not yet built. Residence timeline should be a life-movement view, not a flat list.
-- Validates 87.6% source-wiring quality concern.
-
----
+**Key signals:** person_research_notes framing: "write for a family history book." Fact-level sourcing health not yet surfaced on person detail page. Media gallery not yet built. Validates 87.6% source-wiring quality concern.
 
 ### Video 8: Ancestry Networks -- initial coverage
-
-**Design signals:**
-- See Videos 9/10 and 16 for full scope. Networks is far broader than DNA alone.
-- ThruLines = confirmation; Networks = discovery. Informs Module 14.
+**Key signals:** See Videos 9/10 and 16 for full scope. ThruLines = confirmation; Networks = discovery.
 
 ---
 
 ## Batch 2 -- Videos 9-14
 
-Source file: GenealogyTV_Batch2_Videos9-14.md
-
 ---
 
 ### Videos 9 and 10: FAN Club + Ancestry Networks Full Coverage
-
-**Key signals:**
-- FAN Club record sources: passenger lists, census neighborhoods (5-10 pages each direction), obituaries, land records (adjoining owners), military journals, probate inventories (estate sale buyer lists)
-- Census-to-Excel pipeline = workflow this app eliminates natively via FAN Club Mapper query.
-- DNA match lists = digital FAN Club. Bridge between Module 14 and Module 8.
-- Probate buyer lists are a Document Analysis Worksheet target.
-
----
+**Key signals:** FAN Club sources: passenger lists, census neighborhoods, obituaries, land records, probate inventories. Census-to-Excel pipeline = workflow this app eliminates natively via FAN Club Mapper. DNA match lists = digital FAN Club. Bridge between Module 14 and Module 8.
 
 ### Video 11: Custom Clusters (Pro Tools)
-
-**Key signals:**
-- Paywalled capability this app offers free: manually define DNA family groups with anchor matches.
-- DNA Evidence Tracker should capture cM value and allow filtering by range.
-
----
+**Key signals:** Paywalled capability this app offers free. DNA Evidence Tracker should capture cM value and filter by range.
 
 ### Video 12: RootsTech 2026 New Features
-
-**Key signals:**
-- Ancestry building AI document analysis (Photo Insights, full transcription): this app's version produces GPS-compliant structured assertions, not self-contradicting paragraphs.
-- Person profile page redesign coming: design for what Ancestry will never do.
-- Ancestry Preserve: physical archive digitization makes Media-as-Unanalyzed-Evidence more urgent.
-- Fold3 full-text search validates address-as-search-key principle.
-
----
+**Key signals:** Ancestry building AI document analysis -- this app's version produces GPS-compliant structured assertions. Person profile page redesign coming: design for what Ancestry will never do. Ancestry Preserve makes Media-as-Unanalyzed-Evidence more urgent. Fold3 full-text search validates address-as-search-key.
 
 ### Video 13: 10 Best Tips Part 1
-
-**Key signals:**
-- FAN Club Mapper query replaces census extraction workflow.
-- SSACI mother's maiden name valuable for Ashkenazi Jewish research.
-- Narrative Assistant should situate ancestors in historical context, not just describe their facts.
-
----
+**Key signals:** FAN Club Mapper replaces census extraction. SSACI mother's maiden name valuable for Ashkenazi Jewish research. Narrative Assistant should situate ancestors in historical context.
 
 ### Video 14: 10 Best Tips Part 2
-
-**Key signals:**
-- People hub: floating/candidate persons visually distinct but accessible.
-- Deduplication guard on add-person: baseline feature, not a Pro Tools upgrade.
-- 3-monitor workflow: design this app for parallel use alongside Ancestry and FamilySearch.
-- Research Plan Builder: prompt "have you checked what records exist for this location/era?"
+**Key signals:** People hub: floating/candidate persons visually distinct but accessible. Deduplication guard = baseline feature. 3-monitor workflow: design for parallel use. Research Plan Builder: prompt for FamilySearch Wiki by location.
 
 ---
 
@@ -152,247 +72,218 @@ Source file: GenealogyTV_Batch2_Videos9-14.md
 ---
 
 ### Video 15: New Ancestry Updates February 2025
-
-**Key signals:**
-- AI record summary contradiction = validates GPS-compliant extraction. UI language: "extracted facts" not "AI summary."
-- "Also Known As" does NOT feed search (Ancestry staff confirmed). Audit FTM-imported alt_names.
-- 1,000-record export cap on Ancestry: this app imposes no such limit.
-- Duplicate merge requires Pro Tools: deduplication guard is baseline here.
-
----
+**Key signals:** AI summary contradiction = validates GPS-compliant extraction. UI: "extracted facts" not "AI summary." AKA does NOT feed search -- audit FTM-imported alt_names. 1,000-record export cap: this app has no such limit. Duplicate merge requires Pro Tools: deduplication guard is baseline here.
 
 ### Video 16: Ancestry Networks Extended Deep Dive
-
-**Key signals:**
-- Full network type taxonomy = design vocabulary for Module 8 (FAN Club Mapper).
-- Cross-network filtering: Ancestry cannot do this. This app can (SQL set intersection). Unique differentiator.
-- Tags + Networks are complementary layers: per-person status marker AND group container with sources.
+**Key signals:** Full network type taxonomy = design vocabulary for Module 8. Cross-network filtering: Ancestry cannot do this, this app can (SQL set intersection). Tags + Networks are complementary layers.
 
 ---
 
 ## Batch 4 -- Videos 17-21
 
-Data quality: All five videos full transcripts.
-
 ---
 
 ### Video 17: Research Notes Updated for 2026
-
-**Key signals:**
-- Knox Research Notes Method = person_research_notes in this app, but with structure a plain text field cannot match: chronological by event date, inline footnote citations, negative evidence as first-class entry (red text), to-do items in the chronological flow, hyperlinks to other profiles.
-- "Typing forces attention to details that break down brick walls" -- the act of structured writing is the mechanism, not just the document it produces.
-- NOT a Research Log -- third independent signal validating this app's architecture.
-- Who gets notes: direct line always; collateral when brick wall requires family cluster. Each couple member gets a SEPARATE file.
-- People hub research queue (status = In Progress) manages multiple simultaneous notes documents.
-
----
+**Key signals:** Knox Research Notes = person_research_notes, but with structure a plain text field cannot match: chronological by event date, inline footnote citations, negative evidence as first-class entry, to-do items in chronological flow, hyperlinks to other profiles. NOT a Research Log -- third independent signal validating this app's architecture. People hub research queue (In Progress) manages multiple simultaneous notes.
 
 ### Video 18: New Workflow for 2026 -- Cloud Archive
-
-**Key signals:**
-- Researcher's 280+ GB genealogy archive (15,000+ files) lives in cloud-synced OneDrive. This app pulls from the archive on demand.
-- Working access (OneDrive) ≠ disaster recovery backup (Backblaze). This app's role is neither -- it is the analysis layer.
-- Mobile/cross-device accessibility relevant to Vercel deployment and design for any-device use.
-
----
+**Key signals:** Researcher's 280+ GB archive lives in cloud-synced working environment. This app pulls from archive on demand. Working access ≠ disaster recovery: this app is the analysis layer.
 
 ### Video 19: New AncestryDNA Tree Feature
-
-**Key signals:**
-- DNA evidence wanted in family tree context, not in a separate tab. Person Detail page should surface DNA evidence alongside timeline and family structure.
-- "Matches descended through which child" = branching visualization; person page should show which children are ancestors of known DNA matches.
-- DNA evidence = leads, not facts, until documented with records.
-
----
+**Key signals:** DNA evidence wanted in tree context, not a separate tab. Person page should surface DNA evidence alongside timeline and family structure.
 
 ### Video 20: Social Security Records Updated 2025
-
-**Key signals:**
-- Four distinct SS record types (SSDI, Claims Index, Numident, SS-5) each provide different evidence. Source taxonomy should distinguish them.
-- SS number = storable field on person record; unique cross-reference identifier.
-- Numident file (FamilySearch only) is the richest source; most researchers don't know it exists. Research Plan Builder should prompt for it.
-- SSACI mother's maiden name: especially valuable for Ashkenazi Jewish research.
-
----
+**Key signals:** Four distinct SS record types each provide different evidence -- source taxonomy should distinguish them. SS number = storable field on person record. Numident (FamilySearch only) is richest source; most researchers miss it. SSACI mother's maiden name valuable for Ashkenazi Jewish research.
 
 ### Video 21: Find a Grave Tricks and Transfers
-
-**Key signals:**
-- Cemetery surname search = FAN Club Mapper principle applied to burial locations; timeline_events filtered by burial + location could power similar query.
-- Virtual Cemeteries = FAN Club networks by burial place; maps to "Burial Place" network type in Module 8.
-- Find a Grave data = authored work of unknown reliability; source quality flag needed if imported.
+**Key signals:** Cemetery surname search = FAN Club Mapper applied to burial locations. Virtual Cemeteries = FAN Club networks by burial place. Find a Grave data = authored work of unknown reliability; source quality flag needed.
 
 ---
 
 ## Batch 5 -- Videos 22-25
 
-Source file: batch 5 document (full transcripts all four videos)
-Data quality: All four videos full transcripts. High confidence throughout.
-Focus: DNA tools and strategy -- Auto Clustering, DNA fundamentals, manual grouping, Master Class.
-
 ---
 
-### Video 22: Ancestry's NEW DNA Matches by Cluster (Auto Clustering)
-
-**Ancestry workflow covered:**
-- ProTools-only feature: By Cluster tab in DNA Matches
-- Cluster chart: same match names across top row and left column; colored intersections = shared genetic connection between that pair
-- Hover over intersection: see two people's names, predicted relationship to each other (not just to you), existing notes/group labels
-- Dark box = shared match; gray box = match appears in multiple clusters (pedigree collapse or endogamy, NOT a problem); red-bordered = flagged multi-cluster
-- Each cluster represents descendants of one great-grandparent couple
-- Goal: four clusters, one per grandparent, anchored at great-grandparent couple level
-- "Count the G's": 2 G's = great-grandparent = second cousins; 3 G's = great-great-grandparent = third cousins
-- Maternal/paternal filter within cluster view to split by parent side
-- Cluster size reflects number of testers from that branch, not closeness of relationship
-- Screenshot to PowerPoint/document for annotation workflow
-
-**Design signals:**
-- The four-cluster model (one per grandparent, anchored at great-grandparent couples) should be the organizing framework for the DNA Evidence Tracker. Not a flat list of matches, but a four-quadrant view where every match is assigned to one of the four grandparent lines.
-- Gray boxes (multi-cluster matches) are normal and expected in endogamous research (Ashkenazi Jewish). The DNA Evidence Tracker must handle a match belonging to multiple family groups without treating it as an error.
-- "Relationship between two matches" (not just each match to you) is information the ProTools hover reveals. This app could store pairwise relationship notes between DNA matches -- a richer data model than just "this match is on my grandmother's side."
-- Annotation workflow (screenshot to PowerPoint): this is another manual workaround this app can replace with a structured cluster labeling interface.
-
----
+### Video 22: Auto Clustering (ProTools)
+**Key signals:** Four-cluster model (one per grandparent, anchored at great-grandparent couples) = organizing framework for DNA Evidence Tracker. Gray boxes (multi-cluster matches) are normal in endogamous research. "Relationship between two matches" is a richer data model than just "this match is on my grandmother's side."
 
 ### Video 23: Thinking About DNA (GTV Podcast)
+**Key signals:** "Leftovers" strategy: assign the knowns, unassigned on a parent side = mystery branch. DNA Evidence Tracker should surface "unassigned matches" as a visible research target. Y-DNA breakthrough = discovery event worth recording as narrative. Working cM threshold should be settable and savable. "Don't chase every match -- define a research question first."
 
-**Ancestry workflow covered:**
-- Three DNA types: Y-DNA (paternal line, surname), mtDNA (maternal line, less used), autosomal (whole family, "shotgun blast")
-- Autosomal: ~50% from each parent; you do NOT inherit the other 50-75% -- distant relatives may not appear
-- Ancestry has largest database; cannot upload TO Ancestry but can download and upload elsewhere
-- Strategy sequence: filter by parent side first, search by surname, color group by great-grandparent couple, floating tree for mystery matches
-- Missing parentage (Knox prefers "missing parent"): group all known matches to known grandparent; leftovers on same side = mystery branch (credited to Diahan Southard)
-- Y-DNA example: Knox's great-uncle's test revealed "Davis" as an entirely unknown paternal branch -- all four Y-DNA matches shared that surname
-- Networks: completely private, cannot add from DNA match list directly (confirmed at time of recording)
-- Do not use DNA alone -- always combine with traditional documentary research
+### Video 24: Grouping DNA Matches (Live Demo)
+**Key signals:** BKM concept = anchor of grouping methodology; DNA Evidence Tracker should support BKM designation per line. Old manually-labeled groups become stale when platforms change: DNA grouping should be based on person record connection, not platform labels. Warm/cool color scheme for maternal/paternal is a strong visual design pattern.
 
-**Design signals:**
-- The "leftovers" strategy is an inverse methodology: assign the knowns, and what remains unassigned on a parent side is likely from the mystery branch. The DNA Evidence Tracker should show "unassigned matches" as a distinct visible category -- not hidden, but surfaced as the research target.
-- Y-DNA test revealing a completely unknown branch is a discovery breakthrough event. The DNA Evidence Tracker should be able to record significant discovery moments -- not just cM values, but "this test revealed the Davis branch which was previously entirely unknown." That's narrative-level information that belongs in the research notes layer.
-- Ancestry cuts off matches below 6-8 cM (false positive rate exceeds 50%). Knox personally doesn't work below ~20-40 cM unless the database is small. The DNA Evidence Tracker should let the researcher set and save a working cM threshold.
-- "Don't chase every match -- define a research question first" is the same principle as the Research Plan Builder's role: clarify the question before searching.
+### Video 25: AncestryDNA Master Class (55 min)
+**Key signals:** Four-quadrant DNA model is the fundamental organizing principle -- not a flat list of matches but four grandparent lines plus mystery bucket. Chromosome Painter ≠ Chromosome Browser (critical distinction). Filter by Location Map = address-as-search-key applied to DNA geography. Knox has three pages of floaters -- People hub must handle 50-100+ candidates gracefully. 57% of Ancestry users don't know all four grandparents: this is the primary use case, not an edge case.
 
 ---
 
-### Video 24: Grouping DNA Matches on Ancestry (Podcast -- Live Demo)
+## Batch 6 -- Videos 26, 28, 29
 
-**Ancestry workflow covered (detailed step-by-step):**
-- By Parent tab: always first filter; Ancestry now auto-splits maternal/paternal (old manually-labeled groups are stale -- new testers since you made them won't appear)
-- Best Known Match (BKM): find in second cousin range (~200-350 cM); must descend from ONE great-grandparent couple only; first cousin once removed works only if a generation older than you (their parent = your grandparent's sibling); do NOT use child of a first cousin; do NOT use first cousins (they descend from both of your grandparents on that side)
-- Create group: click + button next to BKM, Add to Group, Create Group, name after ancestral couple, assign color from Knox chart
-- Shared Matches: click into BKM profile, click Shared Matches tab, see everyone who shares DNA with both you and BKM
-- Gray checkboxes on left side of shared matches list (easy to miss) -- check boxes for everyone to add, select group from right panel, click Add to Group
-- Must repeat for each page of shared matches (no "Check All" button -- Knox frustrated by this)
-- Knox color chart: warm colors (reds, oranges, yellows) = maternal; cool colors (blues, purples, greens) = paternal; one color per great-grandparent couple
-- Repeat for second maternal grandparent; remaining ungrouped matches on maternal side = likely mystery branch
-- ProTools shared matches tool: shows relationship BETWEEN any two matches (not just each to you) -- significantly more powerful for triangulation
-- Pedigree collapse: cousins who marry create descendants who appear in multiple groups -- expected, not an error; Knox's own great-grandparents were second cousins
-
-**Design signals:**
-- The BKM concept is the anchor of the entire grouping methodology. The DNA Evidence Tracker should support designating specific matches as BKMs for specific lines, with the ancestral couple they anchor noted alongside.
-- "Old manually-labeled groups are stale" is a UX warning: when Ancestry changed their auto-split feature, years of manual labeling became incorrect. This app should avoid creating data structures that become stale when external systems change. DNA grouping should be based on the person record connection, not on platform-specific labels.
-- No "Check All" button (Knox's frustration): this app's equivalent bulk-add to group should have proper selection controls from the start.
-- Pairwise relationship data (ProTools shows relationship between two matches): this is a more powerful data model. The DNA Evidence Tracker could eventually store "Match A and Match B are third cousins to each other" -- enabling triangulation even without ProTools.
-- Warm/cool color scheme for maternal/paternal is a strong visual design pattern. The People hub and DNA Evidence Tracker both benefit from consistent color assignment by grandparent line.
+Source file: batch 6 document
+Data quality: Video 26 full transcript (50 min); Video 28 full transcript (74 min); Video 29 partial (companion article only).
+Note: Video 27 slot disqualified -- URL was GeneaVlogger (Jarrett Ross), not Genealogy TV / Connie Knox. Slot vacant.
 
 ---
 
-### Video 25: AncestryDNA Master Class 2025 (55 minutes)
+### Video 26: Genealogy Master Plan (2025)
 
-**Most comprehensive single DNA tutorial produced by Knox. Two chapters.**
+**Workflow covered:**
 
-**Chapter 1: Origins, Journeys, Chromosome Painter**
+This is the methodological backbone of Connie's entire practice -- a comprehensive structured workflow for genealogy research combining GPS standards, the Knox Research Notes Method, and the Trifecta Strategy. Demonstrated live on a real case study: proving/disproving whether Hardy G. Winslow is the biological father of Hill Kiah Winslow, using census, Civil War, land, and marriage records spanning 1850-1878.
 
-Ethnicity estimates / Origins:
-- Split by parent to isolate which side carries which regional DNA
-- Estimates change as reference panels are updated -- never build research conclusions on them
-- Origins View Timeline (hidden feature): tiny "View Timeline" link easy to miss; shows historical migration context; scroll wheel zooms map; divide by parent; general context only, not proven biography
+**The Knox Research Notes Method (extended detail from Video 17):**
+- One document per ancestor (not per couple) -- couples had separate lives
+- Chronological order: every entry begins with the year of the event
+- Title line: full name, birth year, FamilySearch ID, hyperlink to Ancestry profile
+- Source citations as footnotes (NOT endnotes) -- footnotes travel with the paragraph as you reorganize; endnotes do not
+- Bold red text for "not found" entries -- visual differentiation makes action items immediately visible
+- FAN Club members included when they appear repeatedly (example: "Christner" turned out to be a key connecting figure for Connie's Christopher Madson research)
+- Analytical thoughts and working hypotheses included -- "I think this might be..." helps reconstruct reasoning when returning after months or years
 
-Journeys:
-- Uses DNA matches' trees to show where ancestors lived recently on a map
-- Knox finds limited research utility: "I don't find a lot of use in this"
+**What goes in Research Notes vs. Special Projects (separate documents):**
+- Research Notes: records found, records NOT found, FAN Club references, working hypotheses
+- Special Projects (separate files): full transcriptions of wills/deeds, DNA match hierarchy charts, FAN Club mapping diagrams, immigration studies, local history studies, conflict resolution charts, photo analyses
 
-Chromosome Painter:
-- Maps ethnicity estimates visually onto 22 chromosome pairs
-- **CRITICAL DISTINCTION:** Chromosome Painter ≠ Chromosome Browser
-  - Painter: shows ethnicity estimates on chromosomes; informational/decorative; limited research utility
-  - Browser (MyHeritage): compares your DNA against specific cousins; shows exact segments inherited from common ancestor; used for triangulation
-  - These are fundamentally different tools. Do not confuse them.
+**The Trifecta Strategy:**
+- Mathematical basis: 3³ = 27 potential records maximum
+- Three Platforms: Ancestry + FamilySearch (free, vast, underused) + one logical third platform (Newspapers.com, Fold3, state archive, etc.)
+- Three Search Types (on each platform): (1) chase automated hints, (2) search from the ancestor's profile, (3) targeted research via Card Catalog / research wiki without relying on name search
+- Three Search Criteria: (1) name (including spelling variants), (2) place (location only, without name), (3) time (historical context of the area)
+- Key insight: searching by PLACE without a name surfaces ancestors indexed under different spellings or transcription errors; searching by TIME reveals historical context (e.g., a newspaper that ceased publication during the Civil War explains an absence of results)
 
-**Chapter 2: DNA Match List Mastery**
+**Master Plan Steps (complete sequence):**
+1. Formulate a specific research question -- one ancestor at a time
+2. Gather and organize what is already known
+3. Create research notes for the subject ancestor
+4. Create a research plan within the notes
+5. Execute research (Trifecta Strategy)
+6. Document all findings and all expected records NOT found
+7. Evaluate each record individually (original? clerk's copy? index? photograph of original?)
+8. Correlate multiple records as they relate to the research question
+9. Resolve conflicts and reach a conclusion; document reasoning
+10. Rinse and repeat for the next ancestor
 
-All available filters:
-- By Parent (always first); Hidden Matches; Unviewed/New; Tree type; cM range (custom); Custom Groups; stackable combinations
+**Confirmation bias warning:** Actively seek evidence that DISPROVES the hypothesis equally with evidence that supports it. Do not force-fit records to a predetermined conclusion.
 
-Surname search:
-- Search by SURNAME in match trees, NOT by match name -- finds all matches who have that surname in their linked tree
-- Try alternate spellings; click "Similar Surnames" for variants
+**Modern tools mentioned:**
+- Transkribus: handwriting-to-text recognition tool; paste a document image, get typed copy-paste-ready transcription
+- LucidChart: used for DNA hierarchy charts and FAN Club mapping diagrams
+- AI assistants: "doing remarkable things for genealogy in 2025" -- not elaborated further in this episode
 
-Match List by Ancestor / ThruLines:
-- Shows how many DNA matches you share for each ancestor in your tree
-- "Evaluate the Relationships" takes you to ThruLines for that ancestor
-
-Filter by Location Map:
-- Shows where DNA matches are geographically located on an interactive map
-- Matches concentrated in the same county an ancestor lived in for 200 years = worth investigating
-- This is address-as-search-key applied to DNA geography
-
-BKM identification (reinforced and extended from Video 24):
-- First cousins: avoid for great-grandparent isolation; they descend from both grandparents on that side
-- 1C1R who is a generation older (their parent = your grandparent's sibling): acceptable for great-grandparent level
-- "Count the G's" rule: 2 G's = great-grandparent = second cousins
-
-Floating tree workflow (detailed, reinforced and extended from earlier videos):
-- Add person attached to anyone, immediately remove all relationships
-- Add Custom Tree Tag "Floating Tree" BEFORE leaving the profile
-- Find all floaters: Tree View → Filters → Custom Tags → Floating Trees (Knox has three pages of floaters)
-- Build out from floater using surnames and people seen in mystery cousins' trees
-- DO NOT create a separate tree for floaters -- keep them in the existing tree so DNA tools function correctly when eventually connected
-- Home button in tree view toolbar to re-orient after zooming out
-
-Ancestry's statistic: 57% of their users did not know all four grandparents -- the grouping strategy is specifically designed for this population.
-
-ProTools clustering (reinforced from Video 22):
-- Clusters and manual groups are complementary -- work both; labeled groups from manual work appear in cluster view
-- Identify ancestral couple by knowing which named cousins are in each cluster
-- Once labeled, group icons persist across both cluster view and traditional match list
+**Case study highlights (Hill Kiah Winslow):**
+- Two wives both named Mary (Mary C. Hale, d. 1876; Maryanne Spurlin, m. 1878) -- confusion resolved by the timeline
+- Geographic migration Randolph County → Cleveland County traced through a series of land transactions
+- Civil War enlistment, capture at Battle of Roanoke Island, parole, possible insubordination discharge -- all documented in separate Civil War Special Project
+- Probate record at closing = corroborating evidence toward proving Hardy-Hill paternity relationship
+- FAN Club member Ezra Beckerdite surfaces in a 1863 land sale -- flagged for future investigation
 
 **Design signals:**
 
-The four-quadrant DNA model is the fundamental organizing principle:
-- Every DNA match belongs to one of four grandparent lines (or to a mystery/unassigned bucket)
-- The DNA Evidence Tracker should present matches organized around this four-quadrant view as its default, not as a flat list
-- The mystery bucket ("leftovers") is as important as the assigned quadrants -- it is where the research happens
+The Master Plan steps map directly to this app's modules:
+- Formulate research question = Research Plan Builder (Module 2)
+- Create research notes = person_research_notes panel
+- Execute Trifecta = Research Plan's guided search scaffold
+- Document findings = timeline_events, sources, citations
+- Evaluate records individually = Source Conflict Resolver (Module 6) + Document Analysis Worksheet (Module 5)
+- Correlate and conclude = Case Study Builder (Module 10)
 
-Chromosome Painter vs. Browser distinction:
-- This app should not conflate these in any DNA-related documentation or UI labels
-- If this app ever surfaces chromosome-level analysis, it should use precise language: "segment triangulation" (Browser) vs. "ethnicity visualization" (Painter)
+This is not coincidence -- the app was designed with GPS compliance in mind and Connie's method is GPS compliance in practice. The alignment is intentional and validates the build order.
 
-Filter by Location Map:
-- DNA matches filtered by geographic location is the address-as-search-key principle applied to DNA
-- This app could eventually show: "these DNA matches have family roots in the same county as your ancestor" -- a cross-reference between timeline_events location data and DNA match family tree locations
+The Trifecta Strategy is a structured search scaffold the Research Plan Builder should support. When creating a research plan, the system could prompt: Have you searched Ancestry? FamilySearch? A third platform? Have you used all three search types on each? Have you searched by place as well as by name?
 
-Floating tree scale:
-- Knox has THREE PAGES of floaters accumulated over years
-- This confirms that the candidate/floating person pool grows large over time
-- The People hub must handle 50-100+ candidates gracefully, not just a handful
-- The Custom Tree Tag + floating person pattern (confirmed here as the established power-user workflow) maps exactly to this app's research_status = Candidate + tag system
+Special Projects as separate documents validates having separate modules rather than trying to put everything in one place. The Document Analysis Worksheet, Case Study Builder, DNA Evidence Tracker, and FAN Club Mapper are the native equivalents of Connie's special project documents.
 
-57% of Ancestry users don't know all four grandparents:
-- This is a primary use case this app serves, not an edge case
-- The four-quadrant DNA model + floating tree candidates + FAN Club research is the standard methodology for solving missing parentage
-- The DNA Evidence Tracker, Module 8, Module 16, and the People hub all serve this use case together
+LucidChart for DNA hierarchy and FAN Club mapping diagrams: this app's FAN Club Mapper (Module 8) is the native replacement for the spatial/relationship visualization. The DNA Evidence Tracker handles the hierarchy work.
 
-"Do NOT create a separate tree for floaters":
-- Confirms that in this app, candidates should live in the persons table alongside confirmed tree members
-- The boundary is research_status, not table placement
-- People hub needs to surface this distinction clearly at scale
+"Footnotes, not endnotes" is a technical footnote requirement that translates to: inline citation references in the notes panel must be attached to the specific claim they support, not appended at the end of the document.
+
+The FAN Club member "Christner" who turned out to be a key connecting figure: this is a classic example of why FAN Club research matters, and why FAN Club members should be first-class tracked entities in this app -- not just names mentioned in research notes.
+
+---
+
+### Video 28: Roberta Estes Explains NEW Updates for Mitochondrial DNA (mtDNA)
+
+**Note:** This is a Genealogy TV / Connie Knox production confirmed. Likely in GTV's DNA playlist rather than the Ancestry.com Tips & Tricks playlist specifically. Documented here because it directly informs Module 14 (DNA Evidence Tracker) architecture.
+
+**Workflow covered:**
+
+A 74-minute deep dive into mitochondrial DNA with expert Roberta Estes (DNA-explained.com), covering the Million Mito Project's 2025 overhaul of the global haplogroup tree and what it means for genealogical research.
+
+**What mtDNA is:**
+- Inherited exclusively from your mother, in an unbroken matrilineal chain back to "Mitochondrial Eve"
+- Unlike autosomal DNA (which mixes from both parents), mtDNA traces ONE specific line: direct maternal line
+- Haplogroups = named branches on the global human maternal family tree; mutations define each branch
+- FamilyTreeDNA is the ONLY major consumer company offering mtDNA testing (not Ancestry, 23andMe, or MyHeritage)
+
+**The Million Mito Project:**
+- PhyloTree (global reference tree) last updated 2016 by a single researcher; deemed unsustainable
+- Roberta Estes proposed rebuilding it using FTDNA's database at RootsTech 2020; Ben Greenspan agreed
+- Team had to reverse-engineer PhyloTree to reproduce its results before advancing it
+- A previously undocumented new lineage Out of Africa was discovered mid-project -- shifted the entire tree structure
+- Some unstable mutations had to be reclassified (not reliable enough to define haplogroup boundaries)
+- Result: 15 new reports in the FTDNA Discover tab, released ~early 2025
+
+**Key new features in FTDNA Discover:**
+- Haplogroup Story: where/when formed, how many tested descendants, other branches
+- Country Frequency: which countries have people with your haplogroup (percentages of FTDNA testers, not population)
+- Notable Connections: famous/historical figures sharing your haplogroup (including, always, a Neanderthal ancestor ~379,000 years ago)
+- Migration Map: animated route Out of Africa to present geographic concentrations; ancient DNA burial sites marked
+- Ancient Connections: links haplogroup to specific archaeological burial sites; arranged most-recent to oldest; used by Roberta to narrow down which French village an Acadian ancestor came from (closest burial 9km from target village)
+- Haplotype Clusters: NEW concept -- groups people sharing the exact same mutation pattern even when not yet named as a new haplogroup branch; reduced one tester's 47 matches to 3 actionable ones
+
+**The four-legged stool framework (Roberta Estes):**
+- Y-DNA -- traces the direct paternal line; correlates with surnames
+- Mitochondrial DNA (mtDNA) -- traces the direct maternal line
+- Autosomal DNA -- whole-family cousin-finding; mixes from both parents; doesn't identify specific lines
+- Records research -- traditional paper-trail genealogy
+"No single leg is sufficient alone." All four work together.
+
+**mtDNA as a "puddle jumper":**
+- When records in the country of origin have been destroyed (as happened for many German villages in the Thirty Years' War, and as happened for many Jewish communities in Eastern Europe), mtDNA matching connects you to researchers in the country of origin who have the records you're missing
+- Roberta's case: Strong Scandinavian matches despite known German family; Swedish army passed through the German village during the Thirty Years' War, leaving behind mixed-ancestry children; the mtDNA evidence revealed a pre-records-era connection invisible to paper genealogy
+
+**Practical case study:**
+- Roberta narrowed down which of two French villages an Acadian ancestor came from using Ancient Connections: the closest ancient burial was 9 km from the rumored village of origin -- evidence, not proof, guiding further records research
+
+**Design signals:**
+
+Module 14 (DNA Evidence Tracker) currently handles autosomal DNA. This video establishes that a complete DNA evidence picture requires all three DNA types, each with a distinct data model:
+- Autosomal: cM values, match list, four-quadrant grouping, BKM designation
+- Y-DNA: haplogroup, FTDNA kit, paternal line ancestor, surname correlation
+- mtDNA: haplogroup, FTDNA kit, matrilineal line ancestor, haplotype cluster assignment
+
+A future version of Module 14 should handle all three types distinctly. FTDNA-specific data (haplogroup, Discover reports, cluster assignments) is meaningfully different from AncestryDNA data.
+
+The four-legged stool framing is the right mental model for this app's integration of DNA with records research. The modules are not separate tracks -- they are legs of one stool. DNA evidence leads to records research which surfaces new people who become FAN Club candidates who generate more DNA leads. The app should present this as a cycle, not as separate tools.
+
+The "puddle jumper" concept is directly relevant to the Ashkenazi Jewish research context. When European Jewish records were destroyed in the Holocaust and in earlier pogroms, mtDNA and Y-DNA may be the only bridges to pre-immigration origins. Module 14 should be designed with this use case in mind, not just as a cousin-matching tool for American tree research.
+
+Ancient DNA connections to archaeological burial sites is a future dimension the app doesn't need to implement now, but the concept -- that a haplogroup connects you to specific historical people in specific places at specific times -- is adjacent to the address-as-search-key and historical-context principles already in AGENT.md.
+
+---
+
+### Video 29: Ancestry Power Plan -- Search Strategies That Work! (Partial)
+
+**Note:** Partial documentation only -- companion article text, no full transcript. Published April 17, 2025 (livestream). Full transcript needed for Batch 7.
+
+**What is known from article:**
+Five methods covered:
+1. Card Catalog deep dive (reinforces Video 2)
+2. Searching neighbors and townships when direct name search fails
+3. Excel filtering for census data (reinforces Videos 9/10/13)
+4. Verifying ancestors prior to 1850: non-population census schedules, land records, church records
+5. What to do when the Ancestry search engine fails: browse image sets directly via Card Catalog
+
+**Design signals (from partial data):**
+- "When the search engine fails, browse image sets directly" is a research strategy this app's Document Analysis Worksheet enables: even if Ancestry's index misses someone, the researcher can pull the image directly and run it through the AI pipeline. Directly relevant to the 3,752 unanalyzed media files.
+- Pre-1850 verification strategies (non-population schedules, land records, church records) are source types the Research Plan Builder should be aware of and prompt for when researching ancestors in that era.
 
 ---
 
 ## Pending
 
-- Batch 6: Videos 26 (Genealogy Master Plan 2025), 27 (Top 5 Updates from 2025), 28 (Roberta Estes mtDNA) and any additional playlist videos
+- Batch 7: Video 29 full transcript (Ancestry Power Plan), Video 27 slot replacement, September-October 2025 gap investigation, 2026 videos not yet documented
 
 ---
 
