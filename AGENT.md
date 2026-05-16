@@ -1,6 +1,6 @@
 Project-G-Live AGENT.md
-Version: 2.17.0
-Last updated: 2026-05-16 19:30 UTC
+Version: 2.17.1
+Last updated: 2026-05-16 20:50 UTC
 Last updated by: Claude (claude.ai)
 
 # What This Is
@@ -129,7 +129,7 @@ Update every time a new snapshot is committed.
   [Questions mid-air. Unresolved tensions. Things about to be decided. Be specific.]
 
   PARTIALLY BUILT WORK
-  [If anything exists only in context and cannot be committed to wip/:
+  [If anything exists only in context and cannot be committed to wip/:\
   reconstruct it fully and completely here. Not a summary -- the actual work.
   If it can be committed to wip/, do that and reference the commit here.]
 
@@ -232,7 +232,7 @@ Semantic versioning: MAJOR.MINOR.PATCH
 
 All timestamps: YYYY-MM-DD HH:MM UTC. Time to the minute required. No date-only stamps.
 
-Current version: 2.17.0
+Current version: 2.17.1
 
 ---
 
@@ -485,6 +485,28 @@ PHASE 3 BUILD ORDER:
 
 ---
 
+## App Design and Navigation -- Active Design Work
+
+TIMESTAMP started: 2026-05-16 20:50 UTC
+Living design document: docs/architecture/app-design-exploration.md
+
+The module taxonomy and navigation structure are under active EXPLORE-phase
+design. Key findings from initial session:
+
+- 13 "complete modules" are not all the same kind of thing. Infrastructure
+  components (File Naming System, FTM Bridge, Citation Builder) do not
+  belong in main navigation alongside user-facing destinations.
+- Working navigation is ~8-10 genuine destinations, not 13.
+- Person Detail Page has no front door. A People section (search + browse)
+  must be built as a first-class navigation destination.
+- Vercel deployment is gated on navigation restructure + People hub completion.
+  Deploy when the app is coherent enough to use daily. Not before.
+
+Next required step: Connie Knox Ancestry workflow session (EXPLORE).
+See docs/architecture/app-design-exploration.md for full detail and open threads.
+
+---
+
 ## FTM Bridge -- Encryption, Import Pipeline, and Roadmap
 
 TIMESTAMP established: 2026-05-13 UTC
@@ -637,7 +659,7 @@ Live but no upstream writers yet. Planned first writers:
 - AI: Anthropic Claude API (claude-sonnet-4-6 -- update when newer model available)
 - File storage: Supabase storage bucket (not yet provisioned)
 - PowerPoint export: python-pptx via lightweight Python endpoint
-- Deployment: Vercel (not yet deployed -- local only)
+- Deployment: Vercel (not yet deployed -- gated on navigation restructure + People hub)
 - FTM import: C extractor + Node.js importer running locally on Dave's Mac
 
 ---
@@ -649,6 +671,7 @@ Phase 2: Prototype artifacts -- COMPLETE
 Phase 3: Full web app built module by module -- ACTIVE
   13 of 17 modules complete + person detail page COMPLETE
   Full synchronized tree live in Supabase as of 2026-05-16 UTC
+  Navigation restructure + People hub: next build target
 Phase 4: GEDCOM Bridge (Module 1)
 Phase 5: Case Study Builder PowerPoint export as flagship
 
@@ -808,6 +831,7 @@ One true local path: /Users/dave/Project-G-Live/
 /docs/research/     -- Research output files
 /docs/modules/      -- Module design documents
 /docs/architecture/ -- Architecture decision records
+  app-design-exploration.md -- Living design doc (navigation, taxonomy, open threads)
 /prompts/           -- AI engine library
 /sql/               -- SQL migration files (001-022, all live)
 /src/               -- Application source
@@ -832,6 +856,8 @@ wip/                -- Partially built work scratch space
 - Connie Knox is a standing workflow reference. Ask whether there is a Connie Knox
   video worth reviewing before designing workflow features.
   Reference doc: docs/research/connie-knox-workflow-reference.md.
+  NEXT ACTION: Connie Knox Ancestry playlist session is the next required EXPLORE
+  step before navigation restructure and People hub design begins.
 - Research Notes are NOT the Research Log (Module 3).
   Research Notes (person_research_notes): living narrative per person.
   Research Log (Module 3): log of research sessions and sources consulted.
@@ -853,12 +879,16 @@ TIMESTAMP: 2026-05-16 UTC
   Caused 1,088 orphan families during persons cleanup 2026-05-15 UTC.
   Orphans deleted manually. Schema behavior now documented.
   Consider changing to CASCADE in a future migration.
+- Ancestry tree sources in timeline events: many sourced events may reference
+  Ancestry member trees, not original records. 87.6% source-wiring figure may
+  be overstated as a quality metric. Needs audit and triage mechanism.
+  Tracked in docs/architecture/app-design-exploration.md.
 
 ---
 
 ## Project State
 
-TIMESTAMP last updated: 2026-05-16 19:30 UTC by Claude (claude.ai) -- v2.17.0
+TIMESTAMP last updated: 2026-05-16 20:50 UTC by Claude (claude.ai) -- v2.17.1
 
 Build phase: Phase 3 ACTIVE -- 13 of 17 modules complete + person detail page COMPLETE
 
@@ -880,17 +910,26 @@ FTM Bridge: COMPLETE AND SMOKE TESTED (all phases).
 
 Person detail page: COMPLETE AND CLEAN. 9 panels.
 
-git repo: CLEAN. Last push: 2026-05-16 19:30 UTC.
+App design and navigation: ACTIVE EXPLORE WORK.
+  Living design doc: docs/architecture/app-design-exploration.md
+  Module taxonomy problem identified. Person Hub gap named.
+  Navigation restructure + People hub are next build targets.
+
+git repo: CLEAN. Last push: 2026-05-16 20:50 UTC.
 
 What still needs to happen (priority order):
-1. Vercel deployment.
-2. Supabase backups.
-3. Voice profile discussion (gates Module 9).
-4. Modules 9, 1, 11, 8.
+1. Connie Knox Ancestry workflow session (EXPLORE -- required before navigation design).
+2. Navigation restructure (infrastructure out of main nav).
+3. People hub (search, browse, person page as first-class destination).
+4. Vercel deployment (gated on navigation restructure + People hub).
+5. Voice profile discussion (gates Module 9).
+6. Modules 9, 1, 11, 8.
 
 Next immediate action:
-  TIMESTAMP: 2026-05-16 19:30 UTC
-  Vercel deployment or voice profile discussion. Both are unblocked.
+  TIMESTAMP: 2026-05-16 20:50 UTC
+  Open fresh session. Feed in Perplexity summaries of Connie Knox Ancestry
+  playlist. Map power-user Ancestry workflows and identify gaps this app
+  should fill. Output feeds People hub and person page design.
 
 ---
 
@@ -908,7 +947,7 @@ FTM BRIDGE FUTURE
 - MediaLink relationships: needs extractor update
 
 DEPLOYMENT AND INFRASTRUCTURE
-- Vercel deployment: not yet done
+- Vercel deployment: gated on navigation restructure + People hub completion
 - Production environment variables: set in Vercel dashboard
 - Supabase backups: configure point-in-time recovery
 
