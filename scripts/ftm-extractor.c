@@ -227,6 +227,30 @@ int main(int argc, char* argv[]) {
         "SELECT ID, LinkID, LinkTableID, NoteText "
         "FROM Note ORDER BY LinkID;");
 
+    fputs(",\n", g_out);
+
+    /* ---- personExternal ----
+     * FTM's external-provider ID table. Populated when linked to FamilySearch
+     * or other providers. Empty in trees that are only Ancestry-synced.
+     * ProviderID is a numeric code (provider registry not documented publicly).
+     * ExternalID is the provider's person identifier string. */
+    dump_table("personExternal",
+        "SELECT ID, PersonID, ProviderID, ExternalID, Status, "
+        "CreateDate, UpdateDate, SyncVersion "
+        "FROM PersonExternal ORDER BY PersonID;");
+
+    fputs(",\n", g_out);
+
+    /* ---- syncPersons ----
+     * Sync_Person tracks the Ancestry Member Tree (AMT) mapping for every person.
+     * FtmId matches Person.ID. AmtId is the Ancestry person ID (numeric string).
+     * FamilySearchId is the FSID -- present only when the user has linked the
+     * FTM tree to FamilySearch. */
+    dump_table("syncPersons",
+        "SELECT ID, FtmId, AmtId, FamilySearchId, "
+        "CreateDate, ModifyDate "
+        "FROM Sync_Person ORDER BY FtmId;");
+
     fputs("\n}\n", g_out);
     fflush(g_out);
 
