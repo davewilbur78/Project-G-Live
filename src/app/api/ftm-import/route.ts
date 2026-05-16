@@ -31,7 +31,6 @@ const PROJECT_ROOT = resolve(process.cwd())
 export async function GET() {
   // Fetch all FTM persons (ancestry_id LIKE 'ftm:%')
   // Ordered by updated_at desc so [0] gives us the last-imported timestamp.
-  // NOTE: .in() with >500 UUIDs may need chunking for the full ~1500-person tree.
   const { data: ftmPersons, error: personErr } = await supabase
     .from('persons')
     .select('id, updated_at')
@@ -59,31 +58,47 @@ export async function GET() {
   let familyCount    = 0
 
   if (ftmPersonIds.length > 0) {
-    const [evAll, evSourced, famRows] = await Promise.all([
-      // Total timeline events for FTM persons
-      supabase
-        .from('timeline_events')
-        .select('*', { count: 'exact', head: true })
-        .in('person_id', ftmPersonIds),
+    // Chunk .in() calls to stay under Supabase PostgREST URL length limits.
+    // ~200 UUIDs per chunk keeps each request under ~8 KB.
+    const CHUNK_SIZE = 200
+    const idChunks: string[][] = []
+    for (let i = 0; i < ftmPersonIds.length; i += CHUNK_SIZE) {
+      idChunks.push(ftmPersonIds.slice(i, i + CHUNK_SIZE))
+    }
+
+    const [evAllResults, evSourcedResults, famRowsResults] = await Promise.all([
+      // Total timeline events for FTM persons (sum counts across chunks)
+      Promise.all(idChunks.map(chunk =>
+        supabase
+          .from('timeline_events')
+          .select('*', { count: 'exact', head: true })
+          .in('person_id', chunk)
+      )),
 
       // Sourced (GPS evidence chain wired) timeline events
-      supabase
-        .from('timeline_events')
-        .select('*', { count: 'exact', head: true })
-        .in('person_id', ftmPersonIds)
-        .not('source_id', 'is', null),
+      Promise.all(idChunks.map(chunk =>
+        supabase
+          .from('timeline_events')
+          .select('*', { count: 'exact', head: true })
+          .in('person_id', chunk)
+          .not('source_id', 'is', null)
+      )),
 
       // Family membership rows -- deduplicated in JS to get distinct family count
-      supabase
-        .from('family_members')
-        .select('family_id')
-        .in('person_id', ftmPersonIds),
+      Promise.all(idChunks.map(chunk =>
+        supabase
+          .from('family_members')
+          .select('family_id')
+          .in('person_id', chunk)
+      )),
     ])
 
-    tlEventCount   = evAll.count   ?? 0
-    tlSourcedCount = evSourced.count ?? 0
+    tlEventCount   = evAllResults.reduce((sum, r) => sum + (r.count ?? 0), 0)
+    tlSourcedCount = evSourcedResults.reduce((sum, r) => sum + (r.count ?? 0), 0)
     familyCount    = new Set(
-      (famRows.data ?? []).map((r: { family_id: string }) => r.family_id)
+      famRowsResults.flatMap(r =>
+        (r.data ?? []).map((row: { family_id: string }) => row.family_id)
+      )
     ).size
   }
 

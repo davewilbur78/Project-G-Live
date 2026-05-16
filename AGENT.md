@@ -1,6 +1,6 @@
 Project-G-Live AGENT.md
-Version: 2.12.3
-Last updated: 2026-05-14 UTC
+Version: 2.13.1
+Last updated: 2026-05-15 UTC
 Last updated by: Claude (claude.ai)
 
 # What This Is
@@ -11,8 +11,11 @@ All operating rules and project context live here. No other file overrides this 
 Claude has a direct GitHub connector. Use it for all repo reads and writes.
 No workarounds, no raw URLs, no base64 decoding required.
 
-At session start: read this file, confirm version and date in natural language,
-fetch the most recent session snapshot from /sessions/ to orient, then ask for posture.
+At session start: read this file, confirm version number and last-updated date in natural language,
+then navigate to /sessions/: read SESSIONS-INDEX.md, take the filename from the first field of the
+first entry (index is ordered most-recent-first), and read that snapshot file in full to orient.
+If SESSIONS-INDEX.md is missing or the filename does not resolve, fall back to scanning the
+directory and opening the most recent SESSION-*.md file by name. Ask for posture: BUILD, FIX, or EXPLORE.
 Do not read additional files unless the session's work specifically requires them.
 
 ---
@@ -100,7 +103,7 @@ File naming: SESSION-YYYY-MM-DD-HHMM-UTC.md
 Snapshots are never deleted, never overwritten. The full archive is a first-class artifact.
 
 SESSIONS-INDEX.md: one line per session.
-Format: TIMESTAMP | Posture | AI | one-sentence summary.
+Format: FILENAME | TIMESTAMP | Posture | AI | one-sentence summary.
 Update every time a new snapshot is committed.
 
 ## Session Snapshot Format
@@ -213,7 +216,7 @@ Mandatory at the end of every session. No exceptions.
 2. Commit all work products to GitHub using the connector
 3. Commit wip/ branch if any partially built work exists
 4. Write final session snapshot to /sessions/
-5. Update SESSIONS-INDEX.md with this session's entry
+5. Update SESSIONS-INDEX.md: prepend the snapshot filename as the first field, then TIMESTAMP | Posture | AI | one-sentence summary
 6. Update AGENT.md version number and last updated timestamp
 7. Write CHANGELOG.md entry for this session
 8. Commit AGENT.md, CHANGELOG.md, and session files
@@ -229,7 +232,7 @@ Semantic versioning: MAJOR.MINOR.PATCH
 
 All timestamps: YYYY-MM-DD HH:MM UTC. Time to the minute required. No date-only stamps.
 
-Current version: 2.12.3
+Current version: 2.13.1
 
 ---
 
@@ -501,9 +504,10 @@ PHASE 3 BUILD ORDER:
     1 page: generates GPS-compliant filenames from source metadata fields.
     Smoke test: PASSED 2026-05-13 UTC by Claude Code.
 
-13. FTM Bridge (Module 17) -- PHASE 2 COMPLETE
+13. FTM Bridge (Module 17) -- COMPLETE (Phases 1 + 2 + 3 UI)
     Phase 1 commit: f0e3708. Phase 2 commit: 291f786. TIMESTAMP: 2026-05-13 UTC.
-    Smoke test: PASSED 2026-05-13 UTC by Claude Code.
+    Phase 3 UI commits: dc15d06 (build) + a4b1fca (bug fix). TIMESTAMP: 2026-05-14 UTC.
+    Smoke test Phase 2: PASSED 2026-05-13 UTC by Claude Code.
       144 persons clean, 0 raw ftm: in visible fields, 0 pipes/slashes in names.
       Aaron Jacob Klein: 19/20 events sourced. Stanley Samuel Kwass: 13/13 sourced.
       Source citations human-readable ("1900 United States Federal Census", etc.).
@@ -515,10 +519,13 @@ PHASE 3 BUILD ORDER:
           Not a code bug.
         Alt names include primary name -- FTM stores a NAME fact matching the primary.
           Functionally harmless. Not a code bug.
+    Smoke test Phase 3 UI: PASSED 2026-05-14 UTC by Claude Code. tsc clean. 4/4 pass.
     Direct import pipeline from Family Tree Maker .ftm files into Supabase.
     No GEDCOM intermediate. Uses FTM's own SQLite SEE library to read the
     encrypted database directly.
     Scripts: scripts/ftm-extractor.c (C extractor), scripts/import-ftm.mjs (Node importer).
+    UI: /ftm-import page -- trigger import, live log, stat tiles, last-imported timestamp.
+    New shared lib: src/lib/ftm-import.ts (lock/log constants, isImportRunning helper).
     Phase 2 live in Supabase: 144 persons, 96 families, 1189 timeline events
     (1117 sourced = 93.8%), 371 sources, 5 repositories.
     Idempotency: FULLY SAFE. Delete-then-reinsert. Zero duplicates on re-run confirmed.
@@ -526,7 +533,8 @@ PHASE 3 BUILD ORDER:
     Alternate names: IMPORTED. GEDCOM slashes stripped, duplicates removed.
     IsLiving: does NOT exist in FTM 2024 schema (20200615). living=false correct.
     Full tree (~1500 persons): READY TO RUN when synchronized .ftm file is provided.
-    Phase 3 (UI here): /ftm-import page with import trigger, status, diff view.
+    Full tree run protocol: Claude Code handles execution. Brief in claude.ai first.
+    Use Opus model for Claude Code on full tree extraction and analysis. See Static Rules.
 
 14. Research Report Writer (Module 9) -- NOT STARTED
     Requires: most modules above. Will use Narrative Assistant v3 + Linguistic
@@ -664,6 +672,9 @@ FTMDatabaseFoundation ARM64 binary in a single Claude Code session.
 
   NOTE: Do NOT use --skip-extract after recompiling ftm-extractor.c.
   Always do a fresh extract after any C source change.
+
+  UI trigger: /ftm-import page. Run Import button fires POST /api/ftm-import.
+  Requires compiled binary and .ftm file on Dave's Mac. Will not run on Vercel.
 
 ### External IDs -- Future Schema (migration 019)
 
@@ -826,7 +837,7 @@ Module-Engine Mapping:
                                       fact-narrator-v4, document-distiller-v2, gra
   Module 10 Case Study Builder        gra
   Module 16 Research Investigation    gra, conversation-abstractor-v2
-  Module 17 FTM Bridge                no AI engine in v1 (pure data pipeline)
+  Module 17 FTM Bridge                no AI engine (pure data pipeline)
   Person Detail Page icebreaker       gra, research-assistant-v8
 
 Photo Restoration (future, last priority):
@@ -882,7 +893,7 @@ predicate, and extraction_method set.
 - AI: Anthropic Claude API (claude-sonnet-4-6 -- update when newer model available)
 - File storage: Supabase storage bucket
 - PowerPoint export: python-pptx via lightweight Python endpoint
-- Deployment: Vercel (not yet deployed -- local only as of 2026-05-13)
+- Deployment: Vercel (not yet deployed -- local only as of 2026-05-14)
 - FTM import: C extractor + Node.js importer running locally on Dave's Mac
   (ARM64 binary using FTM's own SQLite/SEE -- cannot run on Vercel)
 
@@ -893,14 +904,14 @@ predicate, and extraction_method set.
 Phase 1: Documentation and architecture -- COMPLETE
 Phase 2: Prototype artifacts to test interview logic -- COMPLETE
 Phase 3: Full web app built module by module -- ACTIVE
-  12 of 16 original modules complete + Module 17 Phase 2 (FTM Bridge, fully idempotent, sourced):
+  13 of 17 modules complete:
   Module 4 (Citation Builder), Module 10 (Case Study Builder),
   Module 5 (Document Analysis Worksheet), Module 3 (Research Log),
   Module 15 (Research To-Do Tracker), Module 2 (Research Plan Builder),
   Module 6 (Source Conflict Resolver), Module 7 (Timeline Builder),
   Module 16 (Research Investigation), Module 12 (Correspondence Log),
   Module 14 (DNA Evidence Tracker), Module 13 (File Naming System),
-  Module 17 FTM Bridge Phase 2 (scripts + live data, idempotent, sourced, smoke tested)
+  Module 17 FTM Bridge (all phases complete: data pipeline + Phase 3 UI, smoke tested)
 Phase 4: GEDCOM Bridge built as onboarding layer (Module 1)
 Phase 5: Case Study Builder with PowerPoint export as flagship
 
@@ -1095,7 +1106,7 @@ RULES FOR CLAUDE CODE SESSIONS:
   Claude Code handles local execution only (npm, running the app, git operations).
 - After any GitHub connector push, pull locally before assuming files are current:
   `cd /Users/dave/Project-G-Live && git pull`
-- NEVER use `git add -A`. Always stage specific paths: `git add src/path/to/file`.
+- NEVER use `git add -A`. Always stage specific paths: `git add src/path/to/file`
   `git add -A` will pull in .claude/worktrees/ embedded git repos and other
   untracked junk. This caused a bad commit on 2026-05-14 that required rollback.
 
@@ -1148,6 +1159,7 @@ RULES FOR CLAUDE CODE SESSIONS:
   /src/lib/
     ai.ts                       -- callWithEngine() + callWithEngineAndHistory() -- 15 engines
     supabase.ts
+    ftm-import.ts               -- FTM lock/log constants + isImportRunning() helper
   /src/types/
     index.ts                    -- COMPLETE as of 2026-05-12 (Claude Code session, commit 25693a7)
                                    Investigation (5 types), Correspondence, DnaMatch all added.
@@ -1205,6 +1217,17 @@ instruction from the user.
   person. The researcher writes into it; the platform gives it a home with
   GPS-sourced data alongside it. Do not conflate these two things.
 
+- Full tree import protocol -- TIMESTAMP locked in: 2026-05-14 UTC.
+  When the synchronized .ftm file is ready, the full tree run is Claude Code's
+  job, not claude.ai's. Claude Code handles execution, extraction accounting,
+  and post-import verification. Brief in claude.ai first to set scope and
+  questions to answer. Use Opus model for Claude Code on the full tree
+  extraction and analysis session -- it will surface PersonExternal data
+  (Ancestry person IDs, FamilySearch FSIDs), custom facts, media links,
+  RTF notes, and anything else not present in the test file. This deserves
+  a dedicated deep-analysis session with the right model, not a quick run.
+  Dave committed this protocol on 2026-05-14.
+
 ---
 
 ## Known Technical Debt
@@ -1229,14 +1252,23 @@ TIMESTAMP: 2026-05-14 UTC
   when established rules were not explicitly re-read before acting. The mandatory
   re-read rule in the Claude in Chrome section was added as a direct response.
   Monitor for recurrence. The user cannot always catch it.
+- Claude Code worktree branch (claude/suspicious-elion-5e5663): stale as of 2026-05-14.
+  Contains Code's session snapshot and SESSIONS-INDEX update from the Phase 3 UI review.
+  The actual bug fix (a4b1fca) was committed to main by claude.ai directly. The worktree
+  branch can be deleted; its content is captured in SESSION-2026-05-14-FTMUI-CLAUDEAI-UTC.md.
+  A stub file (SESSION-2026-05-14-CCREVIEW-UTC.md) was created on main during the
+  2026-05-15 UTC index migration to preserve the SESSIONS-INDEX filename reference.
+- stats query .in() with large UUID lists: GET /api/ftm-import uses .in('person_id', ftmPersonIds).
+  With 144 persons this is fine. For the full ~1500-person tree, chunking may be needed.
+  Flag for attention when full tree import runs.
 
 ---
 
 ## Project State
 
-TIMESTAMP last updated: 2026-05-14 UTC by Claude (claude.ai) -- v2.12.3
+TIMESTAMP last updated: 2026-05-15 UTC by Claude (claude.ai) -- v2.13.1
 
-Build phase: Phase 3 ACTIVE -- 12 of 16 original modules complete + Module 17 Phase 2
+Build phase: Phase 3 ACTIVE -- 13 of 17 modules complete
   + person detail page COMPLETE AND CLEAN
 
 Genealogical data foundation: COMPLETE and LIVE.
@@ -1257,8 +1289,10 @@ Module 16 smoke test: PASSED by Dave, 2026-05-12 (dinner session).
 MCP infrastructure: NPX mode active. Manager script at ~/.claude/mcp-manager.py.
   Docker removed from active config. Connector stable.
 
-FTM Bridge Phase 2: COMPLETE and SMOKE TESTED. Commit 291f786.
-  Idempotency: FULLY SAFE. SourceLink: WIRED. Alt names: IMPORTED. Smoke test: PASSED.
+FTM Bridge: COMPLETE AND SMOKE TESTED (all phases).
+  Phase 2 commit: 291f786. Phase 3 UI commits: dc15d06 + a4b1fca.
+  Idempotency: FULLY SAFE. SourceLink: WIRED. Alt names: IMPORTED. UI: LIVE.
+  Smoke test Phase 3: PASSED 2026-05-14 UTC by Claude Code. tsc clean. 4/4 routes.
   Full tree (~1500 persons): READY when synchronized .ftm file is provided.
 
 Person detail page: COMPLETE AND CLEAN. /persons/[id]. List page /persons: 200 confirmed.
@@ -1269,24 +1303,22 @@ Person detail page: COMPLETE AND CLEAN. /persons/[id]. List page /persons: 200 c
 Connie Knox workflow reference: COMMITTED. docs/research/connie-knox-workflow-reference.md.
   Commit 919b2a7.
 
-git repo: CLEAN at 4f2f3ea (cleanup pass final state).
+git repo: CLEAN at ba836f9 (CHANGELOG v2.13.0, session close).
 
 What still needs to happen (priority order):
-1. FTM Bridge Phase 3 UI: /ftm-import page (trigger import, status, diff view).
-2. Run full synchronized tree when .ftm file is provided.
-3. Deployment: Vercel setup, production environment variables, deployment config.
-4. Supabase backups: point-in-time recovery or periodic export snapshots.
-5. Voice profile discussion (required before Module 9 begins).
-6. Modules 9, 1, 11, 8 (4 original modules remaining).
-7. migration 019 (person_external_ids) after synchronized tree import.
-8. Supabase seed data (Singer/Springer sources from prototype).
+1. Run full synchronized tree when .ftm file is provided.
+   Claude Code handles execution. Brief in claude.ai first. Use Opus for that session.
+2. Deployment: Vercel setup, production environment variables, deployment config.
+3. Supabase backups: point-in-time recovery or periodic export snapshots.
+4. Voice profile discussion (required before Module 9 begins).
+5. Modules 9, 1, 11, 8 (4 original modules remaining).
+6. migration 019 (person_external_ids) after synchronized tree import.
+7. Supabase seed data (Singer/Springer sources from prototype).
 
 Next immediate action:
-  TIMESTAMP: 2026-05-14 UTC
-  Build FTM Bridge Phase 3 UI: /ftm-import page.
-  Design: trigger import button, last import timestamp + record counts,
-  import diff view (what was added vs updated since last run).
-  claude.ai writes the code; Claude Code smoke tests it.
+  TIMESTAMP: 2026-05-15 UTC
+  Session-start alignment complete (AGENT.md v2.13.1 + SESSIONS-INDEX migration).
+  Declare posture for next work item.
 
 ---
 
@@ -1302,18 +1334,23 @@ SETTINGS / ADMIN MODULE
   Store as application-level setting. Feed into all narrative-generating API calls.
   Discussion scheduled -- provide corpus of writing to generate the profile.
 
-FTM BRIDGE PHASE 3 (UI -- claude.ai)
-- /ftm-import page: trigger import, show last import timestamp and record counts.
-- Import diff view: what was added vs updated since last run.
-- Basic / Advanced person field view: GPS-critical fields prominent,
-  FTM-rich fields (cause of death, custom facts, etc.) behind expand.
+FTM BRIDGE PHASE 3 UI -- COMPLETE
+- /ftm-import page: BUILT AND SMOKE TESTED. Commits dc15d06 + a4b1fca.
+  Trigger import, live log via 2s polling, 5 stat tiles, last-imported timestamp.
+  Bug fixed: cancelled guard removed from post-import fetchStats() timeout.
+- Import diff view: importer console output IS the diff (X inserted / Y updated per table).
+- Basic / Advanced person field view: still pending. FTM-rich fields (cause of death,
+  custom facts, etc.) behind expand. Deferred to future session.
 
 FTM BRIDGE FUTURE
 - Living flag: compute heuristically from death date absence + birth year range.
   IsLiving does not exist in FTM 2024 schema -- must be derived.
 - Scale testing: run against full ~1500-person synchronized tree.
+  Claude Code + Opus. Brief in claude.ai first. See Static Rules.
 - person_external_ids: migration 019, wire into importer for PersonExternal data.
   Deferred until synchronized tree is imported.
+- stats query chunking: GET /api/ftm-import uses .in() with all FTM person UUIDs.
+  For full tree (~1500 persons), this may need chunking. Assess after full import.
 
 PERSON DETAIL PAGE -- COMPLETE AND CLEAN
   9 panels. tsc clean. /persons list 200. /persons/[id] smoke tested.

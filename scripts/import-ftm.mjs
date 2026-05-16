@@ -495,6 +495,9 @@ async function main() {
     console.log(`  ${toInsert.length} sources inserted, ${sourceRows.length - toInsert.length} reused`);
   } else {
     console.log(`  Would insert/reuse ${sourceRows.length} sources`);
+    // Populate sourceIdMap with placeholder values so the SourceLink wiring
+    // report below produces a meaningful count in dry-run mode.
+    for (const ms of data.masterSources) sourceIdMap.set(ms.ID, `dry-run-${ms.ID}`);
   }
 
   /* ---- Build source chain map (SourceLink wiring) ---- */

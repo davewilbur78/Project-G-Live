@@ -35,11 +35,11 @@ function sourcedPct(sourced: number, total: number): string {
 function formatTimestamp(iso: string | null): string {
   if (!iso) return 'Never'
   return new Date(iso).toLocaleString('en-US', {
-    month:      'short',
-    day:        'numeric',
-    year:       'numeric',
-    hour:       'numeric',
-    minute:     '2-digit',
+    month:        'short',
+    day:          'numeric',
+    year:         'numeric',
+    hour:         'numeric',
+    minute:       '2-digit',
     timeZoneName: 'short',
   })
 }
@@ -96,9 +96,10 @@ export default function FtmImportPage() {
           setRunning(false)
           clearInterval(poll)
           // Refresh stats after a short pause to let Supabase settle.
-          // No cancelled guard — cleanup sets cancelled before this fires,
-          // which would silently block the refresh. React 18+ handles state
-          // updates after effect cleanup safely.
+          // No cancelled guard here: React 18/19 handles state updates on
+          // unmounting components gracefully. The cancelled guard was
+          // incorrectly killing the stats refresh because effect cleanup
+          // (which sets cancelled=true) runs before the 800ms timeout fires.
           setTimeout(() => fetchStats(), 800)
         }
       } catch { /* ignore transient polling errors */ }
