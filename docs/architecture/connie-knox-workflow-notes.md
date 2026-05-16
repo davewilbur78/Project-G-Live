@@ -146,7 +146,7 @@ Data quality: 4 of 8 videos have full YouTube transcripts (high confidence); 4 h
 - ThruLines vs. Networks: ThruLines confirms known connections; Networks discovers unknown ones
 
 **Design signals:**
-- See Video 9/10 in Batch 2 for much fuller coverage of Networks -- the scope is far broader than DNA alone.
+- See Videos 9/10 in Batch 2 and Video 16 in Batch 3 for fuller coverage of Networks -- the scope is far broader than DNA alone.
 - The ThruLines vs. Networks distinction: ThruLines = confirmation; Networks = discovery. This framing should inform Module 14.
 
 ---
@@ -179,7 +179,7 @@ Note: A re-run of this batch is in progress; additional detail may be added when
 **New facts about Ancestry Networks:**
 - NOT just for DNA -- for any relationship network built from any record type
 - Currently private to the creator; not visible to or searchable by other users
-- Does not require Ancestry Pro Tools
+- Does not require Ancestry Pro Tools (NOTE: contradicted by batch 3 Video 16 -- Pro Tools IS required per March 2025 video; may have changed between beta periods)
 - Beta as of August 2025; feature set may change
 
 **Design signals:**
@@ -269,16 +269,206 @@ Note: A re-run of this batch is in progress; additional detail may be added when
 
 ---
 
-## Pending Batches
+## Batch 3 -- Videos 15-16 + Additional Video Metadata
 
-- Batch 2 re-run: may add detail to Videos 11 and 12
-- Batch 3+: not yet received
+Source file: batch 3 document + direct URL fetches
+Data quality: Video 15 full transcript; Video 16 full transcript (extended version of Video 8);
+  Additional videos 17+ identified by title/URL -- chapter markers retrieved but not full transcripts yet.
+
+---
+
+### Video 15: New Ancestry Updates + Tips & Tricks -- February 2025
+
+**Ancestry workflows covered:**
+
+AI-Generated Record Summaries:
+- Ancestry now generates an AI narrative paragraph from within census/record view
+- Access via "Record Summary" button in the record mini-view panel
+- Pulls name, age, relationships, household members, location, literacy, home ownership
+- CRITICAL CAVEAT: AI summary contradicted itself within the same paragraph (owned vs. rented)
+- Connie's rule: always label AI-generated content as "AI Generated Summary" in quotes in research notes; never trust without verification against the record image
+
+Fixing Transcription Errors:
+- Click the people/index icon within the record view
+- Click the incorrectly transcribed name, type correction, select reason "Transcription error"
+- Ancestry offers to apply to all household members -- uncheck any who shouldn't be changed
+- Corrected name appears in brackets alongside original; both remain searchable
+
+Handling Multiple Name Changes:
+- Primary name = birth name (exception: adoptees whose records predominantly use adoptive name)
+- Alternate names added as Alternate Name facts (NOT "Also Known As")
+- CRITICAL: "Also Known As" confirmed by Ancestry staff to NOT feed search algorithms
+  Use AKA ONLY for true nicknames that would never appear in a record (e.g., "Bubba," "Goat")
+  Any name that may appear in a record must be an Alternate Name fact
+- To add: Edit -> Enable Alternate Facts -> Add a Fact -> type "N" -> select Name
+
+Merging Duplicate Profiles:
+- Pro Tools path: Pro Tools -> Tree Checker -> filter Duplicates -> Merge with Duplicate
+- Non-Pro-Tools path: profile -> Tools dropdown -> Merge with Duplicate -> search by name
+- Side-by-side comparison with radio buttons to choose which version of each fact to keep
+- ALWAYS evaluate before merging -- different parents, dates, or places = investigate first
+- Tree Checker duplicate resolution can take hours to update after merging
+
+Dual Parent Relationships (biological + adoptive):
+- Edit -> Edit Relationships -> Add Alternate Mother / Add Alternate Father
+- Set relationship type: Biological vs. Adopted
+
+Exporting a List of All People in Tree:
+- Pro Tools -> List of All People (or from Tree View)
+- IMPORTANT: unfiltered export caps at 1,000 records (alphabetical, A through early-D in a 4,000+ tree)
+- Use filters before downloading: Family Lines filter, or Direct Line Ancestors Only (~239 people in Connie's tree)
+- Download as CSV (Excel/Google Sheets) or PDF
+- Add filter buttons in Excel header row for sorting after download
+
+Managing Hidden DNA Matches:
+- Three-dot menu on any match -> Hide Match -> match disappears from default view
+- To view/restore: Filters panel -> Hidden Matches toggle
+- CAUTION: filter behavior is "wonky" -- hidden matches may or may not appear in Shared Matches views
+- Always check active filters when results seem incomplete
+- Not a Pro Tools feature -- available to all DNA subscribers
+
+**Design signals:**
+- The AI record summary contradiction (owned vs. rented in same paragraph) is a direct validation of why GPS-compliant structured extraction matters. This app's Document Analysis Worksheet produces structured assertions with source attribution -- not a narrative paragraph that can contradict itself. This is a genuine differentiator, and the UI language should reflect it: "extracted facts" not "AI summary."
+- "Also Known As does NOT feed search" is a critical data quality trap. This app's alt_names imported from FTM -- need to confirm they are stored and treated as searchable alternate names, not as AKA labels. If any FTM alt names were imported as display-only nicknames, they should be audited.
+- The 1,000-record export cap on Ancestry is a significant limitation. This app's persons table has 1,576 people and can be queried without any cap. The People hub's export capability (when built) should never impose arbitrary limits.
+- The duplicate merge workflow requires Pro Tools on Ancestry. This app's deduplication guard on add-person should be built in as a baseline feature, not a paid upgrade.
+- Connie's rule "label all AI-generated content in research notes" is exactly the right policy. This app's Research Notes panel should probably carry a visual indicator when AI-assisted content has been added, so the researcher always knows what was written by them vs. generated.
+
+---
+
+### Video 16: Ancestry Networks -- Extended Deep Dive (March 2025)
+
+**Note:** This is the full-transcript version of Video 8 from Batch 1. Pro Tools required (confirmed).
+
+**New detail beyond what Batch 1 captured:**
+
+Full network type category taxonomy:
+- Family and Life Milestones (birth, marriage, death, DNA, heirlooms)
+- Immigration
+- Shared Experiences (true crime, natural disasters, politics)
+- Group/Organizations
+- Local Community
+- Religion (congregations, church groups)
+- School and Work (students, educators, clubs, occupation)
+- Enslavement
+- Atrocity and Displacement (indigenous peoples, Trail of Tears, etc.)
+- Military (American Revolution, Civil War, WWI, WWII, etc.)
+- Sports and Entertainment
+- Burial Place (city, public, military, religious, lost, African-American cemeteries)
+- Something Else (custom, user-defined)
+
+Custom Tree Tags as complementary layer:
+- Add a Custom Tree Tag (e.g., "Floating Tree") to floating people before disconnecting them
+- In Tree View, filter by custom tag to see all floating members
+- Networks + custom tags serve different purposes: tags = per-person markers visible in tree view;
+  networks = group containers with sources, typed by relationship
+
+Feature limitations (March 2025):
+- Pro Tools required
+- Beta status
+- No cross-network filtering -- Connie EXPLICITLY REQUESTS this as a feature: "find people who
+  appear in TWO different networks, then create a combined third network automatically"
+- No bulk source attachment to multiple people in a network simultaneously
+- Networks not visible in tree mini-profile -- must open full profile to see network membership
+
+**Design signals:**
+- The network category taxonomy is the design vocabulary for Module 8 (FAN Club Mapper). The categories are not arbitrary -- they represent the meaningful relationship types that genealogical research produces. Module 8 should use a similar typed-network model. Relevant categories for this tree (Ashkenazi Jewish, Danish immigrant, American): Immigration, Religion (synagogue/congregation), Local Community (census neighborhood), Military, Wills & Probate (buyer networks), Group/Organizations.
+- Cross-network filtering is something Ancestry CANNOT do (Connie is requesting it as a future feature). This app CAN do it trivially as a SQL set intersection: show me all people who appear in BOTH the "1880 Randolph County Neighbors" network AND the "Jensen Passenger List" network. A person appearing in two independent FAN Club networks is a much stronger lead than a person in only one. This is a unique capability this app should highlight.
+- The Custom Tree Tag + Networks complementary model maps to this app's architecture: research_status field (per-person marker, like tree tags) + FAN Club network groups (group container with sources). Both layers are needed and serve different purposes.
+- "Enslavement" and "Atrocity and Displacement" as network categories are a reminder that genealogical research contexts span a wide range of histories. Module 8's network type taxonomy should be inclusive and sensitive, not defaulting to a neutral suburban family tree.
+
+---
+
+### Additional Videos Identified -- Metadata Only (transcripts pending)
+
+#### Video 17: Research Notes Updated for 2026 -- Game Changer for Family History Brick Walls
+URL: https://www.youtube.com/watch?v=F_YAtpfrvTQ
+Published: November 14, 2025
+Runtime: 33:10
+Views: 23,390
+Description: "The #1 most requested strategy and handout I get from viewers...This strategy and
+  process has resolved more genealogical problems and broken down more brick walls than any other
+  strategy I teach."
+
+Chapter markers (retrieved -- highly structured):
+- 01:07 Example of Research Notes for Genealogy
+- 01:19 Using MS Word for Research Notes
+- 01:35 Research Notes Format
+- 01:47 Adding Sources in Footnotes
+- 02:23 Adding To Do Items in Notes
+- 02:47 Adding Profile Hyperlinks in Notes
+- 03:27 What are Research Notes?
+- 04:14 What About Records Not Found? (Negative Evidence)
+- 04:53 This is not a Research Log (EXPLICIT DISTINCTION)
+- 06:19 Make Source Footnotes
+- 08:31 Adding Checkmarks or Emojis on Ancestry
+- 11:03 Cleaning up the Profile
+- 15:05 Who to keep Research Notes on?
+- 17:49 Handout Info
+- 19:38 Filing Wives
+- 20:12 Davis Brothers Series
+- 21:19 Working on Multiple Research Notes Simultaneously
+- 21:54 Handout Worksheet
+- 24:51 Sharing Research Notes
+- 26:36 Emojis Used
+- 28:26 About MS Word
+- 28:43 Free Source Citation Options
+- 29:15 Copy FamilySearch URL into Research Notes
+- 30:19 FamilySearch Source Citations
+- 30:54 Insert Footnotes in Word
+
+**Preliminary design signals from chapter markers alone:**
+- This is the Knox Research Notes Method -- her signature approach, most-requested content.
+- "This is not a Research Log" -- she makes the same distinction this app makes between
+  person_research_notes (living narrative) and Module 3 (Research Log). Validates the architecture.
+- Research Notes use MS Word with formal footnotes for source citations -- not inline text.
+  The person_research_notes panel should support inline source citations, not just attached sources.
+- Negative evidence (records not found) is explicitly included. The notes panel should support
+  logging a search that returned nothing -- "searched SSDI for [name], date range [x-y], no result."
+- Profile hyperlinks in notes -- linking to other Ancestry profiles from within the notes text.
+  This app equivalent: linking to other persons in the persons table from within the notes.
+- "Who to keep Research Notes on?" -- not just direct ancestors. FAN Club members, candidates,
+  anyone being actively investigated. Reinforces the candidate/confirmed distinction.
+- "Filing Wives" -- how to handle notes for women who change surnames. A data model consideration
+  for the person_research_notes panel when the person has multiple surname identities.
+- "Working on Multiple Research Notes Simultaneously" -- the researcher works on several people
+  in parallel. This suggests the People hub should surface which persons have notes in progress.
+- Full transcript needed before finalizing design implications. Flag for next batch.
+
+#### Video 18: New Workflow for 2026 -- Avoiding Disaster
+URL: https://www.youtube.com/watch?v=hZxaSHXg4C0
+Published: January 2, 2026
+Runtime: 17:50
+Description: Cloud-based working archive workflow; OneDrive for working files, Backblaze for
+  disaster-recovery backup; distinction between working access and backup.
+
+**Preliminary design signals:**
+- Power genealogists maintain a file archive as a first-class asset separate from Ancestry.
+  The 3,752 FTM media files are part of a cloud-based working archive, not just Ancestry attachments.
+- "Working access vs. backup" distinction is relevant to the media import pipeline architecture:
+  the researcher needs to be able to pull files from their working archive on demand, not just
+  from what's already in Ancestry.
+- Less directly relevant to UI design than the Research Notes video. Full transcript not fetched.
+
+#### Additional Videos Identified (not yet fetched):
+- New AncestryDNA Tree Feature: https://youtu.be/E82tgAiERb4
+- Social Security Records Updated 2025: https://youtu.be/HrHqefrpEX0
+- Find a Grave Tricks & Transfers (Jan 2025): https://youtu.be/F9Ghu2XYjY0
+
+---
+
+## Pending
+
+- Enhanced Batch 2 re-run: may add detail to Videos 11 and 12
+- Full transcript for Video 17 (Research Notes Updated for 2026) -- HIGH PRIORITY
+- Full transcripts for Videos 18+ if Perplexity can retrieve them
 
 ---
 
 ## Synthesis Checklist (complete after all batches)
 
 - [ ] All batches received and appended
+- [ ] Full transcript for Video 17 retrieved and noted
 - [ ] Cross-batch themes identified
 - [ ] Design implications written into app-design-exploration.md
 - [ ] connie-knox-workflow-notes.md marked COMPLETE
